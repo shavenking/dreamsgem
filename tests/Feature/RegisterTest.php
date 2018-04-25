@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\FreezeUser;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,6 +15,8 @@ class RegisterTest extends TestCase
 
     public function testCreateRoot()
     {
+        $this->expectsJobs(FreezeUser::class);
+
         $credentials = $this->makeCredentials();
 
         $this
@@ -25,6 +28,8 @@ class RegisterTest extends TestCase
 
     public function testCreateChild()
     {
+        $this->expectsJobs(FreezeUser::class);
+
         $credentials = $this->makeCredentials();
 
         $parentUser = factory(User::class)->create();
