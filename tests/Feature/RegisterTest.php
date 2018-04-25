@@ -14,27 +14,58 @@ class RegisterTest extends TestCase
 
     public function testCreateRoot()
     {
-        $credentials = [
-            'email' => $this->faker->email,
-            'password' => $this->faker->password
-        ];
+        $credentials = $this->makeCredentials();
 
         $this
             ->json('POST', '/api/users', $credentials)
             ->assertStatus(201);
 
-        $this->assertUserInDatabase($credentials);
+        $this->assertUserExistsInDatabase($credentials);
     }
 
-    private function assertUserInDatabase($credentials)
+    public function testCreateChild()
     {
-        $user = User::whereEmail(data_get($credentials, 'email'))->first();
+        $credentials = $this->makeCredentials();
+
+        $parentUser = factory(User::class)->create();
+
+        $this
+            ->json('POST', '/api/users', array_merge(
+                $credentials, ['parent_id' => $parentUser->id]
+            ))
+            ->assertStatus(201);
+
+        $this->assertUserExistsInDatabase($credentials);
+        $this->assertParentHasChild($parentUser, $credentials);
+    }
+
+    private function makeCredentials(): array
+    {
+        return [
+            'email' => $this->faker->email,
+            'password' => $this->faker->password
+        ];
+    }
+
+    private function assertUserExistsInDatabase(array $filters)
+    {
+        $user = User::where(array_except($filters, 'password'))->first();
 
         $this->assertNotNull($user, 'User email not exists in database.');
 
         $this->assertTrue(Hash::check(
-            data_get($credentials, 'password'),
+            data_get($filters, 'password'),
             $user->password
         ), 'User password not matched.');
+    }
+
+    private function assertParentHasChild($parentUser, $credentials)
+    {
+        $email = data_get($credentials, 'email');
+
+        $this->assertTrue(
+            optional(User::whereEmail($email)->first())->isChildOf($parentUser),
+            "Parent child relation not match."
+        );
     }
 }
