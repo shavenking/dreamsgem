@@ -45,14 +45,13 @@ class User extends Authenticatable
     public function addTree()
     {
         $treeTable = (new Tree)->getTable();
+        $maxTreeCapacity = self::MAX_TREE_CAPACITY;
 
         /**
          * INSERT INTO trees (user_id)
          * SELECT $user->id
          * WHERE (SELECT COUNT(*) FROM trees WHERE user_id = $user->id) < User::MAX_TREE_CAPACITY;
          */
-        $maxTreeCapacity = self::MAX_TREE_CAPACITY;
-
         return DB::insert(
             DB::raw(
                 implode(' ', [
