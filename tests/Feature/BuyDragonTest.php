@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Dragon;
+use App\Tree;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
@@ -30,13 +31,31 @@ class BuyDragonTest extends TestCase
             ->assertStatus($statusCode);
 
         if (Response::HTTP_CREATED === $statusCode) {
-            $this->assertDatabaseHas(
-                (new Dragon)->getTable(),
-                [
-                    'user_id' => $user->id
-                ]
-            );
+            $this->assertDragonExists($user);
+            $this->assertOneTreeExists($user);
         }
+    }
+
+    private function assertDragonExists(User $user)
+    {
+        $this->assertDatabaseHas(
+            (new Dragon)->getTable(),
+            [
+                'user_id' => $user->id
+            ]
+        );
+    }
+
+    private function assertOneTreeExists(User $user)
+    {
+        $this->assertDatabaseHas(
+            (new Tree)->getTable(),
+            [
+                'user_id' => $user->id
+            ]
+        );
+
+        $this->assertCount(1, $user->trees, 'User can have only one tree at this moment.');
     }
 
     public function dataProvider()
