@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\NodeTrait;
 use Laravel\Passport\HasApiTokens;
 
@@ -37,5 +38,25 @@ class User extends Authenticatable
     public function trees()
     {
         return $this->hasMany(Tree::class);
+    }
+
+    public function addTree()
+    {
+        $treeTable = (new Tree)->getTable();
+
+        /**
+         * INSERT INTO trees (user_id)
+         * SELECT $user->id
+         * WHERE (SELECT COUNT(*) FROM trees WHERE user_id = $user->id) < 3;
+         */
+        return DB::insert(
+            DB::raw(
+                implode(' ', [
+                    "INSERT INTO $treeTable (user_id)",
+                    "SELECT {$this->id}",
+                    "WHERE (SELECT COUNT(*) FROM $treeTable WHERE user_id = {$this->id}) < 3"
+                ])
+            )
+        );
     }
 }

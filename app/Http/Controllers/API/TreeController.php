@@ -10,7 +10,7 @@ class TreeController extends Controller
 {
     public function store(User $user)
     {
-        $user->trees()->create();
+        $user->addTree();
 
         return response()->json([], Response::HTTP_CREATED);
     }
