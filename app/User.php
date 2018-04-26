@@ -33,4 +33,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Dragon::class);
     }
+
+    public function trees()
+    {
+        return $this->hasMany(Tree::class);
+    }
 }
