@@ -7,7 +7,6 @@ use App\Tree;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class TreeSettlementTest extends TestCase
@@ -40,8 +39,6 @@ class TreeSettlementTest extends TestCase
                 'progress' => $originalProgress,
             ])
         );
-
-        Queue::fake();
 
         /** @var TreeSettlement $job */
         $job = app(TreeSettlement::class, compact('user'));
