@@ -4,12 +4,14 @@ namespace App\Jobs;
 
 use App\Tree;
 use App\User;
+use App\Wallet;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TreeSettlement implements ShouldQueue
 {
@@ -34,6 +36,8 @@ class TreeSettlement implements ShouldQueue
      */
     public function handle()
     {
+        DB::beginTransaction();
+
         /** @var Tree $tree */
         $tree = $this->user->trees()->where('capacity', '>', 0)->firstOrFail();
 
@@ -48,6 +52,18 @@ class TreeSettlement implements ShouldQueue
         if (bccomp($tree->progress, '100.0', 1) >= 0) {
             $tree->capacity -= 1;
             $tree->progress = $tree->capacity === 0 ? '0.0' : bcsub($tree->progress, '100.0', 1);
+
+            foreach ([
+                Wallet::GEM_QI_CAI => '17.5',
+                Wallet::GEM_DUO_XI => '10.5',
+                Wallet::GEM_DUO_FU => '3.5',
+                Wallet::GEM_DUO_CAI => '3.5',
+            ] as $gem => $increment) {
+                if ($this->createOrIncrementWallet($gem, $increment) !== 1) {
+                    $this->fail('Wallet data is changed during job.');
+                    return;
+                }
+            }
         }
 
         $affectedCount = Tree::whereId($tree->id)
@@ -59,7 +75,28 @@ class TreeSettlement implements ShouldQueue
             ]);
 
         if ($affectedCount !== 1) {
-            $this->fail('Data is changed during job.');
+            $this->fail('Tree data is changed during job.');
+            return;
         }
+
+        DB::commit();
+    }
+
+    private function createOrIncrementWallet($gem, $increment)
+    {
+        $wallet = $this->user->wallets()->firstOrCreate([
+            'gem' => $gem
+        ], [
+            'amount' => '0'
+        ]);
+
+        $affectedCount = Wallet::whereId($wallet->id)
+            ->where('gem', $wallet->gem)
+            ->where('amount', $wallet->amount)
+            ->update([
+                'amount' => bcadd($wallet->amount, $increment, 1),
+            ]);
+
+        return $affectedCount;
     }
 }

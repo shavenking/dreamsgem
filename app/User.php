@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->hasMany(Tree::class);
     }
 
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class);
+    }
+
     public function addTree()
     {
         $treeTable = (new Tree)->getTable();
