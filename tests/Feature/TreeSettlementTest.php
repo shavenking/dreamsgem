@@ -21,6 +21,7 @@ class TreeSettlementTest extends TestCase
      * @param $newCapacity
      * @param $newProgress
      * @param $day
+     * @param $gems
      */
     public function testTreeSettlement(
         $originalCapacity,
@@ -29,8 +30,7 @@ class TreeSettlementTest extends TestCase
         $newProgress,
         $day,
         $gems
-    )
-    {
+    ) {
         $this->setTestNow($day);
 
         /** @var User $user */
