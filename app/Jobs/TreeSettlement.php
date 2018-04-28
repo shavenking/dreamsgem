@@ -50,14 +50,16 @@ class TreeSettlement implements ShouldQueue
         ][Carbon::now()->dayOfWeek], 1);
 
         if (bccomp($tree->progress, '100.0', 1) >= 0) {
-            $tree->capacity -= 1;
-            $tree->progress = $tree->capacity === 0 ? '0.0' : bcsub($tree->progress, '100.0', 1);
+            $award = min(bcdiv($tree->progress, '100.0', 0), $tree->capacity);
+
+            $tree->capacity -= $award;
+            $tree->progress = $tree->capacity === 0 ? '0.0' : bcmod($tree->progress, '100.0', 1);
 
             foreach ([
-                Wallet::GEM_QI_CAI => '17.5',
-                Wallet::GEM_DUO_XI => '10.5',
-                Wallet::GEM_DUO_FU => '3.5',
-                Wallet::GEM_DUO_CAI => '3.5',
+                Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
+                Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
+                Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
             ] as $gem => $increment) {
                 if ($this->createOrIncrementWallet($gem, $increment) !== 1) {
                     $this->fail('Wallet data is changed during job.');
