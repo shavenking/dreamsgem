@@ -32,6 +32,16 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    public function parentAccount()
+    {
+        return $this->hasOne(User::class);
+    }
+
+    public function childAccounts()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function dragon()
     {
         return $this->hasOne(Dragon::class);

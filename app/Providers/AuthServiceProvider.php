@@ -29,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::tokensCan([
             'create-dragons' => 'Create dragons',
+            'create-child-accounts' => 'Create child accounts',
         ]);
     }
 }
