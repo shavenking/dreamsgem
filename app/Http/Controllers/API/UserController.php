@@ -15,6 +15,11 @@ class UserController extends Controller
 {
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         DB::beginTransaction();
 
         $user = User::create([
