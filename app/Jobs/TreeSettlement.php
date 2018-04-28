@@ -39,34 +39,50 @@ class TreeSettlement implements ShouldQueue
         DB::beginTransaction();
 
         /** @var Tree $tree */
-        $tree = $this->user->trees()->where('capacity', '>', 0)->firstOrFail();
+        $trees = $this->user->trees()->where('capacity', '>', 0)->get();
+
+        $remainProgress = [
+            // sunday, monday, tuesday ... saturday
+            '14.2', '14.3', '14.3', '14.3', '14.3', '14.3', '14.3',
+        ][Carbon::now()->dayOfWeek];
+
+        foreach ($trees as $tree) {
+            $remainProgress = $this->settleTree($tree, $remainProgress);
+        }
+
+        DB::commit();
+    }
+
+    private function settleTree(Tree $tree, $remainProgress)
+    {
+        if (bccomp($remainProgress, '0', 1) <= 0) {
+            return '0';
+        }
 
         $originalProgress = $tree->progress;
         $originalCapacity = $tree->capacity;
 
-        $tree->progress = bcadd($tree->progress, [
-            // sunday, monday, tuesday ... saturday
-            '14.2', '14.3', '14.3', '14.3', '14.3', '14.3', '14.3',
-        ][Carbon::now()->dayOfWeek], 1);
+        $totalProgress = bcadd($originalProgress, $remainProgress, 1);
+        $award = min(bcdiv($totalProgress, '100.0', 0), $originalCapacity);
+        $remainProgress = bcsub($totalProgress, bcmul($award, '100.0', 1), 1);
 
-        if (bccomp($tree->progress, '100.0', 1) >= 0) {
-            $award = min(bcdiv($tree->progress, '100.0', 0), $tree->capacity);
-
-            $tree->capacity -= $award;
-            $tree->progress = $tree->capacity === 0 ? '0.0' : bcmod($tree->progress, '100.0', 1);
-
+        if ($award) {
             foreach ([
-                Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
-                Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
-                Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
-                Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
-            ] as $gem => $increment) {
+                         Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
+                         Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
+                         Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                         Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
+                     ] as $gem => $increment) {
                 if ($this->createOrIncrementWallet($gem, $increment) !== 1) {
-                    $this->fail('Wallet data is changed during job.');
-                    return;
+                    $this->release();
+
+                    return '0';
                 }
             }
         }
+
+        $tree->capacity -= $award;
+        $tree->progress = $tree->capacity === 0 ? '0' : $remainProgress;
 
         $affectedCount = Tree::whereId($tree->id)
             ->where('progress', $originalProgress)
@@ -77,11 +93,16 @@ class TreeSettlement implements ShouldQueue
             ]);
 
         if ($affectedCount !== 1) {
-            $this->fail('Tree data is changed during job.');
-            return;
+            $this->release();
+
+            return '0';
         }
 
-        DB::commit();
+        if ($tree->capacity !== 0) {
+            return '0';
+        }
+
+        return $remainProgress;
     }
 
     private function createOrIncrementWallet($gem, $increment)

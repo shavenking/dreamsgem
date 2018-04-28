@@ -79,23 +79,164 @@ class TreeSettlementTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider settleNextDataProvider
+     * @param $day
+     * @param $gems
+     * @param $originalDataSet
+     * @param $resultDataSet
+     */
+    public function testItWillSettleNextTreeIfPossible(
+        $day,
+        $gems,
+        $originalDataSet,
+        $resultDataSet
+    ) {
+        $this->setTestNow($day);
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $originalTrees = [];
+        foreach ($originalDataSet as $treeData) {
+            $tree = factory(Tree::class)->make([
+                'capacity' => $treeData['capacity'],
+                'progress' => $treeData['progress'],
+            ]);
+
+            $originalTrees[] = $tree;
+
+            $user->trees()->save($tree);
+        }
+
+        $baseGemAmount = [];
+        foreach (array_keys($gems) as $gem) {
+            $baseGemAmount[$gem] = $user->wallets()->save(
+                factory(Wallet::class)->make([
+                    'gem' => $gem
+                ])
+            )->amount;
+        }
+
+        /** @var TreeSettlement $job */
+        $job = app(TreeSettlement::class, compact('user'));
+
+        $job->handle();
+
+        foreach ($originalTrees as $idx => $tree) {
+            $this->assertDatabaseHas(
+                $tree->getTable(),
+                [
+                    'id' => $tree->id,
+                    'user_id' => $tree->user_id,
+                    'capacity' => $resultDataSet[$idx]['capacity'],
+                    'progress' => $resultDataSet[$idx]['progress'],
+                ]
+            );
+        }
+
+        foreach ($gems as $gem => $expectedAmount) {
+            $this->assertDatabaseHas(
+                (new Wallet)->getTable(),
+                [
+                    'user_id' => $user->id,
+                    'gem' => $gem,
+                    'amount' => bcadd($baseGemAmount[$gem], $expectedAmount, 1),
+                ]
+            );
+        }
+    }
+
     public function dataProvider()
     {
         return [
             // original capacity, original progress, new capacity, new progress, Carbon test now
-            [1, '0', 1, '14.3', 'monday', $this->gems('0', '0', '0', '0')],
-            [1, '14.3', 1, '28.6', 'tuesday', $this->gems('0', '0', '0', '0')],
-            [1, '28.6', 1, '42.9', 'wednesday', $this->gems('0', '0', '0', '0')],
-            [1, '42.9', 1, '57.2', 'thursday', $this->gems('0', '0', '0', '0')],
-            [1, '57.2', 1, '71.5', 'friday', $this->gems('0', '0', '0', '0')],
-            [1, '71.5', 1, '85.8', 'saturday', $this->gems('0', '0', '0', '0')],
-            [1, '85.8', 0, '0.0', 'sunday', $this->gems('17.5', '10.5', '3.5', '3.5')],
+            [1, '0', 1, '14.3', 'monday', $this->gems(0)],
+            [1, '14.3', 1, '28.6', 'tuesday', $this->gems(0)],
+            [1, '28.6', 1, '42.9', 'wednesday', $this->gems(0)],
+            [1, '42.9', 1, '57.2', 'thursday', $this->gems(0)],
+            [1, '57.2', 1, '71.5', 'friday', $this->gems(0)],
+            [1, '71.5', 1, '85.8', 'saturday', $this->gems(0)],
+            [1, '85.8', 0, '0.0', 'sunday', $this->gems(1)],
 
-            [1, '99.0', 0, '0.0', 'saturday', $this->gems('17.5', '10.5', '3.5', '3.5')],
-            [2, '99.0', 1, '13.3', 'saturday', $this->gems('17.5', '10.5', '3.5', '3.5')],
+            [1, '99.0', 0, '0.0', 'saturday', $this->gems(1)],
+            [2, '99.0', 1, '13.3', 'saturday', $this->gems(1)],
 
-            [1, '750.0', 0, '0.0', 'saturday', $this->gems('17.5', '10.5', '3.5', '3.5')],
-            [8, '750.0', 1, '64.3', 'saturday', $this->gems('122.5', '73.5', '24.5', '24.5')],
+            [1, '750.0', 0, '0.0', 'saturday', $this->gems(1)],
+            [8, '750.0', 1, '64.3', 'saturday', $this->gems(7)],
+        ];
+    }
+
+    public function settleNextDataProvider()
+    {
+        return [
+            // day, gems, original, result
+            [
+                'saturday',
+                $this->gems(2),
+                [
+                    ['capacity' => 1, 'progress' => '750.2'],
+                    ['capacity' => 1, 'progress' => '0'],
+                ],
+                [
+                    ['capacity' => 0, 'progress' => '0'],
+                    ['capacity' => 0, 'progress' => '0'],
+                ]
+            ],
+
+            [
+                'sunday',
+                $this->gems(7),
+                [
+                    ['capacity' => 8, 'progress' => '750.2'],
+                    ['capacity' => 1, 'progress' => '0'],
+                ],
+                [
+                    ['capacity' => 1, 'progress' => '64.4'],
+                    ['capacity' => 1, 'progress' => '0'],
+                ]
+            ],
+
+            [
+                'sunday',
+                $this->gems(9),
+                [
+                    ['capacity' => 8, 'progress' => '950.2'],
+                    ['capacity' => 2, 'progress' => '0'],
+                ],
+                [
+                    ['capacity' => 0, 'progress' => '0'],
+                    ['capacity' => 1, 'progress' => '64.4'],
+                ]
+            ],
+
+            [
+                'monday',
+                $this->gems(0),
+                [
+                    ['capacity' => 1, 'progress' => '50.2'],
+                    ['capacity' => 2, 'progress' => '0'],
+                ],
+                [
+                    ['capacity' => 1, 'progress' => '64.5'],
+                    ['capacity' => 2, 'progress' => '0'],
+                ]
+            ],
+
+            [
+                'thursday',
+                $this->gems(3),
+                [
+                    ['capacity' => 1, 'progress' => '750.2'],
+                    ['capacity' => 1, 'progress' => '0'],
+                    ['capacity' => 1, 'progress' => '0'],
+                ],
+                [
+                    ['capacity' => 0, 'progress' => '0'],
+                    ['capacity' => 0, 'progress' => '0'],
+                    ['capacity' => 0, 'progress' => '0'],
+                ]
+            ],
         ];
     }
 
@@ -106,13 +247,13 @@ class TreeSettlementTest extends TestCase
         );
     }
 
-    private function gems($qiCai, $duoXi, $duoFu, $duoCai)
+    private function gems($times)
     {
         return [
-            Wallet::GEM_QI_CAI => $qiCai,
-            Wallet::GEM_DUO_XI => $duoXi,
-            Wallet::GEM_DUO_FU => $duoFu,
-            Wallet::GEM_DUO_CAI => $duoCai,
+            Wallet::GEM_QI_CAI => bcmul('17.5', $times, 1),
+            Wallet::GEM_DUO_XI => bcmul('10.5', $times, 1),
+            Wallet::GEM_DUO_FU => bcmul('3.5', $times, 1),
+            Wallet::GEM_DUO_CAI => bcmul('3.5', $times, 1),
         ];
     }
 }
