@@ -33,7 +33,9 @@ class BuyTreeTest extends TestCase
             $this->assertDatabaseHas(
                 (new Tree)->getTable(),
                 [
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
+                    'capacity' => 90,
+                    'progress' => '0',
                 ]
             );
         }
