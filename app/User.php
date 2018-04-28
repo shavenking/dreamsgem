@@ -55,8 +55,8 @@ class User extends Authenticatable
         return DB::insert(
             DB::raw(
                 implode(' ', [
-                    "INSERT INTO $treeTable (user_id)",
-                    "SELECT {$this->id}",
+                    "INSERT INTO $treeTable (user_id, capacity, progress)",
+                    "SELECT {$this->id}, 90, 0.0",
                     "WHERE (SELECT COUNT(*) FROM $treeTable WHERE user_id = {$this->id}) < $maxTreeCapacity"
                 ])
             )
