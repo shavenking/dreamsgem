@@ -46,13 +46,24 @@ class TreeSettlement implements ShouldQueue
             '14.2', '14.3', '14.3', '14.3', '14.3', '14.3', '14.3',
         ][Carbon::now()->dayOfWeek];
 
-        foreach ($trees as $tree) {
-            $remainProgress = $this->settleTree($tree, $remainProgress);
+        try {
+            foreach ($trees as $tree) {
+                $remainProgress = $this->settleTree($tree, $remainProgress);
+            }
+        } catch (\Throwable $e) {
+            $this->release();
+            return;
         }
 
         DB::commit();
     }
 
+    /**
+     * @param Tree $tree
+     * @param $remainProgress
+     * @return string
+     * @throws \Throwable
+     */
     private function settleTree(Tree $tree, $remainProgress)
     {
         if (bccomp($remainProgress, '0', 1) <= 0) {
@@ -73,11 +84,10 @@ class TreeSettlement implements ShouldQueue
                          Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
                          Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
                      ] as $gem => $increment) {
-                if ($this->createOrIncrementWallet($gem, $increment) !== 1) {
-                    $this->release();
-
-                    return '0';
-                }
+                throw_if(
+                    $this->createOrIncrementWallet($gem, $increment) !== 1,
+                    new \RuntimeException('Wallet data has been changed')
+                );
             }
         }
 
@@ -92,11 +102,10 @@ class TreeSettlement implements ShouldQueue
                 'progress' => $tree->progress
             ]);
 
-        if ($affectedCount !== 1) {
-            $this->release();
-
-            return '0';
-        }
+        throw_if(
+            $affectedCount !== 1,
+            new \RuntimeException('Tree data has been changed')
+        );
 
         if ($tree->remain !== 0) {
             return '0';
