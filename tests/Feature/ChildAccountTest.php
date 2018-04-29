@@ -3,13 +3,18 @@
 namespace Tests\Feature;
 
 use App\Jobs\FreezeUser;
+use App\OperationHistory;
 use App\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Laravel\Passport\Passport;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
 class ChildAccountTest extends TestCase
 {
+    use DatabaseTransactions, OperationHistoryAssertTrait;
+
     /**
      * @dataProvider dataProvider
      * @param $scopes
@@ -44,6 +49,10 @@ class ChildAccountTest extends TestCase
         $childAccount = $parent->childAccounts()->first();
 
         $this->assertParentHasChild($parent, $childAccount);
+        $this->assertOperationHistoryExists(
+            $childAccount,
+            OperationHistory::TYPE_INITIAL
+        );
     }
 
     public function testItWillValidateUserPolicy()

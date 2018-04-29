@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
@@ -29,6 +30,8 @@ class ChildAccountController extends Controller
         $user->appendNode($childAccount);
 
         FreezeUser::dispatch($childAccount)->delay(Carbon::now()->addDays(7));
+
+        event(new UserCreated($childAccount));
 
         DB::commit();
 
