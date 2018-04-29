@@ -36,6 +36,19 @@ class BuyDragonTest extends TestCase
         }
     }
 
+    public function testItWillValidateUserPolicy()
+    {
+        $user = factory(User::class)->create();
+        Passport::actingAs(
+            factory(User::class)->create(),
+            ['create-dragons']
+        );
+
+        $this
+            ->json('POST', "/api/users/{$user->id}/dragons")
+            ->assertStatus(403);
+    }
+
     private function assertDragonExists(User $user)
     {
         $this->assertDatabaseHas(

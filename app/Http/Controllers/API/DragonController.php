@@ -11,6 +11,8 @@ class DragonController extends Controller
 {
     public function store(User $user)
     {
+        $this->authorize('createDragons', $user);
+
         DB::beginTransaction();
 
         if (!$user->dragon) {

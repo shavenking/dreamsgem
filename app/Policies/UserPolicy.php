@@ -9,6 +9,11 @@ class UserPolicy
 {
     use HandlesAuthorization;
 
+    public function createDragons(User $loggedInUser, User $targetUser)
+    {
+        return $loggedInUser->id === $targetUser->id;
+    }
+
     public function createChildAccount(User $loggedInUser, User $targetUser)
     {
         return $loggedInUser->id === $targetUser->id;
