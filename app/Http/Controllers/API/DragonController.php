@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\DragonCreated;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DragonController extends Controller
@@ -16,7 +18,9 @@ class DragonController extends Controller
         DB::beginTransaction();
 
         if (!$user->dragon) {
-            $user->dragon()->create();
+            $dragon = $user->dragon()->create();
+            event(new DragonCreated($dragon, Auth::user()));
+
             $user->addTree();
         }
 

@@ -4,7 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Dragon extends Model
+class Dragon extends Model implements Operatable
 {
+    use OperatableTrait;
+
     protected $fillable = ['user_id'];
 }

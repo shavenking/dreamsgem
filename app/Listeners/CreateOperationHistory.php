@@ -28,9 +28,9 @@ class CreateOperationHistory
     {
         $operatable = $event->getOperatable();
         $operatable->operationHistories()->create([
-            'user_id' => $event->getOperator(),
+            'user_id' => optional($event->getOperator())->id,
             'type' => $event->getType(),
-            'result_data' => $operatable->jsonSerialize(),
+            'result_data' => $operatable,
         ]);
     }
 }

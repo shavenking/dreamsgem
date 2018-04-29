@@ -3,16 +3,18 @@
 namespace Tests\Feature;
 
 use App\Dragon;
+use App\OperationHistory;
 use App\Tree;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;
+use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
 class BuyDragonTest extends TestCase
 {
-    use DatabaseTransactions;
+    use DatabaseTransactions, OperationHistoryAssertTrait;
 
     /**
      * @dataProvider dataProvider
@@ -33,6 +35,11 @@ class BuyDragonTest extends TestCase
         if (Response::HTTP_CREATED === $statusCode) {
             $this->assertDragonExists($user);
             $this->assertOneTreeExists($user);
+            $this->assertOperationHistoryExists(
+                $user->dragon,
+                OperationHistory::TYPE_INITIAL,
+                $user
+            );
         }
     }
 
