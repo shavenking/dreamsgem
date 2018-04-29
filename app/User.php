@@ -12,7 +12,8 @@ class User extends Authenticatable
 {
     use Notifiable, NodeTrait, HasApiTokens;
 
-    const MAX_TREE_CAPACITY = 3;
+    const MAX_TREE_AMOUNT = 3;
+    const DEFAULT_TREE_CAPACITY = 90;
 
     /**
      * The attributes that are mass assignable.
@@ -60,19 +61,20 @@ class User extends Authenticatable
     public function addTree()
     {
         $treeTable = (new Tree)->getTable();
-        $maxTreeCapacity = self::MAX_TREE_CAPACITY;
+        $maxTreeAmount = self::MAX_TREE_AMOUNT;
+        $defaultTreeCapacity = self::DEFAULT_TREE_CAPACITY;
 
         /**
-         * INSERT INTO trees (user_id)
-         * SELECT $user->id
+         * INSERT INTO trees (user_id, remain, capacity, progress)
+         * SELECT $user->id, 0, $defaultTreeCapacity, 0.0
          * WHERE (SELECT COUNT(*) FROM trees WHERE user_id = $user->id) < User::MAX_TREE_CAPACITY;
          */
         return DB::insert(
             DB::raw(
                 implode(' ', [
-                    "INSERT INTO $treeTable (user_id, capacity, progress)",
-                    "SELECT {$this->id}, 90, 0.0",
-                    "WHERE (SELECT COUNT(*) FROM $treeTable WHERE user_id = {$this->id}) < $maxTreeCapacity"
+                    "INSERT INTO $treeTable (user_id, remain, capacity, progress)",
+                    "SELECT {$this->id}, 0, $defaultTreeCapacity, 0.0",
+                    "WHERE (SELECT COUNT(*) FROM $treeTable WHERE user_id = {$this->id}) < $maxTreeAmount"
                 ])
             )
         );

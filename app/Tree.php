@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tree extends Model
 {
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_id', 'remain', 'capacity', 'progress'];
 }

@@ -18,7 +18,7 @@ class TreeSettlementTest extends TestCase
      * @dataProvider dataProvider
      * @param $originalCapacity
      * @param $originalProgress
-     * @param $newCapacity
+     * @param $remain
      * @param $newProgress
      * @param $day
      * @param $gems
@@ -26,7 +26,7 @@ class TreeSettlementTest extends TestCase
     public function testTreeSettlement(
         $originalCapacity,
         $originalProgress,
-        $newCapacity,
+        $remain,
         $newProgress,
         $day,
         $gems
@@ -36,8 +36,9 @@ class TreeSettlementTest extends TestCase
         /** @var User $user */
         $user = factory(User::class)->create();
         $user->trees()->save(
-        /** @var Tree $tree */
+            /** @var Tree $tree */
             $tree = factory(Tree::class)->states('capacity_available')->make([
+                'remain' => $originalCapacity,
                 'capacity' => $originalCapacity,
                 'progress' => $originalProgress,
             ])
@@ -62,7 +63,8 @@ class TreeSettlementTest extends TestCase
             [
                 'id' => $tree->id,
                 'user_id' => $tree->user_id,
-                'capacity' => $newCapacity,
+                'remain' => $remain,
+                'capacity' => $originalCapacity,
                 'progress' => $newProgress,
             ]
         );
@@ -100,6 +102,7 @@ class TreeSettlementTest extends TestCase
         $originalTrees = [];
         foreach ($originalDataSet as $treeData) {
             $tree = factory(Tree::class)->make([
+                'remain' => $treeData['capacity'],
                 'capacity' => $treeData['capacity'],
                 'progress' => $treeData['progress'],
             ]);
@@ -129,7 +132,8 @@ class TreeSettlementTest extends TestCase
                 [
                     'id' => $tree->id,
                     'user_id' => $tree->user_id,
-                    'capacity' => $resultDataSet[$idx]['capacity'],
+                    'remain' => $resultDataSet[$idx]['remain'],
+                    'capacity' => $originalDataSet[$idx]['capacity'],
                     'progress' => $resultDataSet[$idx]['progress'],
                 ]
             );
@@ -179,8 +183,8 @@ class TreeSettlementTest extends TestCase
                     ['capacity' => 1, 'progress' => '0'],
                 ],
                 [
-                    ['capacity' => 0, 'progress' => '0'],
-                    ['capacity' => 0, 'progress' => '0'],
+                    ['remain' => 0, 'progress' => '0'],
+                    ['remain' => 0, 'progress' => '0'],
                 ]
             ],
 
@@ -192,8 +196,8 @@ class TreeSettlementTest extends TestCase
                     ['capacity' => 1, 'progress' => '0'],
                 ],
                 [
-                    ['capacity' => 1, 'progress' => '64.4'],
-                    ['capacity' => 1, 'progress' => '0'],
+                    ['remain' => 1, 'progress' => '64.4'],
+                    ['remain' => 1, 'progress' => '0'],
                 ]
             ],
 
@@ -205,8 +209,8 @@ class TreeSettlementTest extends TestCase
                     ['capacity' => 2, 'progress' => '0'],
                 ],
                 [
-                    ['capacity' => 0, 'progress' => '0'],
-                    ['capacity' => 1, 'progress' => '64.4'],
+                    ['remain' => 0, 'progress' => '0'],
+                    ['remain' => 1, 'progress' => '64.4'],
                 ]
             ],
 
@@ -218,8 +222,8 @@ class TreeSettlementTest extends TestCase
                     ['capacity' => 2, 'progress' => '0'],
                 ],
                 [
-                    ['capacity' => 1, 'progress' => '64.5'],
-                    ['capacity' => 2, 'progress' => '0'],
+                    ['remain' => 1, 'progress' => '64.5'],
+                    ['remain' => 2, 'progress' => '0'],
                 ]
             ],
 
@@ -232,9 +236,9 @@ class TreeSettlementTest extends TestCase
                     ['capacity' => 1, 'progress' => '0'],
                 ],
                 [
-                    ['capacity' => 0, 'progress' => '0'],
-                    ['capacity' => 0, 'progress' => '0'],
-                    ['capacity' => 0, 'progress' => '0'],
+                    ['remain' => 0, 'progress' => '0'],
+                    ['remain' => 0, 'progress' => '0'],
+                    ['remain' => 0, 'progress' => '0'],
                 ]
             ],
         ];

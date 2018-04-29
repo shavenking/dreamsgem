@@ -16,6 +16,7 @@ class CreateTreesTable extends Migration
         Schema::create('trees', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')->index();
+            $table->unsignedTinyInteger('remain');
             $table->unsignedTinyInteger('capacity');
             $table->decimal('progress', 4, 1);
             $table->timestamps();

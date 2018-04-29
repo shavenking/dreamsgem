@@ -39,7 +39,7 @@ class TreeSettlement implements ShouldQueue
         DB::beginTransaction();
 
         /** @var Tree $tree */
-        $trees = $this->user->trees()->where('capacity', '>', 0)->get();
+        $trees = $this->user->trees()->where('remain', '>', 0)->get();
 
         $remainProgress = [
             // sunday, monday, tuesday ... saturday
@@ -60,10 +60,10 @@ class TreeSettlement implements ShouldQueue
         }
 
         $originalProgress = $tree->progress;
-        $originalCapacity = $tree->capacity;
+        $remain = $tree->remain;
 
         $totalProgress = bcadd($originalProgress, $remainProgress, 1);
-        $award = min(bcdiv($totalProgress, '100.0', 0), $originalCapacity);
+        $award = min(bcdiv($totalProgress, '100.0', 0), $remain);
         $remainProgress = bcsub($totalProgress, bcmul($award, '100.0', 1), 1);
 
         if ($award) {
@@ -81,14 +81,14 @@ class TreeSettlement implements ShouldQueue
             }
         }
 
-        $tree->capacity -= $award;
-        $tree->progress = $tree->capacity === 0 ? '0' : $remainProgress;
+        $tree->remain -= $award;
+        $tree->progress = $tree->remain === 0 ? '0' : $remainProgress;
 
         $affectedCount = Tree::whereId($tree->id)
             ->where('progress', $originalProgress)
-            ->where('capacity', $originalCapacity)
+            ->where('remain', $remain)
             ->update([
-                'capacity' => $tree->capacity,
+                'remain' => $tree->remain,
                 'progress' => $tree->progress
             ]);
 
@@ -98,7 +98,7 @@ class TreeSettlement implements ShouldQueue
             return '0';
         }
 
-        if ($tree->capacity !== 0) {
+        if ($tree->remain !== 0) {
             return '0';
         }
 
