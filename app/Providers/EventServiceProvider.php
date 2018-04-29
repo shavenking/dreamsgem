@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\DragonCreated' => [
             'App\Listeners\CreateOperationHistory',
         ],
+        'App\Events\TreeCreated' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
     ];
 
     /**

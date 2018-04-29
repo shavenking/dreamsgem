@@ -2,16 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\OperationHistory;
 use App\Tree;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;
+use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
 class BuyTreeTest extends TestCase
 {
-    use DatabaseTransactions;
+    use DatabaseTransactions, OperationHistoryAssertTrait;
 
     /**
      * @dataProvider dataProvider
@@ -37,6 +39,11 @@ class BuyTreeTest extends TestCase
                     'capacity' => 90,
                     'progress' => '0',
                 ]
+            );
+            $this->assertOperationHistoryExists(
+                Tree::first(),
+                OperationHistory::TYPE_INITIAL,
+                $user
             );
         }
     }

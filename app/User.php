@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\TreeCreated;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -68,12 +69,14 @@ class User extends Authenticatable implements Operatable
         $maxTreeAmount = self::MAX_TREE_AMOUNT;
         $defaultTreeCapacity = self::DEFAULT_TREE_CAPACITY;
 
+        DB::beginTransaction();
+
         /**
          * INSERT INTO trees (user_id, remain, capacity, progress)
          * SELECT $user->id, 0, $defaultTreeCapacity, 0.0
          * WHERE (SELECT COUNT(*) FROM trees WHERE user_id = $user->id) < User::MAX_TREE_CAPACITY;
          */
-        return DB::insert(
+        $success = DB::insert(
             DB::raw(
                 implode(' ', [
                     "INSERT INTO $treeTable (user_id, remain, capacity, progress)",
@@ -82,5 +85,13 @@ class User extends Authenticatable implements Operatable
                 ])
             )
         );
+
+        if ($success) {
+            event(new TreeCreated(Tree::latest()->firstOrFail(), $this));
+        }
+
+        DB::commit();
+
+        return $success;
     }
 }
