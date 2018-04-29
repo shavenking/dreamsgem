@@ -15,6 +15,8 @@ class ChildAccountController extends Controller
 {
     public function store(User $user, Generator $faker)
     {
+        $this->authorize('createChildAccount', $user);
+
         DB::beginTransaction();
 
         $childAccount = $user->childAccounts()->create([

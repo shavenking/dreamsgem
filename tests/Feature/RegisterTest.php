@@ -82,6 +82,27 @@ class RegisterTest extends TestCase
         $this->assertParentHasChild($parent, $childAccount);
     }
 
+    public function testItWillValidateUserPolicy()
+    {
+        $parent = factory(User::class)->create();
+
+        Passport::actingAs(
+            factory(User::class)->create(),
+            ['create-child-accounts']
+        );
+
+        $this
+            ->json('POST', "/api/users/{$parent->id}/child-accounts")
+            ->assertStatus(403);
+
+        $this->assertDatabaseMissing(
+            $parent->getTable(),
+            [
+                'user_id' => $parent->id,
+            ]
+        );
+    }
+
     private function makeCredentials(): array
     {
         return [
