@@ -41,6 +41,19 @@ class BuyTreeTest extends TestCase
         }
     }
 
+    public function testItWillValidateUserPolicy()
+    {
+        $user = factory(User::class)->create();
+        Passport::actingAs(
+            factory(User::class)->create(),
+            ['create-trees']
+        );
+
+        $this
+            ->json('POST', "/api/users/{$user->id}/trees")
+            ->assertStatus(403);
+    }
+
     public function dataProvider()
     {
         return [

@@ -14,6 +14,11 @@ class UserPolicy
         return $loggedInUser->id === $targetUser->id;
     }
 
+    public function createTrees(User $loggedInUser, User $targetUser)
+    {
+        return $loggedInUser->id === $targetUser->id;
+    }
+
     public function createChildAccount(User $loggedInUser, User $targetUser)
     {
         return $loggedInUser->id === $targetUser->id;
