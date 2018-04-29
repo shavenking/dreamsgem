@@ -3,15 +3,17 @@
 namespace Tests\Feature;
 
 use App\Jobs\FreezeUser;
+use App\OperationHistory;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
+use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
 class RegisterTest extends TestCase
 {
-    use WithFaker, DatabaseTransactions;
+    use WithFaker, DatabaseTransactions, OperationHistoryAssertTrait;
 
     public function testCreateRoot()
     {
@@ -24,6 +26,10 @@ class RegisterTest extends TestCase
             ->assertStatus(201);
 
         $this->assertUserExistsInDatabase($credentials);
+        $this->assertOperationHistoryExists(
+            User::whereEmail($credentials['email'])->firstOrFail(),
+            OperationHistory::TYPE_INITIAL
+        );
     }
 
     public function testCreateChild()
@@ -42,6 +48,10 @@ class RegisterTest extends TestCase
 
         $this->assertUserExistsInDatabase($credentials);
         $this->assertParentHasChild($parentUser, $credentials);
+        $this->assertOperationHistoryExists(
+            User::whereEmail($credentials['email'])->firstOrFail(),
+            OperationHistory::TYPE_INITIAL
+        );
     }
 
     private function makeCredentials(): array

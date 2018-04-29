@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
@@ -15,8 +16,10 @@ class UserController extends Controller
 {
     public function store(Request $request)
     {
+        $userTable = (new User)->getTable();
+
         $this->validate($request, [
-            'email' => 'required|email',
+            'email' => "required|email|unique:$userTable",
             'password' => 'required',
         ]);
 
@@ -35,6 +38,8 @@ class UserController extends Controller
         }
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
+
+        event(new UserCreated($user));
 
         DB::commit();
 

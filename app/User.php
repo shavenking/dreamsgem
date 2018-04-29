@@ -2,15 +2,15 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\NodeTrait;
 use Laravel\Passport\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Operatable
 {
-    use Notifiable, NodeTrait, HasApiTokens;
+    use Notifiable, NodeTrait, HasApiTokens, OperatableTrait;
 
     const MAX_TREE_AMOUNT = 3;
     const DEFAULT_TREE_CAPACITY = 90;
@@ -21,7 +21,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'frozen',
+        'name',
+        'email',
+        'password',
+        'frozen',
     ];
 
     /**
@@ -30,7 +33,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     public function parentAccount()
