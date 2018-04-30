@@ -6,6 +6,7 @@ use App\Dragon;
 use App\OperationHistory;
 use App\Tree;
 use App\User;
+use App\Wallet;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;
@@ -23,10 +24,17 @@ class BuyDragonTest extends TestCase
      */
     public function testBuyDragon($scopes, $statusCode)
     {
+        $parentUser = factory(User::class)->create();
+        $parentWallet = $parentUser->wallets()->save(
+            factory(Wallet::class)->make(['gem' => Wallet::GEM_DUO_CAI])
+        );
+
         Passport::actingAs(
             $user = factory(User::class)->create(),
             $scopes
         );
+
+        $parentUser->appendNode($user);
 
         $this
             ->json('POST', "/api/users/{$user->id}/dragons")
@@ -39,6 +47,14 @@ class BuyDragonTest extends TestCase
                 $user->dragon,
                 OperationHistory::TYPE_INITIAL,
                 $user
+            );
+
+            $this->assertDatabaseHas(
+                (new Wallet)->getTable(),
+                [
+                    'id' => $parentWallet->id,
+                    'amount' => bcadd($parentWallet->amount, '50', 1),
+                ]
             );
         }
     }

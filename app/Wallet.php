@@ -13,5 +13,7 @@ class Wallet extends Model implements Operatable
     const GEM_DUO_FU = 2;
     const GEM_DUO_CAI = 3;
 
+    const REWARD_ACTIVATE_DRAGON = '50.0';
+
     protected $fillable = ['user_id', 'gem', 'amount'];
 }
