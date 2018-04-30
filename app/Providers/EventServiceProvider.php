@@ -16,6 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UserCreated' => [
             'App\Listeners\CreateOperationHistory',
         ],
+        'App\Events\UserUpdated' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
         'App\Events\DragonCreated' => [
             'App\Listeners\CreateOperationHistory',
         ],

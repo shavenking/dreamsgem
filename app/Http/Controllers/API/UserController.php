@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\UserCreated;
+use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
@@ -44,5 +45,17 @@ class UserController extends Controller
         DB::commit();
 
         return response()->json([], Response::HTTP_CREATED);
+    }
+
+    public function update(User $user, Request $request)
+    {
+        $this->authorize('update', $user);
+
+        if ($request->has('name') && $request->name !== $user->name) {
+            $user->update(['name' => $request->name]);
+            event(new UserUpdated($user, $user));
+        }
+
+        return response()->json([], 200);
     }
 }
