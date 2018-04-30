@@ -36,7 +36,7 @@ class RegisterTest extends TestCase
 
         $this
             ->json('POST', '/api/users', array_merge(
-                $credentials, ['parent_id' => $parent->id]
+                $credentials, ['upline_id' => $parent->id]
             ))
             ->assertStatus(201);
 

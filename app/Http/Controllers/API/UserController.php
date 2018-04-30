@@ -31,13 +31,13 @@ class UserController extends Controller
             'name' => 'required',
             'email' => "required|email|unique:$userTable",
             'password' => 'required',
-            'parent_id' => 'required_without_all:child_account_id',
-            'child_account_id' => 'required_without_all:parent_id',
+            'upline_id' => 'required_without_all:child_account_id',
+            'child_account_id' => 'required_without_all:upline_id',
         ]);
 
         DB::beginTransaction();
 
-        if (request()->has('parent_id')) {
+        if (request()->has('upline_id')) {
             $this->createUser($request);
         } else {
             $this->createUserFromChildAccount($request);
@@ -62,7 +62,7 @@ class UserController extends Controller
 
     private function createUser(Request $request)
     {
-        $parentUser = User::findOrFail($request->parent_id);
+        $parentUser = User::findOrFail($request->upline_id);
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
