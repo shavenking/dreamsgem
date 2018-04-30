@@ -31,6 +31,7 @@ class AuthServiceProvider extends ServiceProvider
             'create-dragons' => 'Create dragons',
             'create-trees' => 'Create trees',
             'create-child-accounts' => 'Create child accounts',
+            'update-profile' => 'Update profile',
         ]);
     }
 }
