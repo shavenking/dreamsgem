@@ -19,6 +19,27 @@ class UserTest extends TestCase
         /** @var User $user */
         $user = factory(User::class)->create();
 
+        /** @var User $downlines */
+        $downlines = factory(User::class)->times(7)->create()->each(function ($child) use ($user) {
+            $user->appendNode($child);
+        });
+
+        $downlines->first()->appendNode(
+            factory(User::class)->create()
+        );
+
+        $downlines = $downlines->map(function ($downline) {
+            return [
+                'id' => $downline->id,
+                'name' => $downline->name,
+                'email' => $downline->email,
+                'frozen' => $downline->frozen,
+                'created_at' => $downline->created_at->toDateTimeString(),
+                'updated_at' => $downline->updated_at->toDateTimeString(),
+                'is_child_account' => $downline->user_id !== null,
+            ];
+        });
+
         $this
             ->json('GET', "/api/users/{$user->id}")
             ->assertStatus(200)
@@ -30,6 +51,7 @@ class UserTest extends TestCase
                 'created_at' => $user->created_at->toDateTimeString(),
                 'updated_at' => $user->updated_at->toDateTimeString(),
                 'is_child_account' => $user->user_id !== null,
+                'downlines' => $downlines->toArray(),
             ]);
     }
 

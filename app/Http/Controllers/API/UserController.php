@@ -18,7 +18,9 @@ class UserController extends Controller
 {
     public function show(User $user)
     {
-        return response()->json($user);
+        return response()->json(array_merge($user->toArray(), [
+            'downlines' => $user->children,
+        ]));
     }
 
     public function store(Request $request)
