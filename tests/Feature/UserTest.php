@@ -14,6 +14,25 @@ class UserTest extends TestCase
 {
     use RefreshDatabase, WithFaker, OperationHistoryAssertTrait;
 
+    public function testGetUser()
+    {
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $this
+            ->json('GET', "/api/users/{$user->id}")
+            ->assertStatus(200)
+            ->assertExactJson([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'frozen' => $user->frozen,
+                'created_at' => $user->created_at->toDateTimeString(),
+                'updated_at' => $user->updated_at->toDateTimeString(),
+                'is_child_account' => $user->user_id !== null,
+            ]);
+    }
+
     public function testUpdateUserProfile()
     {
         /** @var User $user */

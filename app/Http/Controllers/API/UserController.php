@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
+    public function show(User $user)
+    {
+        return response()->json($user);
+    }
+
     public function store(Request $request)
     {
         $userTable = (new User)->getTable();

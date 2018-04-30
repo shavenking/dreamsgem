@@ -2,7 +2,7 @@
 
 Route::group(['namespace' => 'API'], function () {
     Route::resource('users', 'UserController', [
-        'only' => ['store', 'update'],
+        'only' => ['show', 'store', 'update'],
     ]);
 
     Route::resource('users.child-accounts', 'ChildAccountController', [

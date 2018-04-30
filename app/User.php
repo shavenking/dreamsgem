@@ -37,6 +37,18 @@ class User extends Authenticatable implements Operatable
     protected $hidden = [
         'password',
         'remember_token',
+        'user_id',
+        '_lft',
+        '_rgt',
+        'parent_id',
+    ];
+
+    protected $casts = [
+        'frozen' => 'boolean',
+    ];
+
+    protected $appends = [
+        'is_child_account',
     ];
 
     public function parentAccount()
@@ -94,5 +106,10 @@ class User extends Authenticatable implements Operatable
         DB::commit();
 
         return $success;
+    }
+
+    public function getIsChildAccountAttribute()
+    {
+        return $this->user_id !== null;
     }
 }
