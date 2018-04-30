@@ -5,9 +5,10 @@ Route::group(['namespace' => 'API'], function () {
         'only' => ['show', 'store', 'update'],
     ]);
 
+    // middleware in controller constructor
     Route::resource('users.child-accounts', 'ChildAccountController', [
-        'only' => ['store'],
-    ])->middleware(['auth:api', 'scopes:create-child-accounts']);
+        'only' => ['index', 'store'],
+    ]);
 
     Route::resource('users.dragons', 'DragonController', [
         'only' => ['store'],

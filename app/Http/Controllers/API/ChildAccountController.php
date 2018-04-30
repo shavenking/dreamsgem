@@ -14,6 +14,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ChildAccountController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:api', 'scopes:create-child-accounts'])->except('index');
+    }
+
+    public function index(User $user)
+    {
+        $childAccounts = $user->childAccounts()->paginate();
+
+        return response()->json($childAccounts);
+    }
+
     public function store(User $user, Generator $faker)
     {
         $this->authorize('createChildAccount', $user);

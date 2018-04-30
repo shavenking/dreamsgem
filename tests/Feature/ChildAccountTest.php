@@ -6,6 +6,7 @@ use App\Jobs\FreezeUser;
 use App\OperationHistory;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Collection;
 use Laravel\Passport\Passport;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\OperationHistoryAssertTrait;
@@ -14,6 +15,46 @@ use Tests\TestCase;
 class ChildAccountTest extends TestCase
 {
     use DatabaseTransactions, OperationHistoryAssertTrait;
+
+    public function testGetChildAccounts()
+    {
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        /** @var Collection $childAccounts */
+        $childAccounts = factory(User::class)->times(2)->create([
+            'user_id' => $user->id,
+        ])->map(function ($childAccount) {
+            return [
+                'id' => $childAccount->id,
+                'name' => $childAccount->name,
+                'email' => $childAccount->email,
+                'frozen' => $childAccount->frozen,
+                'created_at' => $childAccount->created_at->toDateTimeString(),
+                'updated_at' => $childAccount->updated_at->toDateTimeString(),
+                'is_child_account' => $childAccount->user_id !== null,
+            ];
+        });
+
+        $appUrl = env('APP_URL');
+        $this
+            ->json('GET', "/api/users/{$user->id}/child-accounts")
+            ->assertStatus(200)
+            ->assertExactJson([
+                'current_page' => 1,
+                'data' => $childAccounts->toArray(),
+                'first_page_url' => "$appUrl/api/users/{$user->id}/child-accounts?page=1",
+                'from' => 1,
+                'last_page' => 1,
+                'last_page_url' => "$appUrl/api/users/{$user->id}/child-accounts?page=1",
+                'next_page_url' => null,
+                'path' => "$appUrl/api/users/{$user->id}/child-accounts",
+                'per_page' => 15,
+                'prev_page_url' => null,
+                'to' => 2,
+                'total' => 2,
+            ]);
+    }
 
     /**
      * @dataProvider dataProvider
