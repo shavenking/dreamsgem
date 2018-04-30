@@ -3,19 +3,22 @@
 namespace Tests\Feature;
 
 use App\Jobs\TreeSettlement;
+use App\OperationHistory;
 use App\Tree;
 use App\User;
 use App\Wallet;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
+use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
 class TreeSettlementTest extends TestCase
 {
-    use DatabaseTransactions;
+    use DatabaseTransactions, OperationHistoryAssertTrait;
 
     /**
      * @dataProvider dataProvider
+     *
      * @param $originalCapacity
      * @param $originalProgress
      * @param $remain
@@ -36,20 +39,24 @@ class TreeSettlementTest extends TestCase
         /** @var User $user */
         $user = factory(User::class)->create();
         $user->trees()->save(
-            /** @var Tree $tree */
-            $tree = factory(Tree::class)->states('capacity_available')->make([
-                'remain' => $originalCapacity,
-                'capacity' => $originalCapacity,
-                'progress' => $originalProgress,
-            ])
+        /** @var Tree $tree */
+            $tree = factory(Tree::class)->states('capacity_available')->make(
+                [
+                    'remain' => $originalCapacity,
+                    'capacity' => $originalCapacity,
+                    'progress' => $originalProgress,
+                ]
+            )
         );
 
         $baseGemAmount = [];
         foreach (array_keys($gems) as $gem) {
             $baseGemAmount[$gem] = $user->wallets()->save(
-                factory(Wallet::class)->make([
-                    'gem' => $gem
-                ])
+                factory(Wallet::class)->make(
+                    [
+                        'gem' => $gem,
+                    ]
+                )
             )->amount;
         }
 
@@ -68,6 +75,10 @@ class TreeSettlementTest extends TestCase
                 'progress' => $newProgress,
             ]
         );
+        $this->assertOperationHistoryExists(
+            $tree->refresh(),
+            OperationHistory::TYPE_UPDATE
+        );
 
         foreach ($gems as $gem => $expectedAmount) {
             $this->assertDatabaseHas(
@@ -78,11 +89,19 @@ class TreeSettlementTest extends TestCase
                     'amount' => bcadd($baseGemAmount[$gem], $expectedAmount, 1),
                 ]
             );
+
+            if (bccomp($expectedAmount, '0', 1) !== 0) {
+                $this->assertOperationHistoryExists(
+                    Wallet::where(['user_id' => $user->id, 'gem' => $gem])->firstOrFail(),
+                    OperationHistory::TYPE_UPDATE
+                );
+            }
         }
     }
 
     /**
      * @dataProvider settleNextDataProvider
+     *
      * @param $day
      * @param $gems
      * @param $originalDataSet
@@ -101,11 +120,13 @@ class TreeSettlementTest extends TestCase
 
         $originalTrees = [];
         foreach ($originalDataSet as $treeData) {
-            $tree = factory(Tree::class)->make([
-                'remain' => $treeData['capacity'],
-                'capacity' => $treeData['capacity'],
-                'progress' => $treeData['progress'],
-            ]);
+            $tree = factory(Tree::class)->make(
+                [
+                    'remain' => $treeData['capacity'],
+                    'capacity' => $treeData['capacity'],
+                    'progress' => $treeData['progress'],
+                ]
+            );
 
             $originalTrees[] = $tree;
 
@@ -115,9 +136,11 @@ class TreeSettlementTest extends TestCase
         $baseGemAmount = [];
         foreach (array_keys($gems) as $gem) {
             $baseGemAmount[$gem] = $user->wallets()->save(
-                factory(Wallet::class)->make([
-                    'gem' => $gem
-                ])
+                factory(Wallet::class)->make(
+                    [
+                        'gem' => $gem,
+                    ]
+                )
             )->amount;
         }
 
@@ -137,6 +160,13 @@ class TreeSettlementTest extends TestCase
                     'progress' => $resultDataSet[$idx]['progress'],
                 ]
             );
+
+            if ($originalDataSet[$idx]['capacity'] > $resultDataSet[$idx]['remain']) {
+                $this->assertOperationHistoryExists(
+                    $tree->refresh(),
+                    OperationHistory::TYPE_UPDATE
+                );
+            }
         }
 
         foreach ($gems as $gem => $expectedAmount) {
@@ -148,6 +178,13 @@ class TreeSettlementTest extends TestCase
                     'amount' => bcadd($baseGemAmount[$gem], $expectedAmount, 1),
                 ]
             );
+
+            if (bccomp($expectedAmount, '0', 1) !== 0) {
+                $this->assertOperationHistoryExists(
+                    Wallet::where(['user_id' => $user->id, 'gem' => $gem])->firstOrFail(),
+                    OperationHistory::TYPE_UPDATE
+                );
+            }
         }
     }
 
@@ -185,7 +222,7 @@ class TreeSettlementTest extends TestCase
                 [
                     ['remain' => 0, 'progress' => '0'],
                     ['remain' => 0, 'progress' => '0'],
-                ]
+                ],
             ],
 
             [
@@ -198,7 +235,7 @@ class TreeSettlementTest extends TestCase
                 [
                     ['remain' => 1, 'progress' => '64.4'],
                     ['remain' => 1, 'progress' => '0'],
-                ]
+                ],
             ],
 
             [
@@ -211,7 +248,7 @@ class TreeSettlementTest extends TestCase
                 [
                     ['remain' => 0, 'progress' => '0'],
                     ['remain' => 1, 'progress' => '64.4'],
-                ]
+                ],
             ],
 
             [
@@ -224,7 +261,7 @@ class TreeSettlementTest extends TestCase
                 [
                     ['remain' => 1, 'progress' => '64.5'],
                     ['remain' => 2, 'progress' => '0'],
-                ]
+                ],
             ],
 
             [
@@ -239,7 +276,7 @@ class TreeSettlementTest extends TestCase
                     ['remain' => 0, 'progress' => '0'],
                     ['remain' => 0, 'progress' => '0'],
                     ['remain' => 0, 'progress' => '0'],
-                ]
+                ],
             ],
         ];
     }

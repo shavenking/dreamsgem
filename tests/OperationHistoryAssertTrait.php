@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\OperatableTrait;
 use App\OperationHistory;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +24,7 @@ trait OperationHistoryAssertTrait
             'type' => $type,
         ])->first();
 
-        $this->assertNotNull($operationHistory);
+        $this->assertNotNull($operationHistory, 'OperationHistory not exists.');
         foreach ($model->toArray() as $key => $value) {
             $this->assertEquals($value, data_get($operationHistory->result_data, $key), "$key not equals");
         }

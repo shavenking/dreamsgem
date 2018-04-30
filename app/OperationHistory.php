@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class OperationHistory extends Model
 {
     const TYPE_INITIAL = 0;
+    const TYPE_UPDATE = 1;
 
     protected $fillable = ['user_id', 'type', 'result_data'];
 

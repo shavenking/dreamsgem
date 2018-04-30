@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Events\TreeUpdated;
+use App\Events\WalletUpdated;
 use App\Tree;
 use App\User;
 use App\Wallet;
@@ -18,6 +20,10 @@ class TreeSettlement implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $user;
+
+    private $updatedTrees;
+
+    private $updatedWallets;
 
     /**
      * Create a new job instance.
@@ -43,15 +49,30 @@ class TreeSettlement implements ShouldQueue
 
         $remainProgress = [
             // sunday, monday, tuesday ... saturday
-            '14.2', '14.3', '14.3', '14.3', '14.3', '14.3', '14.3',
+            '14.2',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
         ][Carbon::now()->dayOfWeek];
 
         try {
             foreach ($trees as $tree) {
                 $remainProgress = $this->settleTree($tree, $remainProgress);
             }
+
+            foreach ($this->updatedTrees as $tree) {
+                event(new TreeUpdated($tree));
+            }
+
+            foreach ($this->updatedWallets as $wallet) {
+                event(new WalletUpdated($wallet));
+            }
         } catch (\Throwable $e) {
             $this->release();
+
             return;
         }
 
@@ -61,6 +82,7 @@ class TreeSettlement implements ShouldQueue
     /**
      * @param Tree $tree
      * @param $remainProgress
+     *
      * @return string
      * @throws \Throwable
      */
@@ -79,11 +101,11 @@ class TreeSettlement implements ShouldQueue
 
         if ($award) {
             foreach ([
-                         Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
-                         Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
-                         Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
-                         Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
-                     ] as $gem => $increment) {
+                Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
+                Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
+                Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
+            ] as $gem => $increment) {
                 throw_if(
                     $this->createOrIncrementWallet($gem, $increment) !== 1,
                     new \RuntimeException('Wallet data has been changed')
@@ -97,15 +119,19 @@ class TreeSettlement implements ShouldQueue
         $affectedCount = Tree::whereId($tree->id)
             ->where('progress', $originalProgress)
             ->where('remain', $remain)
-            ->update([
-                'remain' => $tree->remain,
-                'progress' => $tree->progress
-            ]);
+            ->update(
+                [
+                    'remain' => $tree->remain,
+                    'progress' => $tree->progress,
+                ]
+            );
 
         throw_if(
             $affectedCount !== 1,
             new \RuntimeException('Tree data has been changed')
         );
+
+        $this->updatedTrees[$tree->id] = $tree->refresh();
 
         if ($tree->remain !== 0) {
             return '0';
@@ -116,18 +142,24 @@ class TreeSettlement implements ShouldQueue
 
     private function createOrIncrementWallet($gem, $increment)
     {
-        $wallet = $this->user->wallets()->firstOrCreate([
-            'gem' => $gem
-        ], [
-            'amount' => '0'
-        ]);
+        $wallet = $this->user->wallets()->firstOrCreate(
+            [
+                'gem' => $gem,
+            ], [
+                'amount' => '0',
+            ]
+        );
 
         $affectedCount = Wallet::whereId($wallet->id)
             ->where('gem', $wallet->gem)
             ->where('amount', $wallet->amount)
-            ->update([
-                'amount' => bcadd($wallet->amount, $increment, 1),
-            ]);
+            ->update(
+                [
+                    'amount' => bcadd($wallet->amount, $increment, 1),
+                ]
+            );
+
+        $this->updatedWallets[$wallet->id] = $wallet->refresh();
 
         return $affectedCount;
     }

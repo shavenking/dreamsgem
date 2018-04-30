@@ -22,6 +22,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\TreeCreated' => [
             'App\Listeners\CreateOperationHistory',
         ],
+        'App\Events\TreeUpdated' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
+        'App\Events\WalletUpdated' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
     ];
 
     /**
