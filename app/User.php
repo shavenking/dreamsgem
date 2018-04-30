@@ -15,6 +15,7 @@ class User extends Authenticatable implements Operatable
 
     const MAX_TREE_AMOUNT = 3;
     const DEFAULT_TREE_CAPACITY = 90;
+    const MAX_CHILDREN_FOR_ONE_USER = 7;
 
     /**
      * The attributes that are mass assignable.

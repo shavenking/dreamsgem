@@ -19,18 +19,28 @@ class RegisterTest extends TestCase
     {
         $this->expectsJobs(FreezeUser::class);
 
-        $credentials = $this->makeCredentials();
+        /** @var User $parent */
+        $parent = factory(User::class)->create();
 
-        $parentUser = factory(User::class)->create();
+        /** @var User $targetUser */
+        $targetUser = factory(User::class)->times(7)->create()->each(function ($user) use ($parent) {
+            $parent->appendNode($user);
+        })->first();
+
+        $targetUser->appendNode(
+            factory(User::class)->create()
+        );
+
+        $credentials = $this->makeCredentials();
 
         $this
             ->json('POST', '/api/users', array_merge(
-                $credentials, ['parent_id' => $parentUser->id]
+                $credentials, ['parent_id' => $parent->id]
             ))
             ->assertStatus(201);
 
         $this->assertUserExistsInDatabase($credentials);
-        $this->assertParentHasChild($parentUser, $credentials);
+        $this->assertParentHasChild($targetUser, $credentials);
         $this->assertOperationHistoryExists(
             User::whereEmail($credentials['email'])->firstOrFail(),
             OperationHistory::TYPE_INITIAL

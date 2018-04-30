@@ -34,7 +34,20 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'frozen' => false,
         ]);
-        $parentUser->appendNode($user);
+
+        $possibleParents = collect([$parentUser]);
+
+        while ($possibleParent = $possibleParents->shift()) {
+            $children = $possibleParent->children()->get();
+
+            if ($children->count() === User::MAX_CHILDREN_FOR_ONE_USER) {
+                $possibleParents = $possibleParents->merge($children);
+            } else {
+                break;
+            }
+        }
+
+        $possibleParent->appendNode($user);
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
 
