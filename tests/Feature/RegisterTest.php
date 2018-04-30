@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Passport\Passport;
 use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
@@ -45,6 +46,35 @@ class RegisterTest extends TestCase
             User::whereEmail($credentials['email'])->firstOrFail(),
             OperationHistory::TYPE_INITIAL
         );
+    }
+
+    public function testCreateWithChildAccountId()
+    {
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        /** @var User $childAccount */
+        $childAccount = factory(User::class)->create(['user_id' => $user->id]);
+
+        Passport::actingAs(
+            $user,
+            ['update-child-accounts']
+        );
+
+        $credentials = $this->makeCredentials();
+
+        $this->json('POST', '/api/users', array_merge(
+            $credentials, [
+                'child_account_id' => $childAccount->id,
+            ]
+        ))->assertStatus(201);
+
+        $this->assertUserExistsInDatabase([
+            'user_id' => null,
+            'email' => $childAccount->refresh()->email,
+            'password' => data_get($credentials, 'password'),
+        ]);
+        $this->assertOperationHistoryExists($childAccount->refresh(), OperationHistory::TYPE_UPDATE, $user);
     }
 
     public function testUserCannotCreateWithoutParent()

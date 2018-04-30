@@ -28,4 +28,9 @@ class UserPolicy
     {
         return $loggedInUser->id === $targetUser->id;
     }
+
+    public function updateChildAccounts(User $loggedInUser, User $targetUser)
+    {
+        return $loggedInUser->id === $targetUser->user_id;
+    }
 }
