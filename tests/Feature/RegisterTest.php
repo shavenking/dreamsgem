@@ -69,11 +69,9 @@ class RegisterTest extends TestCase
             ]
         ))->assertStatus(201);
 
-        $this->assertUserExistsInDatabase([
+        $this->assertUserExistsInDatabase(array_merge($credentials, [
             'user_id' => null,
-            'email' => $childAccount->refresh()->email,
-            'password' => data_get($credentials, 'password'),
-        ]);
+        ]));
         $this->assertOperationHistoryExists($childAccount->refresh(), OperationHistory::TYPE_UPDATE, $user);
     }
 
@@ -89,6 +87,7 @@ class RegisterTest extends TestCase
     private function makeCredentials(): array
     {
         return [
+            'name' => $this->faker->name,
             'email' => $this->faker->email,
             'password' => $this->faker->password
         ];
@@ -98,7 +97,7 @@ class RegisterTest extends TestCase
     {
         $user = User::where(array_except($filters, 'password'))->first();
 
-        $this->assertNotNull($user, 'User email not exists in database.');
+        $this->assertNotNull($user, 'User not exists in database.');
 
         $this->assertTrue(Hash::check(
             data_get($filters, 'password'),

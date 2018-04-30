@@ -21,6 +21,7 @@ class UserController extends Controller
         $userTable = (new User)->getTable();
 
         $this->validate($request, [
+            'name' => 'required',
             'email' => "required|email|unique:$userTable",
             'password' => 'required',
             'parent_id' => 'required_without_all:child_account_id',
@@ -56,7 +57,7 @@ class UserController extends Controller
     {
         $parentUser = User::findOrFail($request->parent_id);
         $user = User::create([
-            'name' => 'dreamsgem',
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'frozen' => false,
@@ -87,6 +88,7 @@ class UserController extends Controller
         $this->authorize('updateChildAccounts', $childAccount);
         $childAccount->user_id = null;
         $childAccount->update([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
