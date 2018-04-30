@@ -15,23 +15,6 @@ class RegisterTest extends TestCase
 {
     use WithFaker, DatabaseTransactions, OperationHistoryAssertTrait;
 
-    public function testCreateRoot()
-    {
-        $this->expectsJobs(FreezeUser::class);
-
-        $credentials = $this->makeCredentials();
-
-        $this
-            ->json('POST', '/api/users', $credentials)
-            ->assertStatus(201);
-
-        $this->assertUserExistsInDatabase($credentials);
-        $this->assertOperationHistoryExists(
-            User::whereEmail($credentials['email'])->firstOrFail(),
-            OperationHistory::TYPE_INITIAL
-        );
-    }
-
     public function testCreateChild()
     {
         $this->expectsJobs(FreezeUser::class);
@@ -52,6 +35,15 @@ class RegisterTest extends TestCase
             User::whereEmail($credentials['email'])->firstOrFail(),
             OperationHistory::TYPE_INITIAL
         );
+    }
+
+    public function testUserCannotCreateWithoutParent()
+    {
+        $credentials = $this->makeCredentials();
+
+        $this
+            ->json('POST', '/api/users', $credentials)
+            ->assertStatus(422);
     }
 
     private function makeCredentials(): array

@@ -22,21 +22,19 @@ class UserController extends Controller
         $this->validate($request, [
             'email' => "required|email|unique:$userTable",
             'password' => 'required',
+            'parent_id' => 'required',
         ]);
 
         DB::beginTransaction();
 
+        $parentUser = User::findOrFail($request->parent_id);
         $user = User::create([
             'name' => 'dreamsgem',
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'frozen' => false,
         ]);
-
-        if ($request->has('parent_id')) {
-            $parentUser = User::findOrFail($request->parent_id);
-            $parentUser->appendNode($user);
-        }
+        $parentUser->appendNode($user);
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
 
