@@ -76,6 +76,11 @@ class User extends Authenticatable implements Operatable
         return $this->hasMany(Wallet::class);
     }
 
+    public function treeSettlementHistories()
+    {
+        return $this->hasMany(TreeSettlementHistory::class);
+    }
+
     public function addTree()
     {
         $treeTable = (new Tree)->getTable();
