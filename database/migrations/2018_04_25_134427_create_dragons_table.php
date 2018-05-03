@@ -15,7 +15,8 @@ class CreateDragonsTable extends Migration
     {
         Schema::create('dragons', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->index();
+            $table->unsignedInteger('owner_id')->index();
+            $table->unsignedInteger('user_id')->index()->nullable();
             $table->timestamps();
         });
     }

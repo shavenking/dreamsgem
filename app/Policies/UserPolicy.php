@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Dragon;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 

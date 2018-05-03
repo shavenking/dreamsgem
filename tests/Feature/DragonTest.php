@@ -13,7 +13,7 @@ use Laravel\Passport\Passport;
 use Tests\OperationHistoryAssertTrait;
 use Tests\TestCase;
 
-class BuyDragonTest extends TestCase
+class DragonTest extends TestCase
 {
     use DatabaseTransactions, OperationHistoryAssertTrait;
 
@@ -24,17 +24,10 @@ class BuyDragonTest extends TestCase
      */
     public function testBuyDragon($scopes, $statusCode)
     {
-        $parentUser = factory(User::class)->create();
-        $parentWallet = $parentUser->wallets()->save(
-            factory(Wallet::class)->make(['gem' => Wallet::GEM_DUO_CAI])
-        );
-
         Passport::actingAs(
             $user = factory(User::class)->create(),
             $scopes
         );
-
-        $parentUser->appendNode($user);
 
         $this
             ->json('POST', "/api/users/{$user->id}/dragons")
@@ -42,21 +35,51 @@ class BuyDragonTest extends TestCase
 
         if (Response::HTTP_CREATED === $statusCode) {
             $this->assertDragonExists($user);
-            $this->assertOneTreeExists($user);
             $this->assertOperationHistoryExists(
-                $user->dragon,
+                $user->dragons->first(),
                 OperationHistory::TYPE_INITIAL,
                 $user
             );
-
-            $this->assertDatabaseHas(
-                (new Wallet)->getTable(),
-                [
-                    'id' => $parentWallet->id,
-                    'amount' => bcadd($parentWallet->amount, '50', 1),
-                ]
-            );
         }
+    }
+
+    public function testActivateDragon()
+    {
+        Passport::actingAs($dragonOwner = factory(User::class)->create());
+        $dragon = $dragonOwner->dragons()->create();
+        $dragonOwner->appendNode(
+            $targetUserUpline = factory(User::class)->create()
+        );
+
+        $targetUserUplineWallet = $targetUserUpline->wallets()->save(
+            factory(Wallet::class)->make(['gem' => Wallet::GEM_DUO_CAI])
+        );
+
+        $targetUserUpline->appendNode(
+            $targetUser = factory(User::class)->create()
+        );
+
+        $this
+            ->json('PUT', "/api/users/{$dragonOwner->id}/dragons/{$dragon->id}", [
+                'user_id' => $targetUser->id,
+            ])
+            ->assertStatus(200);
+
+        $this->assertDragonExists($dragonOwner, $targetUser);
+        $this->assertOneTreeExists($targetUser);
+        $this->assertOperationHistoryExists(
+            $dragon,
+            OperationHistory::TYPE_ACTIVATE,
+            $dragonOwner
+        );
+
+        $this->assertDatabaseHas(
+            (new Wallet)->getTable(),
+            [
+                'id' => $targetUserUplineWallet->id,
+                'amount' => bcadd($targetUserUplineWallet->amount, '50', 1),
+            ]
+        );
     }
 
     public function testItWillValidateUserPolicy()
@@ -72,12 +95,13 @@ class BuyDragonTest extends TestCase
             ->assertStatus(403);
     }
 
-    private function assertDragonExists(User $user)
+    private function assertDragonExists(User $user, User $targetUser = null)
     {
         $this->assertDatabaseHas(
             (new Dragon)->getTable(),
             [
-                'user_id' => $user->id
+                'owner_id' => $user->id,
+                'user_id' => optional($targetUser)->id,
             ]
         );
     }
@@ -87,7 +111,8 @@ class BuyDragonTest extends TestCase
         $this->assertDatabaseHas(
             (new Tree)->getTable(),
             [
-                'user_id' => $user->id
+                'owner_id' => $user->id,
+                'user_id' => null
             ]
         );
 
@@ -98,7 +123,6 @@ class BuyDragonTest extends TestCase
     {
         return [
             'Valid Token' => [['create-dragons'], Response::HTTP_CREATED],
-            'Invalid Token' => [[''], Response::HTTP_FORBIDDEN],
         ];
     }
 }

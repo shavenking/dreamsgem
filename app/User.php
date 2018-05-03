@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\DragonActivated;
 use App\Events\TreeCreated;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,7 +14,8 @@ class User extends Authenticatable implements Operatable
 {
     use Notifiable, NodeTrait, HasApiTokens, OperatableTrait;
 
-    const MAX_TREE_AMOUNT = 3;
+    const MAX_ACTIVATE_DRAGON_AMOUNT = 1;
+    const MAX_ACTIVATE_TREE_AMOUNT = 50;
     const DEFAULT_TREE_CAPACITY = 90;
     const MAX_CHILDREN_FOR_ONE_USER = 7;
 
@@ -61,12 +63,22 @@ class User extends Authenticatable implements Operatable
         return $this->hasMany(User::class);
     }
 
-    public function dragon()
+    public function dragons()
+    {
+        return $this->hasMany(Dragon::class, 'owner_id');
+    }
+
+    public function activatedDragon()
     {
         return $this->hasOne(Dragon::class);
     }
 
     public function trees()
+    {
+        return $this->hasMany(Tree::class, 'owner_id');
+    }
+
+    public function activatedTrees()
     {
         return $this->hasMany(Tree::class);
     }
@@ -81,36 +93,48 @@ class User extends Authenticatable implements Operatable
         return $this->hasMany(TreeSettlementHistory::class);
     }
 
-    public function addTree()
+    public function activateDragon(Dragon $dragon, User $targetUser)
     {
-        $treeTable = (new Tree)->getTable();
-        $maxTreeAmount = self::MAX_TREE_AMOUNT;
-        $defaultTreeCapacity = self::DEFAULT_TREE_CAPACITY;
+        $maxActivateDragonAmount = self::MAX_ACTIVATE_DRAGON_AMOUNT;
 
-        DB::beginTransaction();
-
-        /**
-         * INSERT INTO trees (user_id, remain, capacity, progress)
-         * SELECT $user->id, 0, $defaultTreeCapacity, 0.0
-         * WHERE (SELECT COUNT(*) FROM trees WHERE user_id = $user->id) < User::MAX_TREE_CAPACITY;
-         */
-        $success = DB::insert(
-            DB::raw(
-                implode(' ', [
-                    "INSERT INTO $treeTable (user_id, remain, capacity, progress)",
-                    "SELECT {$this->id}, 0, $defaultTreeCapacity, 0.0",
-                    "WHERE (SELECT COUNT(*) FROM $treeTable WHERE user_id = {$this->id}) < $maxTreeAmount"
-                ])
+        $affectedCount = Dragon::whereId($dragon->id)
+            ->where('user_id', null)
+            ->whereRaw(
+                "$maxActivateDragonAmount > (
+                    SELECT count(*) FROM 
+                        (SELECT * FROM dragons WHERE user_id = {$targetUser->id}) AS dragon_temp 
+                    WHERE user_id = {$targetUser->id}
+                )"
             )
-        );
+            ->update(
+                [
+                    'user_id' => $targetUser->id,
+                ]
+            );
 
-        if ($success) {
-            event(new TreeCreated(Tree::latest()->firstOrFail(), $this));
-        }
+        return $affectedCount;
+    }
 
-        DB::commit();
+    public function activateTree(Tree $tree, User $targetUser)
+    {
+        $treeTable = $tree->getTable();
+        $maxActivateTreeAmount = self::MAX_ACTIVATE_TREE_AMOUNT;
 
-        return $success;
+        $affectedCount = Tree::whereId($tree->id)
+            ->where('user_id', null)
+            ->whereRaw(
+                "$maxActivateTreeAmount > (
+                    SELECT count(*)
+                    FROM (SELECT * FROM $treeTable WHERE user_id = {$targetUser->id}) AS tree_temp 
+                )"
+            )
+            ->update(
+                [
+                    'user_id' => $targetUser->id,
+                ]
+            );
+
+        return $affectedCount;
     }
 
     public function getIsChildAccountAttribute()

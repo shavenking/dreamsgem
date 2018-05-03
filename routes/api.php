@@ -11,10 +11,10 @@ Route::group(['namespace' => 'API'], function () {
     ]);
 
     Route::resource('users.dragons', 'DragonController', [
-        'only' => ['store'],
-    ])->middleware(['auth:api', 'scopes:create-dragons']);
+        'only' => ['store', 'update'],
+    ])->middleware(['auth:api']);
 
     Route::resource('users.trees', 'TreeController', [
-        'only' => ['store'],
-    ])->middleware(['auth:api', 'scopes:create-trees']);
+        'only' => ['store', 'update'],
+    ])->middleware(['auth:api']);
 });
