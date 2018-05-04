@@ -9,4 +9,9 @@ class Tree extends Model implements Operatable
     use OperatableTrait;
 
     protected $fillable = ['user_id', 'remain', 'capacity', 'progress'];
+
+    public function getActivatedAttribute()
+    {
+        return !is_null($this->user_id);
+    }
 }

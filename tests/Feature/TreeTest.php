@@ -80,9 +80,9 @@ class TreeTest extends TestCase
 
         $this->assertDatabaseHas(
             $tree->getTable(),
-            array_merge($tree->toArray(), [
+            array_except(array_merge($tree->toArray(), [
                 'user_id' => $childAccount->id,
-            ])
+            ]), ['created_at', 'updated_at'])
         );
 
         $this->assertOperationHistoryExists(
@@ -90,6 +90,49 @@ class TreeTest extends TestCase
             OperationHistory::TYPE_ACTIVATE,
             $user
         );
+    }
+
+    public function testItWillValidateUserIsChildAccount()
+    {
+        Passport::actingAs(
+            $rootUser = factory(User::class)->create()
+        );
+
+        $tree = factory(Tree::class)->create([
+            'owner_id' => $rootUser,
+        ]);
+
+        $rootUser->appendNode(
+            $downline = factory(User::class)->create()
+        );
+
+        $downlineChildAccount = factory(User::class)->create([
+            'user_id' => $downline,
+        ]);
+
+        $this->json('PUT', "/api/users/{$rootUser->id}/trees/{$tree->id}", [
+            'user_id' => $downlineChildAccount->id,
+        ])->assertStatus(400);
+    }
+
+    public function testItWillValidateIfDragonAlreadyActivate()
+    {
+        Passport::actingAs(
+            $rootUser = factory(User::class)->create()
+        );
+
+        $tree = factory(Tree::class)->create([
+            'owner_id' => $rootUser,
+            'user_id' => $rootUser,
+        ]);
+
+        $rootUserChildAccount = factory(User::class)->create([
+            'user_id' => $rootUser,
+        ]);
+
+        $this->json('PUT', "/api/users/{$rootUser->id}/trees/{$tree->id}", [
+            'user_id' => $rootUserChildAccount->id,
+        ])->assertStatus(400);
     }
 
     public function testItWillValidateUserPolicy()
