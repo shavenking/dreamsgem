@@ -82,6 +82,50 @@ class DragonTest extends TestCase
         );
     }
 
+    public function testItWillValidateUserIsDownlines()
+    {
+        $root = factory(User::class)->create();
+
+        $root->appendNode(
+            $leftChild = factory(User::class)->create()
+        );
+
+        $root->appendNode(
+            $rightChild = factory(User::class)->create()
+        );
+
+        $dragon = factory(Dragon::class)->create([
+            'owner_id' => $leftChild->id,
+            'user_id' => null,
+        ]);
+
+        Passport::actingAs($leftChild);
+
+        $this->json('PUT', "/api/users/{$leftChild->id}/dragons/{$dragon->id}", [
+            'user_id' => $rightChild->id,
+        ])->assertStatus(400);
+    }
+
+    public function testItWillValidateIfDragonAlreadyActivate()
+    {
+        Passport::actingAs(
+            $dragonOwner = factory(User::class)->create()
+        );
+
+        $dragonOwner->appendNode(
+            $targetUser = factory(User::class)->create()
+        );
+
+        $dragon = factory(Dragon::class)->create([
+            'owner_id' => $dragonOwner->id,
+            'user_id' => $dragonOwner->id,
+        ]);
+
+        $this->json('PUT', "/api/users/{$dragonOwner->id}/dragons/{$dragon->id}", [
+            'user_id' => $targetUser->id,
+        ])->assertStatus(400);
+    }
+
     public function testItWillValidateUserPolicy()
     {
         $user = factory(User::class)->create();

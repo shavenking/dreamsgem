@@ -41,7 +41,7 @@ class DragonController extends Controller
 
         $targetUser = User::findOrFail($request->user_id);
 
-        if ($targetUser->activatedDragon) {
+        if ($targetUser->activatedDragon || $dragon->activated || !$targetUser->isDescendantOf($user)) {
             return response()->json([], 400);
         }
 

@@ -9,4 +9,9 @@ class Dragon extends Model implements Operatable
     use OperatableTrait;
 
     protected $fillable = ['user_id'];
+
+    public function getActivatedAttribute()
+    {
+        return !is_null($this->user_id);
+    }
 }
