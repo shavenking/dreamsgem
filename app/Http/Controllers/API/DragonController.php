@@ -51,8 +51,9 @@ class DragonController extends Controller
             event(new DragonActivated($dragon, $user));
 
             $targetUser->trees()->create([
+                'user_id' => $targetUser->id,
                 'progress' => '0',
-                'remain' => 0,
+                'remain' => User::DEFAULT_TREE_CAPACITY,
                 'capacity' => User::DEFAULT_TREE_CAPACITY,
             ]);
 

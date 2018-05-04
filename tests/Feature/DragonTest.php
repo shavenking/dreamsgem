@@ -66,7 +66,7 @@ class DragonTest extends TestCase
             ->assertStatus(200);
 
         $this->assertDragonExists($dragonOwner, $targetUser);
-        $this->assertOneTreeExists($targetUser);
+        $this->assertOneTreeExists($targetUser, $targetUser);
         $this->assertOperationHistoryExists(
             $dragon,
             OperationHistory::TYPE_ACTIVATE,
@@ -106,13 +106,16 @@ class DragonTest extends TestCase
         );
     }
 
-    private function assertOneTreeExists(User $user)
+    private function assertOneTreeExists(User $user, User $activateUser)
     {
         $this->assertDatabaseHas(
             (new Tree)->getTable(),
             [
                 'owner_id' => $user->id,
-                'user_id' => null
+                'user_id' => optional($activateUser)->id,
+                'progress' => '0',
+                'remain' => 90,
+                'capacity' => 90,
             ]
         );
 
