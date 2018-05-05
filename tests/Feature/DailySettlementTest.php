@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Dragon;
 use App\Jobs\DailySettlement;
 use App\Jobs\TreeSettlement;
 use App\Tree;
@@ -17,16 +18,7 @@ class DailySettlementTest extends TestCase
 
     public function testDailySettlement()
     {
-        /** @var Collection $users */
-        $users = factory(User::class)->times(2)->create()->each(function (User $user) {
-            $user->trees()->save(
-                factory(Tree::class)->states('capacity_available')->make()
-            );
-        });
-
-        factory(User::class)->create()->trees()->save(
-            factory(Tree::class)->make()
-        );
+        $users = factory(User::class)->times(3)->create();
 
         Queue::fake();
 
@@ -35,7 +27,7 @@ class DailySettlementTest extends TestCase
 
         $job->handle();
 
-        Queue::assertPushed(TreeSettlement::class, $users->count());
+        Queue::assertPushed(TreeSettlement::class, 3);
         Queue::assertPushed(TreeSettlement::class, function (TreeSettlement $job) use ($users) {
             return $users->first(function ($user) use ($job) {
                 return $user->id === $job->user->id;

@@ -30,11 +30,7 @@ class DailySettlement implements ShouldQueue
      */
     public function handle()
     {
-        $users = User::whereHas('trees', function ($query) {
-            $query->where('capacity', '>', 0);
-        })->get();
-
-        foreach ($users as $user) {
+        foreach (User::all() as $user) {
             dispatch(new TreeSettlement($user));
         }
     }

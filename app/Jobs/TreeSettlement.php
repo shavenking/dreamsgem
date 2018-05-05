@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TreeSettlement implements ShouldQueue
@@ -34,6 +35,8 @@ class TreeSettlement implements ShouldQueue
     public function __construct(User $user)
     {
         $this->user = $user;
+        $this->updatedTrees = [];
+        $this->updatedWallets = [];
     }
 
     /**
@@ -60,28 +63,25 @@ class TreeSettlement implements ShouldQueue
         DB::beginTransaction();
 
         /** @var Tree $tree */
-        $trees = $this->user->trees()->where('remain', '>', 0)->get();
-
-        $progressGained = $this->progressGained();
-        $maximumProgressRule = [
-            TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($this->user->children->count()),
-        ];
-
-        $this->user->treeSettlementHistories()->create([
-            'progress_gained' => $progressGained,
-            'maximum_progress_rule' => $maximumProgressRule,
-        ]);
-
-        $remainProgress = bcadd(
-            $progressGained[TreeSettlementHistory::KEY_SETTLEMENT_DAILY],
-            $progressGained[TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES],
-            1
-        );
+        $trees = $this->user->activatedTrees()->where('remain', '>', 0)->get();
 
         try {
+            $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
+            $totalDownlinesProgressGained = $this->downlinesProgress();
+            $remainProgress = $totalDownlinesProgressGained;
             foreach ($trees as $tree) {
                 $remainProgress = $this->settleTree($tree, $remainProgress);
             }
+
+            $this->user->treeSettlementHistories()->create([
+                'progress_gained' => [
+                    TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
+                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
+                ],
+                'maximum_progress_rule' => [
+                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($this->user->children->count()),
+                ],
+            ]);
 
             foreach ($this->updatedTrees as $tree) {
                 event(new TreeUpdated($tree));
@@ -112,20 +112,23 @@ class TreeSettlement implements ShouldQueue
             return '0';
         }
 
-        $originalProgress = $tree->progress;
-        $remain = $tree->remain;
+        if (
+            bccomp(bcmul($tree->remain, '100.0', 1), $remainProgress, 1) <= 0
+        ) {
+            $award = $tree->remain;
+        } else {
+            $award = min(bcdiv($remainProgress, '100.0', 0), $tree->remain);
+        }
 
-        $totalProgress = bcadd($originalProgress, $remainProgress, 1);
-        $award = min(bcdiv($totalProgress, '100.0', 0), $remain);
-        $remainProgress = bcsub($totalProgress, bcmul($award, '100.0', 1), 1);
+        $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
 
         if ($award) {
             foreach ([
-                Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
-                Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
-                Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
-                Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
-            ] as $gem => $increment) {
+                         Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
+                         Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
+                         Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                         Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
+                     ] as $gem => $increment) {
                 throw_if(
                     $this->createOrIncrementWallet($gem, $increment) !== 1,
                     new \RuntimeException('Wallet data has been changed')
@@ -133,31 +136,12 @@ class TreeSettlement implements ShouldQueue
             }
         }
 
-        $tree->remain -= $award;
-        $tree->progress = $tree->remain === 0 ? '0' : $remainProgress;
+        $this->updateTree($tree, [
+            'remain' => $remain = $tree->remain - $award,
+            'progress' => $remain === 0 ? '0' : $tree->progress,
+        ]);
 
-        $affectedCount = Tree::whereId($tree->id)
-            ->where('progress', $originalProgress)
-            ->where('remain', $remain)
-            ->update(
-                [
-                    'remain' => $tree->remain,
-                    'progress' => $tree->progress,
-                ]
-            );
-
-        throw_if(
-            $affectedCount !== 1,
-            new \RuntimeException('Tree data has been changed')
-        );
-
-        $this->updatedTrees[$tree->id] = $tree->refresh();
-
-        if ($tree->remain !== 0) {
-            return '0';
-        }
-
-        return $remainProgress;
+        return $remain !== 0 ? '0' : $remainProgress;
     }
 
     private function createOrIncrementWallet($gem, $increment)
@@ -184,19 +168,11 @@ class TreeSettlement implements ShouldQueue
         return $affectedCount;
     }
 
-    private function progressGained()
+    /**
+     * @return array
+     */
+    private function downlinesProgress()
     {
-        $dailyProgress = [
-            // sunday, monday, tuesday ... saturday
-            '14.2',
-            '14.3',
-            '14.3',
-            '14.3',
-            '14.3',
-            '14.3',
-            '14.3',
-        ][Carbon::now()->dayOfWeek];
-
         $nLevel = [
                 0 => 0,
                 1 => 5,
@@ -247,12 +223,9 @@ class TreeSettlement implements ShouldQueue
             7 => '15',
         ][$this->user->children->count()];
 
-        return [
-            TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $dailyProgress,
-            TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => min(
-                bcmul($downlinesProgress, $multiplier, 1), $this->maximumProgressRule($this->user->children->count())
-            ),
-        ];
+        return min(
+            bcmul($downlinesProgress, $multiplier, 1), $this->maximumProgressRule($this->user->children->count())
+        );
     }
 
     public function maximumProgressRule($childrenCount)
@@ -266,7 +239,53 @@ class TreeSettlement implements ShouldQueue
                 5 => '15000.0',
                 6 => '18000.0',
                 7 => '21000.0',
-            ], $childrenCount, '3000.0'
+            ], $childrenCount, '0.0'
         );
+    }
+
+    private function settleDailyTreeProgress(Collection $trees)
+    {
+        $totalProgressGained = '0';
+
+        foreach ($trees->take(3) as $tree) {
+            $totalProgressGained = bcadd($totalProgressGained, $this->dailyProgress(), 1);
+
+            $this->updateTree($tree, [
+                'progress' => bcadd($tree->progress, $this->dailyProgress(), 1),
+            ]);
+        }
+
+        return $totalProgressGained;
+    }
+
+    private function updateTree(Tree $tree, $attributes)
+    {
+        $affectedCount = Tree::where($tree->toArray())
+            ->update($attributes);
+
+        throw_if(
+            $affectedCount !== 1,
+            new \RuntimeException('Tree data has been changed')
+        );
+
+        $tree->fill($attributes);
+
+        $this->updatedTrees[$tree->id] = $tree;
+
+        return $tree;
+    }
+
+    private function dailyProgress()
+    {
+        return [
+            // sunday, monday, tuesday ... saturday
+            '14.2',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
+            '14.3',
+        ][Carbon::now()->dayOfWeek];
     }
 }
