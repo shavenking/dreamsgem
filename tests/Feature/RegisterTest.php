@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Jobs\FreezeUser;
 use App\OperationHistory;
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Passport;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class RegisterTest extends TestCase
 {
-    use WithFaker, DatabaseTransactions, OperationHistoryAssertTrait;
+    use WithFaker, RefreshDatabase, OperationHistoryAssertTrait;
 
     public function testCreateChild()
     {

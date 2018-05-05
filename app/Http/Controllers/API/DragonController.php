@@ -57,6 +57,18 @@ class DragonController extends Controller
                 'capacity' => User::DEFAULT_TREE_CAPACITY,
             ]);
 
+            foreach ((new Wallet)->gems() as $gem) {
+                $wallet = $targetUser->wallets()->firstOrCreate(
+                    [
+                        'gem' => Wallet::GEM_DUO_CAI,
+                    ], [
+                        'amount' => '0',
+                    ]
+                );
+
+                event(new WalletUpdated($wallet));
+            }
+
             $wallet = $targetUser->parent->wallets()->firstOrCreate(
                 [
                     'gem' => Wallet::GEM_DUO_CAI,

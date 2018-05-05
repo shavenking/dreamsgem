@@ -7,7 +7,7 @@ use App\OperationHistory;
 use App\Tree;
 use App\User;
 use App\Wallet;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;
 use Tests\OperationHistoryAssertTrait;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class DragonTest extends TestCase
 {
-    use DatabaseTransactions, OperationHistoryAssertTrait;
+    use RefreshDatabase, OperationHistoryAssertTrait;
 
     /**
      * @dataProvider dataProvider

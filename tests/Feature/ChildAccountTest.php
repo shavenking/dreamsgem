@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Jobs\FreezeUser;
 use App\OperationHistory;
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Laravel\Passport\Passport;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class ChildAccountTest extends TestCase
 {
-    use DatabaseTransactions, OperationHistoryAssertTrait;
+    use RefreshDatabase, OperationHistoryAssertTrait;
 
     public function testGetChildAccounts()
     {

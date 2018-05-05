@@ -15,10 +15,12 @@ class CreateWalletsTable extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->index();
-            $table->unsignedTinyInteger('gem')->index();
+            $table->unsignedInteger('user_id');
+            $table->unsignedTinyInteger('gem');
             $table->decimal('amount', 10, 1);
             $table->timestamps();
+
+            $table->unique(['user_id', 'gem']);
         });
     }
 

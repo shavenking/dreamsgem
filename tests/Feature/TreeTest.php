@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\OperationHistory;
 use App\Tree;
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;

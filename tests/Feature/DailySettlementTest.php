@@ -2,19 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\Dragon;
 use App\Jobs\DailySettlement;
 use App\Jobs\TreeSettlement;
-use App\Tree;
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Collection;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class DailySettlementTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     public function testDailySettlement()
     {
