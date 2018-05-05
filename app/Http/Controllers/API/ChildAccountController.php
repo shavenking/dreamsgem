@@ -39,7 +39,7 @@ class ChildAccountController extends Controller
             'frozen' => false,
         ]);
 
-        $user->appendNode($childAccount);
+        $user->addDownline($childAccount);
 
         FreezeUser::dispatch($childAccount)->delay(Carbon::now()->addDays(7));
 

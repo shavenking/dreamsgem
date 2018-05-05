@@ -141,4 +141,21 @@ class User extends Authenticatable implements Operatable
     {
         return $this->user_id !== null;
     }
+
+    public function addDownline(User $user)
+    {
+        $possibleParents = collect([$this]);
+
+        while ($possibleParent = $possibleParents->shift()) {
+            $children = $possibleParent->children()->get();
+
+            if ($children->count() === User::MAX_CHILDREN_FOR_ONE_USER) {
+                $possibleParents = $possibleParents->merge($children);
+            } else {
+                break;
+            }
+        }
+
+        $possibleParent->appendNode($user);
+    }
 }

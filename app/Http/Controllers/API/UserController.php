@@ -70,19 +70,7 @@ class UserController extends Controller
             'frozen' => false,
         ]);
 
-        $possibleParents = collect([$parentUser]);
-
-        while ($possibleParent = $possibleParents->shift()) {
-            $children = $possibleParent->children()->get();
-
-            if ($children->count() === User::MAX_CHILDREN_FOR_ONE_USER) {
-                $possibleParents = $possibleParents->merge($children);
-            } else {
-                break;
-            }
-        }
-
-        $possibleParent->appendNode($user);
+        $parentUser->addDownline($user);
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
 
