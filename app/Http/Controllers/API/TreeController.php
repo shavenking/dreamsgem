@@ -9,6 +9,7 @@ use App\Tree;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TreeController extends Controller
@@ -23,7 +24,7 @@ class TreeController extends Controller
             $trees->where(function ($query) use ($user) {
                 $query
                     ->where('owner_id', $user->id)
-                    ->where('user_id', $user->id);
+                    ->orWhere('user_id', $user->id);
             });
         }
 
@@ -44,7 +45,7 @@ class TreeController extends Controller
 
         event(new TreeCreated($tree, $user));
 
-        return response()->json([], Response::HTTP_CREATED);
+        return response()->json($tree, Response::HTTP_CREATED);
     }
 
     public function update(User $user, Tree $tree, Request $request)
@@ -59,8 +60,8 @@ class TreeController extends Controller
 
         if (
             $targetUser->activatedTrees->count() >= User::MAX_ACTIVATE_TREE_AMOUNT
-            || !$user->childAccounts()->whereId($targetUser->id)->first()
             || $tree->activated
+            || ($user->id !== Auth::user()->id && !$user->childAccounts()->whereId($targetUser->id)->first())
         ) {
             return response()->json([], 400);
         }
@@ -76,6 +77,6 @@ class TreeController extends Controller
 
         DB::commit();
 
-        return response()->json([], Response::HTTP_OK);
+        return response()->json($tree, Response::HTTP_OK);
     }
 }

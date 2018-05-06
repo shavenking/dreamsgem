@@ -28,7 +28,7 @@ class DragonController extends Controller
 
         DB::commit();
 
-        return response()->json([], Response::HTTP_CREATED);
+        return response()->json($dragon, Response::HTTP_CREATED);
     }
 
     public function update(User $user, Dragon $dragon, Request $request)
@@ -95,6 +95,6 @@ class DragonController extends Controller
 
         DB::commit();
 
-        return response()->json([], Response::HTTP_OK);
+        return response()->json($dragon->refresh(), Response::HTTP_OK);
     }
 }

@@ -42,6 +42,6 @@ class ChildAccountController extends Controller
 
         DB::commit();
 
-        return response()->json([], Response::HTTP_CREATED);
+        return response()->json($childAccount, Response::HTTP_CREATED);
     }
 }
