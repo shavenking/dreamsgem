@@ -17,7 +17,7 @@ class CreateWalletsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedTinyInteger('gem');
-            $table->decimal('amount', 10, 1);
+            $table->decimal('amount', 20, 1);
             $table->timestamps();
 
             $table->unique(['user_id', 'gem']);

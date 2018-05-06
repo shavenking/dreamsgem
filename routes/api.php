@@ -5,7 +5,6 @@ Route::group(['namespace' => 'API'], function () {
         'only' => ['show', 'store', 'update'],
     ]);
 
-    // middleware in controller constructor
     Route::resource('users.child-accounts', 'ChildAccountController', [
         'only' => ['index', 'store'],
     ])->middleware(['auth:api']);
@@ -16,5 +15,9 @@ Route::group(['namespace' => 'API'], function () {
 
     Route::resource('users.trees', 'TreeController', [
         'only' => ['index', 'store', 'update'],
+    ])->middleware(['auth:api']);
+
+    Route::resource('users.wallets', 'WalletController', [
+        'only' => ['index'],
     ])->middleware(['auth:api']);
 });
