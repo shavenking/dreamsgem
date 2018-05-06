@@ -17,7 +17,9 @@ class UserTest extends TestCase
     public function testGetUser()
     {
         /** @var User $user */
-        $user = factory(User::class)->create();
+        Passport::actingAs(
+            $user = factory(User::class)->create()
+        );
 
         /** @var User $downlines */
         $downlines = factory(User::class)->times(7)->create()->each(function ($child) use ($user) {

@@ -13,6 +13,23 @@ use Illuminate\Support\Facades\DB;
 
 class TreeController extends Controller
 {
+    public function index(User $user, Request $request)
+    {
+        $trees = Tree::query();
+
+        if ($request->hasAny('owner_id', 'user_id')) {
+            $trees->where($request->only('owner_id', 'user_id'));
+        } else {
+            $trees->where(function ($query) use ($user) {
+                $query
+                    ->where('owner_id', $user->id)
+                    ->where('user_id', $user->id);
+            });
+        }
+
+        return response()->json($trees->paginate());
+    }
+
     public function store(User $user)
     {
         $this->authorize('createTrees', $user);

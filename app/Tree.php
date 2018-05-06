@@ -8,7 +8,7 @@ class Tree extends Model implements Operatable
 {
     use OperatableTrait;
 
-    protected $fillable = ['user_id', 'remain', 'capacity', 'progress'];
+    protected $fillable = ['owner_id', 'user_id', 'remain', 'capacity', 'progress'];
 
     public function getActivatedAttribute()
     {

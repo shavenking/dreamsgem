@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:api'])->except(['store']);
+    }
+
     public function show(User $user)
     {
         return response()->json(array_merge($user->toArray(), [

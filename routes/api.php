@@ -8,13 +8,13 @@ Route::group(['namespace' => 'API'], function () {
     // middleware in controller constructor
     Route::resource('users.child-accounts', 'ChildAccountController', [
         'only' => ['index', 'store'],
-    ]);
+    ])->middleware(['auth:api']);
 
     Route::resource('users.dragons', 'DragonController', [
         'only' => ['store', 'update'],
     ])->middleware(['auth:api']);
 
     Route::resource('users.trees', 'TreeController', [
-        'only' => ['store', 'update'],
+        'only' => ['index', 'store', 'update'],
     ])->middleware(['auth:api']);
 });

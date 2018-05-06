@@ -14,11 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ChildAccountController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth:api'])->except('index');
-    }
-
     public function index(User $user)
     {
         $childAccounts = $user->childAccounts()->paginate();

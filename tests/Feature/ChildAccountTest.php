@@ -19,7 +19,9 @@ class ChildAccountTest extends TestCase
     public function testGetChildAccounts()
     {
         /** @var User $user */
-        $user = factory(User::class)->create();
+        Passport::actingAs(
+            $user = factory(User::class)->create()
+        );
 
         /** @var Collection $childAccounts */
         $childAccounts = factory(User::class)->times(2)->create([
@@ -68,8 +70,7 @@ class ChildAccountTest extends TestCase
         }
 
         Passport::actingAs(
-            $parent = factory(User::class)->create(),
-            $scopes
+            $parent = factory(User::class)->create()
         );
 
         $this
@@ -134,7 +135,7 @@ class ChildAccountTest extends TestCase
                 ['create-child-accounts'], 201,
             ],
             [
-                [], 403,
+                [], 201,
             ],
         ];
     }

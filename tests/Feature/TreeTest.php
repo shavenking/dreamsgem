@@ -15,6 +15,37 @@ class TreeTest extends TestCase
 {
     use RefreshDatabase, OperationHistoryAssertTrait;
 
+    public function testListTrees()
+    {
+        Passport::actingAs(
+            $user = factory(User::class)->create()
+        );
+
+        $trees = factory(Tree::class)->times(20)->create([
+            'owner_id' => $user->id,
+            'user_id' => $user->id,
+        ]);
+
+        $appUrl = env('APP_URL');
+        $this
+            ->json('GET', "/api/users/{$user->id}/trees")
+            ->assertStatus(200)
+            ->assertExactJson([
+                'current_page' => 1,
+                'data' => $trees->take(15)->toArray(),
+                'first_page_url' => "$appUrl/api/users/{$user->id}/trees?page=1",
+                'from' => 1,
+                'last_page' => 2,
+                'last_page_url' => "$appUrl/api/users/{$user->id}/trees?page=2",
+                'next_page_url' => "$appUrl/api/users/{$user->id}/trees?page=2",
+                'path' => "$appUrl/api/users/{$user->id}/trees",
+                'per_page' => 15,
+                'prev_page_url' => null,
+                'to' => 15,
+                'total' => 20,
+            ]);
+    }
+
     /**
      * @dataProvider dataProvider
      * @param $scopes
