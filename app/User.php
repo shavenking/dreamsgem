@@ -51,6 +51,7 @@ class User extends Authenticatable implements Operatable
 
     protected $appends = [
         'is_child_account',
+        'activated',
     ];
 
     public function parentAccount()
@@ -157,5 +158,15 @@ class User extends Authenticatable implements Operatable
         }
 
         $possibleParent->appendNode($user);
+    }
+
+    public function getActivatedAttribute()
+    {
+        return !is_null($this->activatedDragon);
+    }
+
+    public function toArray()
+    {
+        return $this->attributesToArray();
     }
 }

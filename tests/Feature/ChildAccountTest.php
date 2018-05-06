@@ -23,8 +23,7 @@ class ChildAccountTest extends TestCase
             $user = factory(User::class)->create()
         );
 
-        /** @var Collection $childAccounts */
-        $childAccounts = factory(User::class)->times(2)->create([
+        factory(User::class)->times(2)->create([
             'user_id' => $user->id,
         ])->map(function ($childAccount) {
             return [
@@ -38,6 +37,7 @@ class ChildAccountTest extends TestCase
             ];
         });
 
+        $childAccounts = User::whereUserId($user->id)->get();
         $appUrl = env('APP_URL');
         $this
             ->json('GET', "/api/users/{$user->id}/child-accounts")

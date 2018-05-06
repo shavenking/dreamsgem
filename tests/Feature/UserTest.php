@@ -39,6 +39,7 @@ class UserTest extends TestCase
                 'created_at' => $downline->created_at->toDateTimeString(),
                 'updated_at' => $downline->updated_at->toDateTimeString(),
                 'is_child_account' => $downline->user_id !== null,
+                'activated' => $downline->activated,
             ];
         });
 
@@ -54,6 +55,7 @@ class UserTest extends TestCase
                 'updated_at' => $user->updated_at->toDateTimeString(),
                 'is_child_account' => $user->user_id !== null,
                 'downlines' => $downlines->toArray(),
+                'activated' => $user->activated,
             ]);
     }
 

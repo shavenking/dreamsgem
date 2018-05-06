@@ -35,11 +35,14 @@ class FreezeUser implements ShouldQueue
     {
         if (
             $this->user->created_at->lt(Carbon::now()->subDays(7))
-            && !$this->user->dragon
+            && !$this->user->activated
         ) {
-            $this->user->update([
-                'frozen' => true,
-            ]);
+            $affectedCount = User::whereId($this->user->id)
+                ->update(['frozen' => true]);
+
+            if ($affectedCount !== 1) {
+                $this->release();
+            }
         }
     }
 }
