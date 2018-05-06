@@ -60,7 +60,7 @@ class DragonController extends Controller
             foreach ((new Wallet)->gems() as $gem) {
                 $wallet = $targetUser->wallets()->firstOrCreate(
                     [
-                        'gem' => Wallet::GEM_DUO_CAI,
+                        'gem' => $gem,
                     ], [
                         'amount' => '0',
                     ]
