@@ -16,7 +16,7 @@ class ChildAccountController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth:api', 'scopes:create-child-accounts'])->except('index');
+        $this->middleware(['auth:api'])->except('index');
     }
 
     public function index(User $user)
