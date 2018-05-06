@@ -43,14 +43,14 @@ class UserController extends Controller
         DB::beginTransaction();
 
         if (request()->has('upline_id')) {
-            $this->createUser($request);
+            $user = $this->createUser($request);
         } else {
-            $this->createUserFromChildAccount($request);
+            $user = $this->createUserFromChildAccount($request);
         }
 
         DB::commit();
 
-        return response()->json([], Response::HTTP_CREATED);
+        return response()->json($user, Response::HTTP_CREATED);
     }
 
     public function update(User $user, Request $request)
@@ -62,10 +62,10 @@ class UserController extends Controller
             event(new UserUpdated($user, $user));
         }
 
-        return response()->json([], 200);
+        return response()->json($user, 200);
     }
 
-    private function createUser(Request $request)
+    private function createUser(Request $request): User
     {
         $parentUser = User::findOrFail($request->upline_id);
         $user = User::create([
@@ -80,9 +80,11 @@ class UserController extends Controller
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
 
         event(new UserCreated($user));
+
+        return $user;
     }
 
-    private function createUserFromChildAccount(Request $request)
+    private function createUserFromChildAccount(Request $request): User
     {
         $childAccount = User::findOrFail($request->child_account_id);
         $this->authorize('updateChildAccounts', $childAccount);
@@ -94,5 +96,7 @@ class UserController extends Controller
         ]);
 
         event(new UserUpdated($childAccount, Auth::user()));
+
+        return $childAccount;
     }
 }
