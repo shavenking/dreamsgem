@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Dragon;
 use App\Jobs\FreezeUser;
 use App\OperationHistory;
 use App\User;
@@ -16,16 +17,18 @@ class RegisterTest extends TestCase
 {
     use WithFaker, RefreshDatabase, OperationHistoryAssertTrait;
 
-    public function testCreateChild()
+    public function testCreateDownline()
     {
         $this->expectsJobs(FreezeUser::class);
 
         /** @var User $parent */
         $parent = factory(User::class)->create();
+        factory(Dragon::class)->create(['user_id' => $parent->id]);
 
         /** @var User $targetUser */
         $targetUser = factory(User::class)->times(7)->create()->each(function ($user) use ($parent) {
             $parent->appendNode($user);
+            factory(Dragon::class)->create(['user_id' => $user->id]);
         })->first();
 
         $targetUser->appendNode(

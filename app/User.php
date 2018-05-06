@@ -157,6 +157,11 @@ class User extends Authenticatable implements Operatable
             }
         }
 
+        // validate if specific upline is activated
+        static::whereId($possibleParent->id)
+            ->whereFrozen(false)
+            ->whereHas('activatedDragon')->firstOrFail();
+
         $possibleParent->appendNode($user);
     }
 

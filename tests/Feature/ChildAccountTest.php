@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Dragon;
 use App\Jobs\FreezeUser;
 use App\OperationHistory;
 use App\User;
@@ -72,6 +73,8 @@ class ChildAccountTest extends TestCase
         Passport::actingAs(
             $parent = factory(User::class)->create()
         );
+
+        factory(Dragon::class)->create(['user_id' => $parent->id]);
 
         $this
             ->json('POST', "/api/users/{$parent->id}/child-accounts")
