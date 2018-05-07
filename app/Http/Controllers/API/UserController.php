@@ -16,9 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware(['auth:api'])->except(['store']);
+
+        // HOTFIX
+        if ($request->child_account_id) {
+            $this->middleware(['auth:api']);
+        }
     }
 
     public function show(User $user)
