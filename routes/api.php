@@ -9,8 +9,8 @@ Route::group(['namespace' => 'API'], function () {
         'only' => ['index', 'store'],
     ])->middleware(['auth:api']);
 
-    Route::resource('users.dragons', 'DragonController', [
-        'only' => ['store', 'update'],
+    Route::resource('dragons', 'DragonController', [
+        'only' => ['index', 'update'],
     ])->middleware(['auth:api']);
 
     Route::resource('users.trees', 'TreeController', [

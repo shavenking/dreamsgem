@@ -17,6 +17,38 @@ class DragonTest extends TestCase
 {
     use RefreshDatabase, OperationHistoryAssertTrait;
 
+    public function testGetFreeDragons()
+    {
+        Passport::actingAs(
+            $user = factory(User::class)->create()
+        );
+
+        $freeDragons = factory(Dragon::class)->times(3)->create(['owner_id' => null, 'user_id' => null]);
+
+        factory(Dragon::class)->create();
+
+        $appUrl = env('APP_URL');
+        $this
+            ->json('GET', "/api/dragons")
+            ->assertStatus(200)
+            ->assertExactJson(
+                [
+                    'current_page' => 1,
+                    'data' => $freeDragons->toArray(),
+                    'first_page_url' => "$appUrl/api/dragons?page=1",
+                    'from' => 1,
+                    'last_page' => 1,
+                    'last_page_url' => "$appUrl/api/dragons?page=1",
+                    'next_page_url' => null,
+                    'path' => "$appUrl/api/dragons",
+                    'per_page' => 15,
+                    'prev_page_url' => null,
+                    'to' => 3,
+                    'total' => 3,
+                ]
+            );
+    }
+
     /**
      * @dataProvider dataProvider
      * @param $scopes
@@ -29,8 +61,10 @@ class DragonTest extends TestCase
             $scopes
         );
 
+        $dragon = factory(Dragon::class)->create(['owner_id' => null, 'user_id' => null]);
+
         $this
-            ->json('POST', "/api/users/{$user->id}/dragons")
+            ->json('PUT', "/api/dragons/{$dragon->id}", ['owner_id' => $user->id])
             ->assertStatus($statusCode);
 
         if (Response::HTTP_CREATED === $statusCode) {
@@ -60,7 +94,7 @@ class DragonTest extends TestCase
         );
 
         $this
-            ->json('PUT', "/api/users/{$dragonOwner->id}/dragons/{$dragon->id}", [
+            ->json('PUT', "/api/dragons/{$dragon->id}", [
                 'user_id' => $targetUser->id,
             ])
             ->assertStatus(200);
@@ -101,7 +135,7 @@ class DragonTest extends TestCase
 
         Passport::actingAs($leftChild);
 
-        $this->json('PUT', "/api/users/{$leftChild->id}/dragons/{$dragon->id}", [
+        $this->json('PUT', "/api/dragons/{$dragon->id}", [
             'user_id' => $rightChild->id,
         ])->assertStatus(400);
     }
@@ -121,7 +155,7 @@ class DragonTest extends TestCase
             'user_id' => $dragonOwner->id,
         ]);
 
-        $this->json('PUT', "/api/users/{$dragonOwner->id}/dragons/{$dragon->id}", [
+        $this->json('PUT', "/api/dragons/{$dragon->id}", [
             'user_id' => $targetUser->id,
         ])->assertStatus(400);
     }
@@ -130,12 +164,14 @@ class DragonTest extends TestCase
     {
         $user = factory(User::class)->create();
         Passport::actingAs(
-            factory(User::class)->create(),
-            ['create-dragons']
+            factory(User::class)->create()
         );
+        $dragon = factory(Dragon::class)->create();
 
         $this
-            ->json('POST', "/api/users/{$user->id}/dragons")
+            ->json('PUT', "/api/dragons/{$dragon->id}", [
+                'user_id' => $user->id,
+            ])
             ->assertStatus(403);
     }
 
@@ -169,7 +205,7 @@ class DragonTest extends TestCase
     public function dataProvider()
     {
         return [
-            'Valid Token' => [['create-dragons'], Response::HTTP_CREATED],
+            'Valid Token' => [['create-dragons'], Response::HTTP_OK],
         ];
     }
 }

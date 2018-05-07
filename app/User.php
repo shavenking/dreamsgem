@@ -14,7 +14,6 @@ class User extends Authenticatable implements Operatable
 {
     use Notifiable, NodeTrait, HasApiTokens, OperatableTrait;
 
-    const MAX_ACTIVATE_DRAGON_AMOUNT = 1;
     const MAX_ACTIVATE_TREE_AMOUNT = 50;
     const DEFAULT_TREE_CAPACITY = 90;
     const MAX_CHILDREN_FOR_ONE_USER = 7;
@@ -92,28 +91,6 @@ class User extends Authenticatable implements Operatable
     public function treeSettlementHistories()
     {
         return $this->hasMany(TreeSettlementHistory::class);
-    }
-
-    public function activateDragon(Dragon $dragon, User $targetUser)
-    {
-        $maxActivateDragonAmount = self::MAX_ACTIVATE_DRAGON_AMOUNT;
-
-        $affectedCount = Dragon::whereId($dragon->id)
-            ->where('user_id', null)
-            ->whereRaw(
-                "$maxActivateDragonAmount > (
-                    SELECT count(*) FROM 
-                        (SELECT * FROM dragons WHERE user_id = {$targetUser->id}) AS dragon_temp 
-                    WHERE user_id = {$targetUser->id}
-                )"
-            )
-            ->update(
-                [
-                    'user_id' => $targetUser->id,
-                ]
-            );
-
-        return $affectedCount;
     }
 
     public function activateTree(Tree $tree, User $targetUser)
