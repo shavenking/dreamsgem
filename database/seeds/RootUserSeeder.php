@@ -16,6 +16,10 @@ class RootUserSeeder extends Seeder
      */
     public function run()
     {
+        if (\App\User::find(1)) {
+            return;
+        }
+
         DB::beginTransaction();
 
         $user = \App\User::firstOrCreate(
