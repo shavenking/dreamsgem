@@ -122,7 +122,7 @@ class TreeSettlement implements ShouldQueue
 
         $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
 
-        if ($award) {
+        if (0 === bccomp($award, '0.0', 1)) {
             foreach ([
                          Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
                          Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
