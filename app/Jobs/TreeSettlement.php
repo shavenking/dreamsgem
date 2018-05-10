@@ -50,7 +50,8 @@ class TreeSettlement implements ShouldQueue
         foreach ($this->user->children as $child) {
             /** @var TreeSettlementHistory $treeSettlementHistoryToday */
             $treeSettlementHistoryToday = $child->treeSettlementHistories()
-                ->whereDate('created_at', Carbon::now())
+                ->whereDate('created_at', Carbon::now()->toDateString())
+                ->latest()
                 ->first();
 
             if (!$treeSettlementHistoryToday) {
@@ -89,7 +90,7 @@ class TreeSettlement implements ShouldQueue
         foreach ($this->updatedWallets as $wallet) {
             event(new WalletUpdated($wallet));
         }
-        
+
         DB::commit();
     }
 
@@ -192,7 +193,8 @@ class TreeSettlement implements ShouldQueue
             function ($carry, User $child) {
                 /** @var TreeSettlementHistory $treeSettlementHistoryToday */
                 $treeSettlementHistoryToday = $child->treeSettlementHistories()
-                    ->whereDate('created_at', Carbon::now())
+                    ->whereDate('created_at', Carbon::now()->toDateString())
+                    ->latest()
                     ->firstOrFail();
                 $settlementDailyKey = TreeSettlementHistory::KEY_SETTLEMENT_DAILY;
                 $settlementDownlinesKey = TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES;
@@ -262,8 +264,8 @@ class TreeSettlement implements ShouldQueue
             }
 
             $this->updateTree($tree, [
-                'remain' => $tree->remain -= $award,
-                'progress' => bcadd($tree->progress, $this->dailyProgress(), 1),
+                'remain' => $tree->remain - $award,
+                'progress' => bcsub($treeProgress, bcmul($award, '100.0', 1), 1),
             ]);
         }
 
@@ -272,7 +274,7 @@ class TreeSettlement implements ShouldQueue
 
     private function updateTree(Tree $tree, $attributes)
     {
-        $affectedCount = Tree::where($tree->toArray())
+        $affectedCount = Tree::where(array_except($tree->toArray(), ['created_at', 'updated_at']))
             ->update($attributes);
 
         throw_if(
