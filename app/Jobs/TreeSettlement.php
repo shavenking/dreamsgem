@@ -65,37 +65,31 @@ class TreeSettlement implements ShouldQueue
         /** @var Tree $tree */
         $trees = $this->user->activatedTrees()->where('remain', '>', 0)->get();
 
-        try {
-            $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
-            $totalDownlinesProgressGained = $this->downlinesProgress();
-            $remainProgress = $totalDownlinesProgressGained;
-            foreach ($trees as $tree) {
-                $remainProgress = $this->settleTree($tree, $remainProgress);
-            }
-
-            $this->user->treeSettlementHistories()->create([
-                'progress_gained' => [
-                    TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
-                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
-                ],
-                'maximum_progress_rule' => [
-                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($this->user->children->count()),
-                ],
-            ]);
-
-            foreach ($this->updatedTrees as $tree) {
-                event(new TreeUpdated($tree));
-            }
-
-            foreach ($this->updatedWallets as $wallet) {
-                event(new WalletUpdated($wallet));
-            }
-        } catch (\Throwable $e) {
-            $this->release();
-
-            return;
+        $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
+        $totalDownlinesProgressGained = $this->downlinesProgress();
+        $remainProgress = $totalDownlinesProgressGained;
+        foreach ($trees as $tree) {
+            $remainProgress = $this->settleTree($tree, $remainProgress);
         }
 
+        $this->user->treeSettlementHistories()->create([
+            'progress_gained' => [
+                TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
+                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
+            ],
+            'maximum_progress_rule' => [
+                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($this->user->children->count()),
+            ],
+        ]);
+
+        foreach ($this->updatedTrees as $tree) {
+            event(new TreeUpdated($tree));
+        }
+
+        foreach ($this->updatedWallets as $wallet) {
+            event(new WalletUpdated($wallet));
+        }
+        
         DB::commit();
     }
 
