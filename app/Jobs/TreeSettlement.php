@@ -122,7 +122,7 @@ class TreeSettlement implements ShouldQueue
 
         $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
 
-        if (0 === bccomp($award, '0.0', 1)) {
+        if (bccomp($award, '0.0', 1) > 0) {
             foreach ([
                          Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
                          Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
@@ -250,7 +250,25 @@ class TreeSettlement implements ShouldQueue
         foreach ($trees->take(3) as $tree) {
             $totalProgressGained = bcadd($totalProgressGained, $this->dailyProgress(), 1);
 
+            $treeProgress = bcadd($tree->progress, $this->dailyProgress(), 1);
+            $award = bccomp($treeProgress, '100.0', 1) > 0 ? min(bcdiv($treeProgress, '100.0', 0), $tree->remain) : 0;
+
+            if (bccomp($award, '0.0', 1) > 0) {
+                foreach ([
+                             Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
+                             Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
+                             Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                             Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
+                         ] as $gem => $increment) {
+                    throw_if(
+                        $this->createOrIncrementWallet($gem, $increment) !== 1,
+                        new \RuntimeException('Wallet data has been changed')
+                    );
+                }
+            }
+
             $this->updateTree($tree, [
+                'remain' => $tree->remain -= $award,
                 'progress' => bcadd($tree->progress, $this->dailyProgress(), 1),
             ]);
         }

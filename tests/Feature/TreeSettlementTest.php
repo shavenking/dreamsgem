@@ -120,7 +120,7 @@ class TreeSettlementTest extends TestCase
                      [$user2, $this->baseGemsCount($user2TreesAssertions)],
                      [$user6, $this->baseGemsCount($user6TreesAssertions)],
                      [$user9, $this->baseGemsCount($user9TreesAssertions)],
-                 ] as $parameters) {
+                 ] as $idx => $parameters) {
             $this->assertWallets(...$parameters);
         }
     }
