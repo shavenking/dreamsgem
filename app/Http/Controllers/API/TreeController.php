@@ -59,7 +59,8 @@ class TreeController extends Controller
         $targetUser = User::findOrFail($request->user_id);
 
         if (
-            $targetUser->activatedTrees->count() >= User::MAX_ACTIVATE_TREE_AMOUNT
+            !$targetUser->activated
+            || $targetUser->activatedTrees->count() >= User::MAX_ACTIVATE_TREE_AMOUNT
             || $tree->activated
             || ($user->id !== Auth::user()->id && !$user->childAccounts()->whereId($targetUser->id)->first())
         ) {
