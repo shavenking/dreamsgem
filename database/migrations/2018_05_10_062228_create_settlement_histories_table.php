@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTreeSettlementHistoriesTable extends Migration
+class CreateSettlementHistoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,8 @@ class CreateTreeSettlementHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('tree_settlement_histories', function (Blueprint $table) {
+        Schema::create('settlement_histories', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('settlement_history_id')->index();
-            $table->unsignedInteger('user_id')->index();
-            $table->json('progress_gained');
-            $table->json('maximum_progress_rule');
             $table->timestamps();
         });
     }
@@ -30,6 +26,6 @@ class CreateTreeSettlementHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tree_settlement_histories');
+        Schema::dropIfExists('daily_settlements');
     }
 }

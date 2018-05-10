@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\SettlementHistory;
 use App\Events\TreeUpdated;
 use App\Events\WalletUpdated;
 use App\Tree;
@@ -27,14 +28,18 @@ class TreeSettlement implements ShouldQueue
 
     private $updatedWallets;
 
+    private $settlementHistory;
+
     /**
      * Create a new job instance.
      *
      * @param User $user
+     * @param SettlementHistory $settlementHistory
      */
-    public function __construct(User $user)
+    public function __construct(User $user, SettlementHistory $settlementHistory)
     {
         $this->user = $user;
+        $this->settlementHistory = $settlementHistory;
         $this->updatedTrees = [];
         $this->updatedWallets = [];
     }
@@ -48,13 +53,12 @@ class TreeSettlement implements ShouldQueue
     {
         // if children of user not settled, release with delay
         foreach ($this->user->children as $child) {
-            /** @var TreeSettlementHistory $treeSettlementHistoryToday */
-            $treeSettlementHistoryToday = $child->treeSettlementHistories()
-                ->whereDate('created_at', Carbon::now()->toDateString())
-                ->latest()
-                ->first();
+            /** @var TreeSettlementHistory $treeSettlementHistory */
+            $treeSettlementHistory = $this->settlementHistory->treeSettlementHistories()->where([
+                'user_id' => $child->id,
+            ])->first();
 
-            if (!$treeSettlementHistoryToday) {
+            if (!$treeSettlementHistory) {
                 $this->release(60);
 
                 return;
@@ -74,6 +78,7 @@ class TreeSettlement implements ShouldQueue
         }
 
         $this->user->treeSettlementHistories()->create([
+            'settlement_history_id' => $this->settlementHistory->id,
             'progress_gained' => [
                 TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
                 TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
@@ -192,15 +197,14 @@ class TreeSettlement implements ShouldQueue
         $downlinesProgress = $children->reduce(
             function ($carry, User $child) {
                 /** @var TreeSettlementHistory $treeSettlementHistoryToday */
-                $treeSettlementHistoryToday = $child->treeSettlementHistories()
-                    ->whereDate('created_at', Carbon::now()->toDateString())
-                    ->latest()
-                    ->firstOrFail();
+                $treeSettlementHistory = $this->settlementHistory->treeSettlementHistories()->where([
+                    'user_id' => $child->id,
+                ])->first();
                 $settlementDailyKey = TreeSettlementHistory::KEY_SETTLEMENT_DAILY;
                 $settlementDownlinesKey = TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES;
                 $childTotalProgressGained = bcadd(
-                    data_get($treeSettlementHistoryToday, "progress_gained.$settlementDailyKey"),
-                    data_get($treeSettlementHistoryToday, "progress_gained.$settlementDownlinesKey"),
+                    data_get($treeSettlementHistory, "progress_gained.$settlementDailyKey"),
+                    data_get($treeSettlementHistory, "progress_gained.$settlementDownlinesKey"),
                     1
                 );
 

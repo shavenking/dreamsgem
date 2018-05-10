@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Dragon;
 use App\OperationHistory;
 use App\Tree;
 use App\User;
@@ -103,6 +104,10 @@ class TreeTest extends TestCase
                 'user_id' => $user->id,
             ]
         );
+
+        factory(Dragon::class)->create([
+            'user_id' => $childAccount->id,
+        ]);
 
         $this->json('PUT', "/api/users/{$user->id}/trees/{$tree->id}", [
             'user_id' => $childAccount->id,

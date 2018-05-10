@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\SettlementHistory;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,8 +31,9 @@ class DailySettlement implements ShouldQueue
      */
     public function handle()
     {
+        $settlementHistory = SettlementHistory::create();
         foreach (User::all() as $user) {
-            dispatch(new TreeSettlement($user));
+            dispatch(new TreeSettlement($user, $settlementHistory));
         }
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Dragon;
 use App\Jobs\TreeSettlement;
+use App\SettlementHistory;
 use App\Tree;
 use App\TreeSettlementHistory;
 use App\User;
@@ -75,6 +76,7 @@ class TreeSettlementTest extends TestCase
 
         $user10 = $this->createUser($user9);
 
+        $settlementHistory = SettlementHistory::create();
         foreach ([
                      $user10, $user9,
                      $user8, $user7,
@@ -82,7 +84,7 @@ class TreeSettlementTest extends TestCase
                      $user4, $user3,
                      $user2, $user1,
                  ] as $idx => $user) {
-            (new TreeSettlement($user))->handle();
+            (new TreeSettlement($user, $settlementHistory))->handle();
         }
 
         $user1TreesAssertions = [
