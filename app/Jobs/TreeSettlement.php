@@ -77,6 +77,9 @@ class TreeSettlement implements ShouldQueue
             $remainProgress = $this->settleTree($tree, $remainProgress);
         }
 
+        $activatedChildrenCount = $this->user->children->filter(function (User $user) {
+            return $user->activated;
+        })->count();
         $this->user->treeSettlementHistories()->create([
             'settlement_history_id' => $this->settlementHistory->id,
             'progress_gained' => [
@@ -84,7 +87,7 @@ class TreeSettlement implements ShouldQueue
                 TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
             ],
             'maximum_progress_rule' => [
-                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($this->user->children->count()),
+                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($activatedChildrenCount),
             ],
         ]);
 
@@ -173,6 +176,10 @@ class TreeSettlement implements ShouldQueue
      */
     private function downlinesProgress()
     {
+        $activatedChildrenCount = $this->user->children->filter(function (User $child) {
+            return $child->activated;
+        })->count();
+
         $nLevel = [
                 0 => 0,
                 1 => 5,
@@ -182,7 +189,7 @@ class TreeSettlement implements ShouldQueue
                 5 => 10,
                 6 => 10,
                 7 => 10,
-            ][$this->user->children->count()] - 1;
+            ][$activatedChildrenCount] - 1;
 
         $children = collect();
         $candidateChildren = collect($this->user->children);
@@ -196,6 +203,10 @@ class TreeSettlement implements ShouldQueue
 
         $downlinesProgress = $children->reduce(
             function ($carry, User $child) {
+                if (!$child->activated) {
+                    return $carry;
+                }
+
                 /** @var TreeSettlementHistory $treeSettlementHistoryToday */
                 $treeSettlementHistory = $this->settlementHistory->treeSettlementHistories()->where([
                     'user_id' => $child->id,
@@ -221,10 +232,10 @@ class TreeSettlement implements ShouldQueue
             5 => '13',
             6 => '14',
             7 => '15',
-        ][$this->user->children->count()];
+        ][$activatedChildrenCount];
 
         return min(
-            bcmul($downlinesProgress, $multiplier, 1), $this->maximumProgressRule($this->user->children->count())
+            bcmul($downlinesProgress, $multiplier, 1), $this->maximumProgressRule($activatedChildrenCount)
         );
     }
 
