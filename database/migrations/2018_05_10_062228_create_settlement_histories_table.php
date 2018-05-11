@@ -26,6 +26,6 @@ class CreateSettlementHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('daily_settlements');
+        Schema::dropIfExists('settlement_histories');
     }
 }
