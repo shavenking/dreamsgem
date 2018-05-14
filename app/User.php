@@ -2,11 +2,11 @@
 
 namespace App;
 
-use App\Events\DragonActivated;
-use App\Events\TreeCreated;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Kalnoy\Nestedset\NodeTrait;
 use Laravel\Passport\HasApiTokens;
 
@@ -150,5 +150,23 @@ class User extends Authenticatable implements Operatable
     public function toArray()
     {
         return $this->attributesToArray();
+    }
+
+    public function validateForPassportPasswordGrant($password)
+    {
+        // terrible hotfix
+        if (Hash::check($password, $this->getAuthPassword())) {
+            return true;
+        }
+
+        /** @var Response $response */
+        $response = app(Client::class)->get(env('APP_AUTH_ENDPOINT'), [
+            'query' => [
+                'email' => $this->email,
+                'password' => $password
+            ]
+        ]);
+
+        return $response->getStatusCode() === \Illuminate\Http\Response::HTTP_OK;
     }
 }

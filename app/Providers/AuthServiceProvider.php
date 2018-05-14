@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
+use Illuminate\Config\Repository;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Laravel\Passport\Bridge\RefreshTokenRepository;
+use Laravel\Passport\Bridge\UserRepository;
 use Laravel\Passport\Passport;
+use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\CryptKey;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -27,6 +32,17 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        $grant = new ExtensionGrant(
+            $this->app->make(UserRepository::class),
+            $this->app->make(RefreshTokenRepository::class)
+        );
+
+        $grant->setRefreshTokenTTL(Passport::refreshTokensExpireIn());
+
+        app(AuthorizationServer::class)->enableGrantType(
+            $grant, Passport::tokensExpireIn()
+        );
 
         Passport::routes();
 

@@ -1,5 +1,9 @@
 <?php
 
+Route::get('/ok', function () {
+    return response()->json();
+});
+
 Route::group(['namespace' => 'API'], function () {
     Route::resource('users', 'UserController', [
         'only' => ['show', 'store', 'update'],
