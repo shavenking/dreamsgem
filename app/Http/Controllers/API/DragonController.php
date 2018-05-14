@@ -38,6 +38,11 @@ class DragonController extends Controller
             $dragons->whereUserId($request->user_id);
         }
 
+        if ($request->has('activated')) {
+            $appends['activated'] = $request->activated;
+            $dragons->where('user_id', $request->activated ? '!=' : '=', null);
+        }
+
         return response()->json($dragons->with('owner', 'user')->paginate()->appends($appends));
     }
 

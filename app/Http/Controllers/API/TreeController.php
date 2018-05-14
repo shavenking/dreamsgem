@@ -28,7 +28,11 @@ class TreeController extends Controller
             });
         }
 
-        return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id')));
+        if ($request->has('activated')) {
+            $trees->where('user_id', $request->activated ? '!=' : '=', null);
+        }
+
+        return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id', 'activated')));
     }
 
     public function store(User $user)
