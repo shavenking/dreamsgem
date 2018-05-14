@@ -28,7 +28,7 @@ class TreeController extends Controller
             });
         }
 
-        return response()->json($trees->paginate());
+        return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id')));
     }
 
     public function store(User $user)

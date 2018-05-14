@@ -26,16 +26,19 @@ class DragonController extends Controller
         }
 
         $dragons = Dragon::query();
+        $appends = [];
 
         if ($request->has('owner_id')) {
+            $appends['owner_id'] = $request->owner_id;
             $dragons->whereOwnerId($request->owner_id);
         }
 
         if ($request->has('user_id')) {
+            $appends['user_id'] = $request->user_id;
             $dragons->whereUserId($request->user_id);
         }
 
-        return response()->json($dragons->paginate());
+        return response()->json($dragons->with('owner', 'user')->paginate()->appends($appends));
     }
 
     public function update(Dragon $dragon, Request $request)

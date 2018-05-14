@@ -12,6 +12,16 @@ class Dragon extends Model implements Operatable
 
     protected $fillable = ['user_id'];
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getActivatedAttribute()
     {
         return !is_null($this->user_id);
