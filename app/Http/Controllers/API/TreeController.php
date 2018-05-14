@@ -45,7 +45,7 @@ class TreeController extends Controller
 
         event(new TreeCreated($tree, $user));
 
-        return response()->json($tree, Response::HTTP_CREATED);
+        return response()->json($tree->load('owner', 'user'), Response::HTTP_CREATED);
     }
 
     public function update(User $user, Tree $tree, Request $request)
@@ -78,6 +78,6 @@ class TreeController extends Controller
 
         DB::commit();
 
-        return response()->json($tree, Response::HTTP_OK);
+        return response()->json($tree->load('owner', 'user'), Response::HTTP_OK);
     }
 }

@@ -62,7 +62,7 @@ class DragonController extends Controller
 
         DB::commit();
 
-        return response()->json($dragon->refresh(), Response::HTTP_OK);
+        return response()->json($dragon->refresh()->load('owner', 'user'), Response::HTTP_OK);
     }
 
     private function buyDragon(Dragon $dragon, User $owner)

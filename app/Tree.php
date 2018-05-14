@@ -10,6 +10,8 @@ class Tree extends Model implements Operatable
 
     protected $fillable = ['owner_id', 'user_id', 'remain', 'capacity', 'progress'];
 
+    protected $appends = ['activated'];
+
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
