@@ -17,6 +17,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TreeSettlement implements ShouldQueue
 {
@@ -67,36 +68,42 @@ class TreeSettlement implements ShouldQueue
 
         DB::beginTransaction();
 
-        /** @var Tree $tree */
-        $trees = $this->user->activatedTrees()->where('remain', '>', 0)->get();
+        try {
+            /** @var Tree $tree */
+            $trees = $this->user->activatedTrees()->where('remain', '>', 0)->get();
 
-        $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
-        $totalDownlinesProgressGained = $this->downlinesProgress();
-        $remainProgress = $totalDownlinesProgressGained;
-        foreach ($trees as $tree) {
-            $remainProgress = $this->settleTree($tree, $remainProgress);
-        }
+            $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
+            $totalDownlinesProgressGained = $this->downlinesProgress();
+            $remainProgress = $totalDownlinesProgressGained;
+            foreach ($trees as $tree) {
+                $remainProgress = $this->settleTree($tree, $remainProgress);
+            }
 
-        $activatedChildrenCount = $this->user->children->filter(function (User $user) {
-            return $user->activated;
-        })->count();
-        $this->user->treeSettlementHistories()->create([
-            'settlement_history_id' => $this->settlementHistory->id,
-            'progress_gained' => [
-                TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
-                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
-            ],
-            'maximum_progress_rule' => [
-                TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($activatedChildrenCount),
-            ],
-        ]);
+            $activatedChildrenCount = $this->user->children->filter(function (User $user) {
+                return $user->activated;
+            })->count();
+            $this->user->treeSettlementHistories()->create([
+                'settlement_history_id' => $this->settlementHistory->id,
+                'progress_gained' => [
+                    TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
+                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
+                ],
+                'maximum_progress_rule' => [
+                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($activatedChildrenCount),
+                ],
+            ]);
 
-        foreach ($this->updatedTrees as $tree) {
-            event(new TreeUpdated($tree));
-        }
+            foreach ($this->updatedTrees as $tree) {
+                event(new TreeUpdated($tree));
+            }
 
-        foreach ($this->updatedWallets as $wallet) {
-            event(new WalletUpdated($wallet));
+            foreach ($this->updatedWallets as $wallet) {
+                event(new WalletUpdated($wallet));
+            }
+        } catch (\Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+            $this->fail($e);
         }
 
         DB::commit();
@@ -289,7 +296,7 @@ class TreeSettlement implements ShouldQueue
 
     private function updateTree(Tree $tree, $attributes)
     {
-        $affectedCount = Tree::where(array_except($tree->toArray(), ['created_at', 'updated_at']))
+        $affectedCount = Tree::where(array_only($tree->toArray(), ['id', 'owner_id', 'user_id', 'remain', 'capacity', 'progress']))
             ->update($attributes);
 
         throw_if(

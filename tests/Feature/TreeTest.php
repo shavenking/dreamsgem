@@ -25,7 +25,9 @@ class TreeTest extends TestCase
         $trees = factory(Tree::class)->times(20)->create([
             'owner_id' => $user->id,
             'user_id' => $user->id,
-        ]);
+        ])->map(function ($tree) {
+            return $tree->load('owner', 'user');
+        });
 
         $appUrl = env('APP_URL');
         $this
@@ -117,7 +119,7 @@ class TreeTest extends TestCase
             $tree->getTable(),
             array_except(array_merge($tree->toArray(), [
                 'user_id' => $childAccount->id,
-            ]), ['created_at', 'updated_at'])
+            ]), ['created_at', 'updated_at', 'activated'])
         );
 
         $this->assertOperationHistoryExists(

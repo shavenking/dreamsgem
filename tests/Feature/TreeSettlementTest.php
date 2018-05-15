@@ -89,8 +89,8 @@ class TreeSettlementTest extends TestCase
 
         $user1TreesAssertions = [
             ['remain' => 0, 'capacity' => 90, 'progress' => '0', 'gain' => 10],
-            ['remain' => 0, 'capacity' => 90, 'progress' => '0', 'gain' => 40],
-            ['remain' => 80, 'capacity' => 90, 'progress' => '14.3', 'gain' => 10],
+            ['remain' => 20, 'capacity' => 90, 'progress' => '0', 'gain' => 20],
+            ['remain' => 90, 'capacity' => 90, 'progress' => '14.3', 'gain' => 0],
             ['remain' => 90, 'capacity' => 90, 'progress' => '0'],
             ['remain' => 90, 'capacity' => 90, 'progress' => '0'],
         ];
