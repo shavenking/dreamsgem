@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Events\TreeActivated;
 use App\Events\TreeCreated;
+use App\Events\WalletUpdated;
 use App\Http\Controllers\Controller;
 use App\Tree;
 use App\User;
+use App\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -39,15 +41,46 @@ class TreeController extends Controller
     {
         $this->authorize('createTrees', $user);
 
-        $tree = $user->trees()->create(
-            [
-                'remain' => User::DEFAULT_TREE_CAPACITY,
-                'capacity' => User::DEFAULT_TREE_CAPACITY,
-                'progress' => '0',
-            ]
-        );
+        DB::beginTransaction();
 
-        event(new TreeCreated($tree, $user));
+        try {
+            $tree = $user->trees()->create(
+                [
+                    'remain' => User::DEFAULT_TREE_CAPACITY,
+                    'capacity' => User::DEFAULT_TREE_CAPACITY,
+                    'progress' => '0',
+                ]
+            );
+
+            $wallet = Wallet::where([
+                'user_id' => request()->user()->id,
+                'gem' => Wallet::GEM_USD,
+            ])->firstOrFail();
+
+            abort_if(
+                bccomp($wallet->amount, '1000.0', 1) < 0,
+                Response::HTTP_BAD_REQUEST,
+                'Amount is not enough'
+            );
+
+            $affectedCount = Wallet::where([
+                'id' => $wallet->id,
+                'amount' => $wallet->amount,
+            ])->update([
+                'amount' => bcsub($wallet->amount, '1000.0', 1)
+            ]);
+
+            event(new WalletUpdated($wallet->refresh(), request()->user()));
+
+            abort_if($affectedCount !== 1, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
+
+            event(new TreeCreated($tree, $user));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
 
         return response()->json($tree->load('owner', 'user'), Response::HTTP_CREATED);
     }
