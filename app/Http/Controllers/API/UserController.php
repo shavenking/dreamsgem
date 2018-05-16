@@ -33,7 +33,7 @@ class UserController extends Controller
         }
 
         $user = User::findOrFail($id);
-        
+
         return response()->json(array_merge($user->toArray(), [
             'downlines' => $user->children,
         ]));

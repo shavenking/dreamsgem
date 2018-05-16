@@ -24,4 +24,8 @@ Route::group(['namespace' => 'API'], function () {
     Route::resource('users.recalls', 'RecallController', [
         'only' => ['store'],
     ])->middleware(['auth:api']);
+
+    Route::resource('wallets.transfers', 'TransferController', [
+        'only' => ['store'],
+    ])->middleware(['auth:api']);
 });
