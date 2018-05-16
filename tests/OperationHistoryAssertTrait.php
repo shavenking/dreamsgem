@@ -29,4 +29,19 @@ trait OperationHistoryAssertTrait
             $this->assertEquals($value, data_get($operationHistory->result_data, $key), "$key not equals");
         }
     }
+
+    public function assertOperationHistoryNotExists(
+        Model $model,
+        $type,
+        User $operator = null
+    ) {
+        $operationHistory = OperationHistory::where([
+            'operatable_type' => $model->getMorphClass(),
+            'operatable_id' => $model->getKey(),
+            'user_id' => optional($operator)->id,
+            'type' => $type,
+        ])->first();
+
+        $this->assertNull($operationHistory, 'OperationHistory should not be created.');
+    }
 }

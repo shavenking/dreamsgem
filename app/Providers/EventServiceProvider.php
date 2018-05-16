@@ -37,6 +37,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\WalletUpdated' => [
             'App\Listeners\CreateOperationHistory',
         ],
+        'App\Events\WalletRecalled' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
     ];
 
     /**

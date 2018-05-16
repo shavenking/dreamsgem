@@ -34,4 +34,9 @@ class UserPolicy
     {
         return $loggedInUser->id === $targetUser->user_id;
     }
+
+    public function recall(User $loggedInUser, User $targetUser)
+    {
+        return $loggedInUser->id === $targetUser->id;
+    }
 }

@@ -20,4 +20,8 @@ Route::group(['namespace' => 'API'], function () {
     Route::resource('users.wallets', 'WalletController', [
         'only' => ['index'],
     ])->middleware(['auth:api']);
+
+    Route::resource('users.recalls', 'RecallController', [
+        'only' => ['store'],
+    ])->middleware(['auth:api']);
 });

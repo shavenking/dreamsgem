@@ -10,6 +10,7 @@ class OperationHistory extends Model
     const TYPE_INITIAL = 0;
     const TYPE_UPDATE = 1;
     const TYPE_ACTIVATE = 2;
+    const TYPE_RECALL = 3;
 
     protected $fillable = ['user_id', 'type', 'result_data'];
 

@@ -41,7 +41,7 @@ class User extends Authenticatable implements Operatable
         'user_id',
         '_lft',
         '_rgt',
-        'parent_id',
+       'parent_id',
     ];
 
     protected $casts = [
