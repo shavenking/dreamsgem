@@ -18,7 +18,7 @@ class TreeSettlementTest extends TestCase
 {
     use RefreshDatabase, OperationHistoryAssertTrait;
 
-    public function testTreeSettlementNew()
+    public function testTreeSettlement()
     {
         $this->setTestNow('saturday');
 
