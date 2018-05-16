@@ -56,11 +56,19 @@ class DragonController extends Controller
         DB::beginTransaction();
 
         if ($request->has('owner_id')) {
+            if ($dragon->owner) {
+                abort(400);
+            }
+
             $this->buyDragon($dragon, User::findOrFail($request->owner_id));
         }
 
         if ($request->has('user_id')) {
             $this->authorize('update', $dragon);
+
+            if ($dragon->user) {
+                abort(400);
+            }
 
             $this->activateDragon($dragon, User::findOrFail($request->user_id));
         }
