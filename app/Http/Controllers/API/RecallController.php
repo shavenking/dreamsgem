@@ -23,8 +23,11 @@ class RecallController extends Controller
                 as $gem
             ) {
                 $totalAmountGained = '0.0';
+                $activatedChildAccounts = $user->childAccounts->filter(function ($childAccount) {
+                    return $childAccount->activated;
+                });
 
-                foreach ($user->childAccounts as $childAccount) {
+                foreach ($activatedChildAccounts as $childAccount) {
                     $wallet = Wallet::where([
                         'user_id' => $childAccount->id,
                         'gem' => $gem
@@ -67,7 +70,7 @@ class RecallController extends Controller
                     ->where('amount', $wallet->amount)
                     ->update(
                         [
-                            'amount' => $totalAmountGained,
+                            'amount' => bcadd($wallet->amount, $totalAmountGained, 1),
                         ]
                     );
 

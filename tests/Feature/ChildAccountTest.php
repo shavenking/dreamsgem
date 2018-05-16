@@ -147,21 +147,25 @@ class ChildAccountTest extends TestCase
                 );
             });
 
-        // 為所有帳號建立錢包
+        // 為所有帳號激活、建立錢包
         $gems = (new Wallet)->gems();
 
-        foreach ($gems as $gem) {
-            foreach (
-                [
-                    $user1, $user11, $user12,
-                    $user2, $user21, $user22,
-                ]
-                as $user
-            ) {
+        foreach (
+            [
+                $user1, $user11, $user12,
+                $user2, $user21, $user22,
+            ]
+            as $user
+        ) {
+            $user->activatedDragon()->save(
+                factory(Dragon::class)->make()
+            );
+
+            foreach ($gems as $gem) {
                 $user->wallets()->create(
                     [
                         'gem' => $gem,
-                        'amount' => $zeroGained ? '0.0' : "{$this->faker->numberBetween(0, 10000)}.{$this->faker->numberBetween(0, 9)}"
+                        'amount' => $zeroGained ? '0.0' : "{$this->faker->numberBetween(1, 10000)}.{$this->faker->numberBetween(0, 9)}"
                     ]
                 );
             }
