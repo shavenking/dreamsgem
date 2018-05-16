@@ -7,6 +7,7 @@ use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
+use App\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -87,6 +88,15 @@ class UserController extends Controller
         ]);
 
         $parentUser->addDownline($user);
+
+        Wallet::where([
+            'user_id' => $user->id,
+            'gem' => Wallet::GEM_USD
+        ])->firstOrCreate([
+            'user_id' => $user->id,
+            'gem' => Wallet::GEM_USD,
+            'amount' => '0.0',
+        ]);
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
 

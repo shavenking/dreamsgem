@@ -6,6 +6,7 @@ use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
+use App\Wallet;
 use Faker\Generator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,15 @@ class ChildAccountController extends Controller
         ]);
 
         $user->addDownline($childAccount);
+
+        Wallet::where([
+            'user_id' => $childAccount->id,
+            'gem' => Wallet::GEM_USD
+        ])->firstOrCreate([
+            'user_id' => $childAccount->id,
+            'gem' => Wallet::GEM_USD,
+            'amount' => '0.0',
+        ]);
 
         FreezeUser::dispatch($childAccount)->delay(Carbon::now()->addDays(7));
 

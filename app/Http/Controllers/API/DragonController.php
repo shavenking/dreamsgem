@@ -80,11 +80,33 @@ class DragonController extends Controller
 
     private function buyDragon(Dragon $dragon, User $owner)
     {
-        $affectedCount = Dragon::where(array_only($dragon->toArray(), ['id', 'owner_id', 'user_id']))->update([
+        $affectedCount = 0;
+
+        $affectedCount += Dragon::where(array_only($dragon->toArray(), ['id', 'owner_id', 'user_id']))->update([
             'owner_id' => $owner->id,
         ]);
 
-        abort_if($affectedCount !== 1, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
+        $wallet = Wallet::where([
+            'user_id' => request()->user()->id,
+            'gem' => Wallet::GEM_USD,
+        ])->firstOrFail();
+
+        abort_if(
+            bccomp($wallet->amount, '1000.0', 1) < 0,
+            Response::HTTP_BAD_REQUEST,
+            'Amount is not enough'
+        );
+
+        $affectedCount += Wallet::where([
+            'id' => $wallet->id,
+            'amount' => $wallet->amount,
+        ])->update([
+            'amount' => bcsub($wallet->amount, '1000.0', 1)
+        ]);
+
+        event(new WalletUpdated($wallet->refresh(), request()->user()));
+
+        abort_if($affectedCount !== 2, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
 
         event(new DragonCreated($dragon, Auth::user()));
     }
