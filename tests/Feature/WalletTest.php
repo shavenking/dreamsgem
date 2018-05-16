@@ -44,8 +44,8 @@ class WalletTest extends TestCase
                     'path' => "$appUrl/api/users/{$user->id}/wallets",
                     'per_page' => 15,
                     'prev_page_url' => null,
-                    'to' => 4,
-                    'total' => 4,
+                    'to' => 5,
+                    'total' => 5,
                 ]
             );
     }

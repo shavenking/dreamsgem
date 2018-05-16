@@ -6,6 +6,7 @@ use App\Dragon;
 use App\OperationHistory;
 use App\Tree;
 use App\User;
+use App\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Laravel\Passport\Passport;
@@ -59,6 +60,13 @@ class TreeTest extends TestCase
         Passport::actingAs(
             $user = factory(User::class)->create(),
             $scopes
+        );
+
+        $user->wallets()->create(
+            [
+                'gem' => Wallet::GEM_USD,
+                'amount' => '1000.0',
+            ]
         );
 
         $this

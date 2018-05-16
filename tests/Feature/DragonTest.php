@@ -61,6 +61,13 @@ class DragonTest extends TestCase
             $scopes
         );
 
+        $user->wallets()->create(
+            [
+                'gem' => Wallet::GEM_USD,
+                'amount' => '1000.0',
+            ]
+        );
+
         $dragon = factory(Dragon::class)->create(['owner_id' => null, 'user_id' => null]);
 
         $this
