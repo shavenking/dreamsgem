@@ -8,6 +8,7 @@ use App\Jobs\FreezeUser;
 use App\User;
 use App\Wallet;
 use Faker\Generator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,9 +16,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ChildAccountController extends Controller
 {
-    public function index(User $user)
+    public function index(User $user, Request $request)
     {
-        $childAccounts = $user->childAccounts()->paginate();
+        $childAccounts = $user->childAccounts();
+
+        if ($request->hello === 'world') {
+            $childAccounts = $childAccounts->get();
+        } else {
+            $childAccounts = $childAccounts->paginate();
+        }
 
         return response()->json($childAccounts);
     }
