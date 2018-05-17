@@ -33,15 +33,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        $grant = new ExtensionGrant(
-            $this->app->make(ExtensionGrantUserRepository::class),
-            $this->app->make(RefreshTokenRepository::class)
+        app(AuthorizationServer::class)->enableGrantType(
+            $this->makeExtensionGrant(), Passport::tokensExpireIn()
         );
 
-        $grant->setRefreshTokenTTL(Passport::refreshTokensExpireIn());
-
         app(AuthorizationServer::class)->enableGrantType(
-            $grant, Passport::tokensExpireIn()
+            $this->makeQRCodeGrant(), Passport::tokensExpireIn()
         );
 
         Passport::routes();
@@ -53,5 +50,29 @@ class AuthServiceProvider extends ServiceProvider
             'update-child-accounts' => 'Update child accounts',
             'update-profile' => 'Update profile',
         ]);
+    }
+
+    private function makeExtensionGrant()
+    {
+        $grant = new ExtensionGrant(
+            $this->app->make(ExtensionGrantUserRepository::class),
+            $this->app->make(RefreshTokenRepository::class)
+        );
+
+        $grant->setRefreshTokenTTL(Passport::refreshTokensExpireIn());
+
+        return $grant;
+    }
+
+    private function makeQRCodeGrant()
+    {
+        $grant = new QRCodeGrant(
+            $this->app->make(QRCodeGrantUserRepository::class),
+            $this->app->make(RefreshTokenRepository::class)
+        );
+
+        $grant->setRefreshTokenTTL(Passport::refreshTokensExpireIn());
+
+        return $grant;
     }
 }

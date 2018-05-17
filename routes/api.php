@@ -5,6 +5,8 @@ Route::get('/ok', function () {
 });
 
 Route::group(['namespace' => 'API'], function () {
+    Route::resource('qrcodes', 'QRCodeController', ['only' => ['store', 'update']]);
+
     Route::resource('users', 'UserController', [
         'only' => ['show', 'store', 'update'],
     ]);
