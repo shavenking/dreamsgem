@@ -34,7 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         $grant = new ExtensionGrant(
-            $this->app->make(UserRepository::class),
+            $this->app->make(ExtensionGrantUserRepository::class),
             $this->app->make(RefreshTokenRepository::class)
         );
 

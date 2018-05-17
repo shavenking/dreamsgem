@@ -151,22 +151,4 @@ class User extends Authenticatable implements Operatable
     {
         return $this->attributesToArray();
     }
-
-    public function validateForPassportPasswordGrant($password)
-    {
-        // terrible hotfix
-        if (Hash::check($password, $this->getAuthPassword())) {
-            return true;
-        }
-
-        /** @var Response $response */
-        $response = app(Client::class)->get(env('APP_AUTH_ENDPOINT'), [
-            'query' => [
-                'email' => $this->email,
-                'password' => $password
-            ]
-        ]);
-
-        return $response->getStatusCode() === \Illuminate\Http\Response::HTTP_OK;
-    }
 }
