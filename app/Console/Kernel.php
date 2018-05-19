@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Jobs\DailySettlement;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\App;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +26,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new DailySettlement)->everyTenMinutes();
+        if (App::environment('production')) {
+            $schedule->job(new DailySettlement)->daily();
+        } else {
+            $schedule->job(new DailySettlement)->everyTenMinutes();
+        }
     }
 
     /**
