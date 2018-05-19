@@ -24,7 +24,7 @@ class RootUserSeeder extends Seeder
 
         $user = \App\User::firstOrCreate(
             [
-                'email' => 'root',
+                'email' => 'root@email.com',
             ],
             [
                 'name' => 'root',
