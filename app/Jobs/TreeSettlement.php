@@ -31,6 +31,8 @@ class TreeSettlement implements ShouldQueue
 
     private $settlementHistory;
 
+    private $award;
+
     /**
      * Create a new job instance.
      *
@@ -43,6 +45,7 @@ class TreeSettlement implements ShouldQueue
         $this->settlementHistory = $settlementHistory;
         $this->updatedTrees = [];
         $this->updatedWallets = [];
+        $this->award = 0;
     }
 
     /**
@@ -60,7 +63,7 @@ class TreeSettlement implements ShouldQueue
             ])->first();
 
             if (!$treeSettlementHistory) {
-                $this->release(60);
+                $this->release(1);
 
                 return;
             }
@@ -87,6 +90,7 @@ class TreeSettlement implements ShouldQueue
                 'progress_gained' => [
                     TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
                     TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
+                    TreeSettlementHistory::KEY_SETTLEMENT_AWARD => $this->award,
                 ],
                 'maximum_progress_rule' => [
                     TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($activatedChildrenCount),
@@ -103,7 +107,7 @@ class TreeSettlement implements ShouldQueue
         } catch (\Exception $e) {
             Log::error($e);
             DB::rollBack();
-            $this->fail($e);
+            $this->release(1);
         }
 
         DB::commit();
@@ -122,15 +126,12 @@ class TreeSettlement implements ShouldQueue
             return '0';
         }
 
-        if (
-            bccomp(bcmul($tree->remain, '100.0', 1), $remainProgress, 1) <= 0
-        ) {
-            $award = $tree->remain;
-        } else {
-            $award = min(bcdiv($remainProgress, '100.0', 0), $tree->remain);
-        }
+        $award = min(
+            $tree->remain,
+            bcdiv(bcadd($remainProgress, $tree->progress, 1), '100', 0)
+        );
 
-        $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
+        $this->award += $award;
 
         if (bccomp($award, '0.0', 1) > 0) {
             foreach ([
@@ -148,8 +149,10 @@ class TreeSettlement implements ShouldQueue
 
         $this->updateTree($tree, [
             'remain' => $remain = $tree->remain - $award,
-            'progress' => $remain === 0 ? '0' : $tree->progress,
+            'progress' => $remain === 0 ? '0' : bcsub(bcadd($tree->progress, $remainProgress, 1), bcmul($award, '100.0', 1), 1),
         ]);
+
+        $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
 
         return $remain !== 0 ? '0' : $remainProgress;
     }
@@ -202,13 +205,13 @@ class TreeSettlement implements ShouldQueue
         $candidateChildren = collect($this->user->children);
 
         while ($nLevel-- > 0) {
-            while ($child = $candidateChildren->pop()) {
-                $candidateChildren->merge($child->children);
+            while ($child = $candidateChildren->shift()) {
+                $candidateChildren = $candidateChildren->concat($child->children);
                 $children->push($child);
             }
         }
 
-        $downlinesProgress = $children->reduce(
+        $downlinesAward = $children->reduce(
             function ($carry, User $child) {
                 if (!$child->activated) {
                     return $carry;
@@ -218,16 +221,10 @@ class TreeSettlement implements ShouldQueue
                 $treeSettlementHistory = $this->settlementHistory->treeSettlementHistories()->where([
                     'user_id' => $child->id,
                 ])->first();
-                $settlementDailyKey = TreeSettlementHistory::KEY_SETTLEMENT_DAILY;
-                $settlementDownlinesKey = TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES;
-                $childTotalProgressGained = bcadd(
-                    data_get($treeSettlementHistory, "progress_gained.$settlementDailyKey"),
-                    data_get($treeSettlementHistory, "progress_gained.$settlementDownlinesKey"),
-                    1
-                );
+                $settlementAwardKey = TreeSettlementHistory::KEY_SETTLEMENT_AWARD;
 
-                return bcadd($carry, $childTotalProgressGained, 1);
-            }, '0'
+                return $carry + data_get($treeSettlementHistory, "progress_gained.$settlementAwardKey", 0);
+            }, 0
         );
 
         $multiplier = [
@@ -242,7 +239,7 @@ class TreeSettlement implements ShouldQueue
         ][$activatedChildrenCount];
 
         return min(
-            bcmul($downlinesProgress, $multiplier, 1), $this->maximumProgressRule($activatedChildrenCount)
+            bcmul($downlinesAward, $multiplier, 1), $this->maximumProgressRule($activatedChildrenCount)
         );
     }
 
@@ -270,6 +267,7 @@ class TreeSettlement implements ShouldQueue
 
             $treeProgress = bcadd($tree->progress, $this->dailyProgress(), 1);
             $award = bccomp($treeProgress, '100.0', 1) > 0 ? min(bcdiv($treeProgress, '100.0', 0), $tree->remain) : 0;
+            $this->award += $award;
 
             if (bccomp($award, '0.0', 1) > 0) {
                 foreach ([
@@ -296,15 +294,8 @@ class TreeSettlement implements ShouldQueue
 
     private function updateTree(Tree $tree, $attributes)
     {
-        $affectedCount = Tree::where(array_only($tree->toArray(), ['id', 'owner_id', 'user_id', 'remain', 'capacity', 'progress']))
-            ->update($attributes);
-
-        throw_if(
-            $affectedCount !== 1,
-            new \RuntimeException('Tree data has been changed')
-        );
-
-        $tree->fill($attributes);
+        Tree::where(['id' => $tree->id])->lockForUpdate();
+        $tree->update($attributes);
 
         $this->updatedTrees[$tree->id] = $tree;
 
