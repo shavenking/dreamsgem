@@ -73,7 +73,7 @@ class TreeSettlement implements ShouldQueue
 
         try {
             /** @var Tree $tree */
-            $trees = $this->user->activatedTrees()->where('remain', '>', 0)->get();
+            $trees = $this->user->activatedTrees()->where('remain', '>', 0)->orderBy('id')->get();
 
             $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
             $totalDownlinesProgressGained = $this->downlinesProgress();
@@ -122,14 +122,16 @@ class TreeSettlement implements ShouldQueue
      */
     private function settleTree(Tree $tree, $remainProgress)
     {
-        if (bccomp($remainProgress, '0', 1) <= 0) {
+        if (bccomp($remainProgress, '0', 1) <= 0 && bccomp($tree->progress, '100.0', 1) < 0) {
             return '0';
         }
 
-        $award = min(
+        $totalTreeProgress = bcadd($tree->progress, $remainProgress, 1);
+        $award = (int) min(
             $tree->remain,
-            bcdiv(bcadd($remainProgress, $tree->progress, 1), '100', 0)
+            bcdiv($totalTreeProgress, '100', 0)
         );
+        $remainProgress = bcsub($totalTreeProgress, bcmul($award, '100.0', 1), 1);
 
         $this->award += $award;
 
@@ -149,10 +151,8 @@ class TreeSettlement implements ShouldQueue
 
         $this->updateTree($tree, [
             'remain' => $remain = $tree->remain - $award,
-            'progress' => $remain === 0 ? '0' : bcsub(bcadd($tree->progress, $remainProgress, 1), bcmul($award, '100.0', 1), 1),
+            'progress' => $remain === 0 ? '0' : $remainProgress,
         ]);
-
-        $remainProgress = bcsub($remainProgress, bcmul($award, '100.0', 1), 1);
 
         return $remain !== 0 ? '0' : $remainProgress;
     }
@@ -284,8 +284,8 @@ class TreeSettlement implements ShouldQueue
             }
 
             $this->updateTree($tree, [
-                'remain' => $tree->remain - $award,
-                'progress' => bcsub($treeProgress, bcmul($award, '100.0', 1), 1),
+                'remain' => $remain = $tree->remain - $award,
+                'progress' => $remain === 0 ? '0' : bcsub($treeProgress, bcmul($award, '100.0', 1), 1),
             ]);
         }
 
