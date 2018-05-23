@@ -4,6 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property User user
+ */
 class Wallet extends Model implements Operatable
 {
     use OperatableTrait;
@@ -27,5 +30,10 @@ class Wallet extends Model implements Operatable
             self::GEM_DUO_CAI,
             self::GEM_USD,
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

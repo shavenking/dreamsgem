@@ -22,8 +22,8 @@ class TreeUpdated implements ShouldCreateOperationHistory
      */
     public function __construct(Tree $tree, User $operator = null)
     {
-        $this->tree = $tree;
-        $this->operator = $operator;
+        $this->tree = $tree->refresh();
+        $this->operator = optional($operator)->refresh();
     }
 
     public function getOperatable(): Operatable
@@ -39,5 +39,10 @@ class TreeUpdated implements ShouldCreateOperationHistory
     public function getType(): int
     {
         return OperationHistory::TYPE_UPDATE;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->tree->user;
     }
 }

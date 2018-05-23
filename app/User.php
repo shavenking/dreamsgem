@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Hash;
 use Kalnoy\Nestedset\NodeTrait;
 use Laravel\Passport\HasApiTokens;
 
+/**
+ * @property int id
+ */
 class User extends Authenticatable implements Operatable
 {
     use Notifiable, NodeTrait, HasApiTokens, OperatableTrait;

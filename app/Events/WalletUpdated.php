@@ -21,8 +21,8 @@ class WalletUpdated implements ShouldCreateOperationHistory
      */
     public function __construct(Wallet $wallet, User $operator = null)
     {
-        $this->wallet = $wallet;
-        $this->operator = $operator;
+        $this->wallet = $wallet->refresh();
+        $this->operator = optional($operator)->refresh();
     }
 
     public function getOperatable(): Operatable
@@ -38,5 +38,10 @@ class WalletUpdated implements ShouldCreateOperationHistory
     public function getType(): int
     {
         return OperationHistory::TYPE_UPDATE;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->wallet->user;
     }
 }

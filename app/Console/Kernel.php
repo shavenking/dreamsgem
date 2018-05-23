@@ -27,9 +27,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         if (App::environment('production')) {
-            $schedule->job(new DailySettlement)->daily();
+//            $schedule->job(new DailySettlement)->daily();
         } else {
-            $schedule->job(new DailySettlement)->everyTenMinutes();
+//            $schedule->job(new DailySettlement)->everyTenMinutes();
         }
     }
 

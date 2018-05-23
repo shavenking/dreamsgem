@@ -16,6 +16,7 @@ class CreateOperationHistoriesTable extends Migration
         Schema::create('operation_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->morphs('operatable');
+            $table->unsignedInteger('operator_id')->index()->nullable();
             $table->unsignedInteger('user_id')->index()->nullable();
             $table->unsignedTinyInteger('type')->index();
             $table->json('result_data');

@@ -26,8 +26,8 @@ class UserUpdated implements ShouldCreateOperationHistory
      */
     public function __construct(User $user, User $operator = null)
     {
-        $this->user = $user;
-        $this->operator = $operator;
+        $this->user = $user->refresh();
+        $this->operator = optional($operator)->refresh();
     }
 
     public function getOperatable(): Operatable
@@ -43,5 +43,10 @@ class UserUpdated implements ShouldCreateOperationHistory
     public function getType(): int
     {
         return OperationHistory::TYPE_UPDATE;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 }

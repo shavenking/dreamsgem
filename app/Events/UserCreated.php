@@ -12,7 +12,7 @@ class UserCreated implements ShouldCreateOperationHistory
 
     public function __construct(User $user)
     {
-        $this->user = $user;
+        $this->user = $user->refresh();
     }
 
     public function getOperatable(): Operatable
@@ -28,5 +28,10 @@ class UserCreated implements ShouldCreateOperationHistory
     public function getType(): int
     {
         return OperationHistory::TYPE_INITIAL;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 }

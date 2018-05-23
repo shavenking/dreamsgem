@@ -21,8 +21,8 @@ class DragonCreated implements ShouldCreateOperationHistory
      */
     public function __construct(Dragon $dragon, User $operator = null)
     {
-        $this->dragon = $dragon;
-        $this->operator = $operator;
+        $this->dragon = $dragon->refresh();
+        $this->operator = optional($operator)->refresh();
     }
 
     public function getOperatable(): Operatable
@@ -38,5 +38,10 @@ class DragonCreated implements ShouldCreateOperationHistory
     public function getType(): int
     {
         return OperationHistory::TYPE_INITIAL;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->dragon->owner;
     }
 }
