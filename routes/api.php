@@ -34,4 +34,8 @@ Route::group(['namespace' => 'API'], function () {
     Route::resource('wallets.transfers', 'TransferController', [
         'only' => ['store'],
     ])->middleware(['auth:api']);
+
+    Route::resource('users.operation-histories', 'OperationHistoryController', [
+        'only' => ['index']
+    ])->middleware(['auth:api']);
 });

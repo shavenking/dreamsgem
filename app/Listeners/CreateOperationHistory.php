@@ -31,7 +31,7 @@ class CreateOperationHistory
             'operator_id' => optional($event->getOperator())->id,
             'user_id' => optional($event->getUser())->id,
             'type' => $event->getType(),
-            'result_data' => $operatable,
+            'result_data' => $operatable->getAttributes(),
         ]);
     }
 }

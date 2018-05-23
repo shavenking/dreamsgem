@@ -39,4 +39,9 @@ class UserPolicy
     {
         return $loggedInUser->id === $targetUser->id;
     }
+
+    public function listOperationHistories(User $loggedInUser, User $targetUser)
+    {
+        return $loggedInUser->id === $targetUser->id || $loggedInUser->id === $targetUser->user_id;
+    }
 }
