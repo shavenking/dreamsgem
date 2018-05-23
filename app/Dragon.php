@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Dragon extends Model implements Operatable
@@ -10,9 +11,11 @@ class Dragon extends Model implements Operatable
 
     const MAX_ACTIVATE_DRAGON_AMOUNT = 1;
 
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_id', 'activated_at'];
 
     protected $appends = ['activated'];
+
+    protected $dates = ['activated_at'];
 
     public function owner()
     {
@@ -46,6 +49,7 @@ class Dragon extends Model implements Operatable
             ->update(
                 [
                     'user_id' => $targetUser->id,
+                    'activated_at' => Carbon::now(),
                 ]
             );
 

@@ -8,9 +8,11 @@ class Tree extends Model implements Operatable
 {
     use OperatableTrait;
 
-    protected $fillable = ['owner_id', 'user_id', 'remain', 'capacity', 'progress'];
+    protected $fillable = ['owner_id', 'user_id', 'remain', 'capacity', 'progress', 'activated_at'];
 
     protected $appends = ['activated'];
+
+    protected $dates = ['activated_at'];
 
     public function owner()
     {

@@ -17,6 +17,7 @@ class CreateDragonsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('owner_id')->index()->nullable();
             $table->unsignedInteger('user_id')->index()->nullable();
+            $table->timestamp('activated_at')->nullable();
             $table->timestamps();
         });
     }

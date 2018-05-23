@@ -20,6 +20,7 @@ class CreateTreesTable extends Migration
             $table->unsignedTinyInteger('remain');
             $table->unsignedTinyInteger('capacity');
             $table->decimal('progress', 4, 1);
+            $table->timestamp('activated_at')->nullable();
             $table->timestamps();
         });
     }

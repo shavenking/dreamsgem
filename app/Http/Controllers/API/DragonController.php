@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Tree;
 use App\User;
 use App\Wallet;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -130,6 +131,7 @@ class DragonController extends Controller
             'progress' => '0',
             'remain' => User::DEFAULT_TREE_CAPACITY,
             'capacity' => User::DEFAULT_TREE_CAPACITY,
+            'activated_at' => Carbon::now(),
         ]);
 
         foreach ((new Wallet)->gems() as $gem) {

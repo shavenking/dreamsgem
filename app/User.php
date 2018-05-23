@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -112,6 +113,7 @@ class User extends Authenticatable implements Operatable
             ->update(
                 [
                     'user_id' => $targetUser->id,
+                    'activated_at' => Carbon::now(),
                 ]
             );
 
