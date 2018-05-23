@@ -199,16 +199,20 @@ class TreeSettlement implements ShouldQueue
                 5 => 10,
                 6 => 10,
                 7 => 10,
-            ][$activatedChildrenCount] - 1;
+            ][$activatedChildrenCount];
 
         $children = collect();
         $candidateChildren = collect($this->user->children);
 
         while ($nLevel-- > 0) {
+            $oneLevelDownChildren = collect();
+
             while ($child = $candidateChildren->shift()) {
-                $candidateChildren = $candidateChildren->concat($child->children);
+                $oneLevelDownChildren = $oneLevelDownChildren->concat($child->children);
                 $children->push($child);
             }
+
+            $candidateChildren = collect($oneLevelDownChildren);
         }
 
         $downlinesAward = $children->reduce(

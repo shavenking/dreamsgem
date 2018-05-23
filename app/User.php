@@ -125,6 +125,10 @@ class User extends Authenticatable implements Operatable
         $possibleParents = collect([$this]);
 
         while ($possibleParent = $possibleParents->shift()) {
+            if (!$possibleParent->activated) {
+                continue;
+            }
+
             $children = $possibleParent->children()->get();
 
             if ($children->count() === User::MAX_CHILDREN_FOR_ONE_USER) {
