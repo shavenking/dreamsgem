@@ -34,6 +34,10 @@ class TreeController extends Controller
             $trees->where('user_id', $request->activated ? '!=' : '=', null);
         }
 
+        if ($request->has('remain_available')) {
+            $trees->where('remain', $request->remain_available ? '>' : '=', 0);
+        }
+
         return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id', 'activated')));
     }
 
