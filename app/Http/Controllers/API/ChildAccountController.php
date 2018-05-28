@@ -29,7 +29,7 @@ class ChildAccountController extends Controller
         return response()->json($childAccounts);
     }
 
-    public function store(User $user, Generator $faker)
+    public function store(User $user, Generator $faker, Request $request)
     {
         $this->authorize('createChildAccount', $user);
 
@@ -42,7 +42,13 @@ class ChildAccountController extends Controller
             'frozen' => false,
         ]);
 
-        $user->addDownline($childAccount);
+        if ($request->has('upline_id')) {
+            $upline = User::findOrFail($request->upline_id);
+        } else {
+            $upline = $user;
+        }
+
+        $upline->addDownline($childAccount);
 
         Wallet::where([
             'user_id' => $childAccount->id,
