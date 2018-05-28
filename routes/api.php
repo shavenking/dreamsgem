@@ -11,6 +11,10 @@ Route::group(['namespace' => 'API'], function () {
         'only' => ['show', 'store', 'update'],
     ]);
 
+    Route::resource('users.tree-stats', 'TreeStatsController', [
+        'only' => ['index'],
+    ])->middleware(['auth:api']);
+
     Route::resource('users.child-accounts', 'ChildAccountController', [
         'only' => ['index', 'store'],
     ])->middleware(['auth:api']);
