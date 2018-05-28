@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Jobs\DailySettlement;
+use App\Jobs\SendTreeLowRemainReminders;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\App;
@@ -27,9 +28,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         if (App::environment('production')) {
-//            $schedule->job(new DailySettlement)->daily();
+//            $schedule->job(new DailySettlement)->daily()->evenInMaintenanceMode();
+//            $schedule->job(new SendTreeLowRemainReminders)->dailyAt('08:00')->evenInMaintenanceMode();
         } else {
-//            $schedule->job(new DailySettlement)->everyTenMinutes();
+//            $schedule->job(new DailySettlement)->everyTenMinutes()->evenInMaintenanceMode();
         }
     }
 
