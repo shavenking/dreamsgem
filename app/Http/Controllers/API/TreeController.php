@@ -117,8 +117,41 @@ class TreeController extends Controller
 
         event(new TreeActivated($tree->refresh(), $user));
 
+        $this->setTreeActivateAward($targetUser);
+        $this->setTreeActivateAward($targetUser->parent);
+
         DB::commit();
 
         return response()->json($tree->load('owner', 'user'), Response::HTTP_OK);
+    }
+
+    private function setTreeActivateAward(?User $user)
+    {
+        if (!$user) {
+            return;
+        }
+
+        $wallet = $user->wallets()->firstOrCreate(
+            [
+                'gem' => Wallet::GEM_DUO_CAI,
+            ], [
+                'amount' => '0',
+            ]
+        );
+
+        $affectedCount = Wallet::whereId($wallet->id)
+            ->where('gem', $wallet->gem)
+            ->where('amount', $wallet->amount)
+            ->update(
+                [
+                    'amount' => bcadd($wallet->amount, Wallet::REWARD_ACTIVATE_TREE, 1),
+                ]
+            );
+
+        if ($affectedCount !== 1) {
+            abort(503);
+        }
+
+        event(new WalletUpdated($wallet->refresh()));
     }
 }
