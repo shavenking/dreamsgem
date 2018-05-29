@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -41,5 +42,20 @@ class OperationHistory extends Model
             'App\Dragon' => 2,
             'App\Tree' => 3,
         ], $originalOperatableType, 99);
+    }
+
+    public function reverseTransformOperatableType(int $originalOperatableType)
+    {
+        return data_get([
+            'App\User',
+            'App\Wallet',
+            'App\Dragon',
+            'App\Tree',
+        ], $originalOperatableType);
+    }
+
+    public function scopeReverseOperatableType(Builder $query, int $operatableType)
+    {
+        return $query->where('operatable_type', $this->reverseTransformOperatableType($operatableType));
     }
 }
