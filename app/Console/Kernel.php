@@ -22,17 +22,25 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        if (App::environment('production')) {
-//            $schedule->job(new DailySettlement)->daily()->evenInMaintenanceMode();
-//            $schedule->job(new SendTreeLowRemainReminders)->dailyAt('08:00')->evenInMaintenanceMode();
-        } else {
-//            $schedule->job(new DailySettlement)->everyTenMinutes()->evenInMaintenanceMode();
-        }
+        // 24:00 Asia/Taipei
+        $schedule
+            ->command('down')
+            ->dailyAt('16:00')
+            ->evenInMaintenanceMode();
+
+        // 09:00 Asia/Taipei
+        $schedule
+            ->command('up')
+            ->dailyAt('01:00')
+            ->evenInMaintenanceMode();
+
+        $this->runDailySettlement($schedule);
+        $this->sendTreeLowRemainReminders($schedule);
     }
 
     /**
@@ -42,8 +50,44 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    private function runDailySettlement(Schedule $schedule)
+    {
+        if (!$this->canRunDailySettlement()) {
+            return;
+        }
+
+        // 24:05 Asia/Taipei
+        $schedule
+            ->job(new DailySettlement)
+            ->dailyAt('16:05')
+            ->evenInMaintenanceMode();
+    }
+
+    private function sendTreeLowRemainReminders(Schedule $schedule)
+    {
+        if (!$this->canRunSendTreeLowRemainReminders()) {
+            return;
+        }
+
+        // 08:00 Asia/Taipei
+        $schedule
+            ->job(new SendTreeLowRemainReminders)
+            ->dailyAt('00:00')
+            ->evenInMaintenanceMode();
+    }
+
+    private function canRunDailySettlement()
+    {
+        return App::environment('production') && App::isDownForMaintenance();
+    }
+
+    private function canRunSendTreeLowRemainReminders()
+    {
+        return App::environment('production') && App::isDownForMaintenance();
     }
 }
