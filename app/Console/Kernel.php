@@ -83,7 +83,7 @@ class Kernel extends ConsoleKernel
 
     private function canRunDailySettlement()
     {
-        return App::environment('production') && App::isDownForMaintenance();
+        return App::environment(['production', 'staging']) && App::isDownForMaintenance();
     }
 
     private function canRunSendTreeLowRemainReminders()
