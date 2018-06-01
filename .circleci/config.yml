@@ -38,7 +38,7 @@ jobs:
 
             echo "Creating ElasticBeanstalk Application Version ..."
             ~/.local/bin/awscli elasticbeanstalk create-application-version \
-              --application-name $EB_APP_NAME-$CIRCLE_BRANCH \
+              --application-name $EB_APP_NAME \
               --version-label "$EB_APP_NAME-$ts" \
               --description "$EB_APP_NAME-$ts" \
               --source-bundle S3Bucket="$S3_BUCKET",S3Key="$EB_APP_NAME" --auto-create-application
