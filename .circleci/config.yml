@@ -34,11 +34,11 @@ jobs:
             ts=`date +%s`
             fn="$EB_APP_NAME-$ts.zip"
             find ./dreamsgem -path '*/node_modules/*' -prune -o -path '*/\.git*' -prune -o -type f -print | zip $fn -@
-            ~/.local/bin/aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME/$EB_APP_NAME-$ts"
+            ~/.local/bin/aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME/"
 
             echo "Creating ElasticBeanstalk Application Version ..."
             ~/.local/bin/aws elasticbeanstalk create-application-version \
               --application-name $EB_APP_NAME \
               --version-label "$EB_APP_NAME-$ts" \
               --description "$EB_APP_NAME-$ts" \
-              --source-bundle S3Bucket="$S3_BUCKET/$EB_APP_NAME",S3Key="$EB_APP_NAME-$ts" --auto-create-application
+              --source-bundle S3Bucket="$S3_BUCKET/$EB_APP_NAME",S3Key="$fn" --auto-create-application
