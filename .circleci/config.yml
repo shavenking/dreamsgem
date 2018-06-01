@@ -42,3 +42,11 @@ jobs:
               --version-label "$EB_APP_NAME-$ts" \
               --description "$EB_APP_NAME-$ts" \
               --source-bundle S3Bucket="$S3_BUCKET",S3Key="$EB_APP_NAME/$fn" --auto-create-application
+
+            echo "Updating ElasticBeanstalk Application Version ..."
+            ~/.local/bin/aws elasticbeanstalk update-environment \
+              --application-name $EB_APP_NAME \
+              --environment-name $EB_APP_NAME-$CIRCLE_BRANCH \
+              --version-label "$EB_APP_NAME-$ts"
+
+            echo "Done! Deployed version $EB_APP_NAME-$ts"
