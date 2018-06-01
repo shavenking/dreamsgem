@@ -33,7 +33,7 @@ jobs:
           command: |
             ts=`date +%s`
             fn="$EB_APP_NAME-$ts.zip"
-            find ./ -path '*/node_modules/*' -prune -o -path '*/\.git*' -prune -o -type f -print | zip $fn -@
+            zip ./$fn -r * ".[^.]*" -x "vendor/*"
             ~/.local/bin/aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME/"
 
             echo "Creating ElasticBeanstalk Application Version ..."
