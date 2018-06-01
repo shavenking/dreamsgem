@@ -34,10 +34,10 @@ jobs:
             ts=`date +%s`
             fn="$EB_APP_NAME-$ts.zip"
             find ./dreamsgem -path '*/node_modules/*' -prune -o -path '*/\.git*' -prune -o -type f -print | zip $fn -@
-            aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME"
+            awscli s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME"
 
             echo "Creating ElasticBeanstalk Application Version ..."
-            aws elasticbeanstalk create-application-version \
+            awscli elasticbeanstalk create-application-version \
               --application-name $EB_APP_NAME-$CIRCLE_BRANCH \
               --version-label "$EB_APP_NAME-$ts" \
               --description "$EB_APP_NAME-$ts" \
