@@ -17,13 +17,28 @@ jobs:
     working_directory: ~/dreamsgem
 
     steps:
-      - checkout
       - run:
           name: Install dependencies
           working_directory: ~/
           command: |
             sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3.4-dev
+            sudo apt-get -y -qq install python3.4-dev zip
             curl -O https://bootstrap.pypa.io/get-pip.py
             python3.4 get-pip.py --user
             ~/.local/bin/pip install awscli --upgrade --user
+      - checkout
+      - run:
+          name: Deploy
+          working_directory: ~/
+          command: |
+            ts=`date +%s`
+            fn="$EB_APP_NAME-$ts.zip"
+            find ./dreamsgem -path '*/node_modules/*' -prune -o -path '*/\.git*' -prune -o -type f -print | zip $fn -@
+            aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME"
+
+            echo "Creating ElasticBeanstalk Application Version ..."
+            aws elasticbeanstalk create-application-version \
+              --application-name $EB_APP_NAME-$CIRCLE_BRANCH \
+              --version-label "$EB_APP_NAME-$ts" \
+              --description "$EB_APP_NAME-$ts" \
+              --source-bundle S3Bucket="$S3_BUCKET",S3Key="$EB_APP_NAME" --auto-create-application
