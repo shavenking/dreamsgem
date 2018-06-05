@@ -14,7 +14,12 @@ class OperationHistory extends Model
     const TYPE_RECALL = 3;
     const TYPE_TRANSFER = 4;
 
-    protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta'];
+    const SUB_TYPE_AWARD_UPLINE = 0; // 推薦獎勵
+    const SUB_TYPE_AWARD_ACTIVATE_DRAGON = 1; // 激活龍獎勵
+    const SUB_TYPE_AWARD_ACTIVATE_TREE = 2; // 激活樹獎勵
+    const SUB_TYPE_AWARD_SETTLEMENT = 3; // 結算獎勵
+
+    protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 
     protected $casts = [
         'result_data' => 'array',

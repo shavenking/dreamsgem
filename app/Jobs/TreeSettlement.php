@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Events\WithSubType;
+use App\OperationHistory;
 use App\SettlementHistory;
 use App\Events\TreeUpdated;
 use App\Events\WalletUpdated;
@@ -102,7 +104,12 @@ class TreeSettlement implements ShouldQueue
             }
 
             foreach ($this->updatedWallets as $wallet) {
-                event(new WalletUpdated($wallet));
+                event(
+                    new WithSubType(
+                        new WalletUpdated($wallet),
+                        OperationHistory::SUB_TYPE_AWARD_SETTLEMENT
+                    )
+                );
             }
         } catch (\Exception $e) {
             Log::error($e);

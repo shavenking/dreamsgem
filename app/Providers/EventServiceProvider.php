@@ -43,6 +43,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\WalletTransferred' => [
             'App\Listeners\CreateOperationHistory',
         ],
+        'App\Events\WithSubType' => [
+            'App\Listeners\CreateOperationHistory',
+        ],
     ];
 
     /**

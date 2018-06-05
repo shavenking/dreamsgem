@@ -6,7 +6,9 @@ use App\Dragon;
 use App\Events\DragonActivated;
 use App\Events\DragonCreated;
 use App\Events\WalletUpdated;
+use App\Events\WithSubType;
 use App\Http\Controllers\Controller;
+use App\OperationHistory;
 use App\Tree;
 use App\User;
 use App\Wallet;
@@ -167,6 +169,11 @@ class DragonController extends Controller
             abort(503);
         }
 
-        event(new WalletUpdated($wallet->refresh()));
+        event(
+            new WithSubType(
+                new WalletUpdated($wallet->refresh()),
+                OperationHistory::SUB_TYPE_AWARD_UPLINE
+            )
+        );
     }
 }

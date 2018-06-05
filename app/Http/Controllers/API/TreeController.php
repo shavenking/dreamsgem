@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Events\TreeActivated;
 use App\Events\TreeCreated;
 use App\Events\WalletUpdated;
+use App\Events\WithSubType;
 use App\Http\Controllers\Controller;
+use App\OperationHistory;
 use App\Tree;
 use App\User;
 use App\Wallet;
@@ -152,6 +154,11 @@ class TreeController extends Controller
             abort(503);
         }
 
-        event(new WalletUpdated($wallet->refresh()));
+        event(
+            new WithSubType(
+                new WalletUpdated($wallet->refresh()),
+                OperationHistory::SUB_TYPE_AWARD_ACTIVATE_TREE
+            )
+        );
     }
 }
