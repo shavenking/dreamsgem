@@ -17,7 +17,7 @@ class WalletRecalled implements ShouldCreateOperationHistory
      * Create a new event instance.
      *
      * @param Wallet $wallet
-     * @param User $operator
+     * @param User   $operator
      */
     public function __construct(Wallet $wallet, User $operator = null)
     {
@@ -43,5 +43,29 @@ class WalletRecalled implements ShouldCreateOperationHistory
     public function getUser(): ?User
     {
         return $this->wallet->user;
+    }
+
+    public function getDelta(): ?array
+    {
+        // get latest wallet operation history
+        if (!($previousOperationHistory = $this->wallet->operationHistories()->latest()->first())) {
+            return null;
+        }
+
+        $delta = [
+            'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
+        ];
+
+        if (bccomp($delta['amount'], '0.0', 1) === 0) {
+            $delta['amount'] = null;
+        }
+
+        $delta = array_filter($delta);
+
+        if (!count($delta)) {
+            return null;
+        }
+
+        return $delta;
     }
 }

@@ -14,10 +14,11 @@ class OperationHistory extends Model
     const TYPE_RECALL = 3;
     const TYPE_TRANSFER = 4;
 
-    protected $fillable = ['operator_id', 'user_id', 'type', 'result_data'];
+    protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta'];
 
     protected $casts = [
         'result_data' => 'array',
+        'delta' => 'array',
     ];
 
     public function operatable(): MorphTo

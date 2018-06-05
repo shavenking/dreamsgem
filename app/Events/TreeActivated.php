@@ -45,4 +45,9 @@ class TreeActivated implements ShouldCreateOperationHistory
     {
         return $this->tree->user;
     }
+
+    public function getDelta(): ?array
+    {
+        return null;
+    }
 }

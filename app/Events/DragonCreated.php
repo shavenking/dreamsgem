@@ -44,4 +44,9 @@ class DragonCreated implements ShouldCreateOperationHistory
     {
         return $this->dragon->owner;
     }
+
+    public function getDelta(): ?array
+    {
+        return null;
+    }
 }

@@ -49,4 +49,9 @@ class UserUpdated implements ShouldCreateOperationHistory
     {
         return $this->user;
     }
+
+    public function getDelta(): ?array
+    {
+        return null;
+    }
 }

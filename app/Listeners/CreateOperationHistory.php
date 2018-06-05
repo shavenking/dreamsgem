@@ -32,6 +32,7 @@ class CreateOperationHistory
             'user_id' => optional($event->getUser())->id,
             'type' => $event->getType(),
             'result_data' => $operatable->getAttributes(),
+            'delta' => $event->getDelta(),
         ]);
     }
 }

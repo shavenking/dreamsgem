@@ -45,4 +45,9 @@ class DragonActivated implements ShouldCreateOperationHistory
     {
         return $this->dragon->user;
     }
+
+    public function getDelta(): ?array
+    {
+        return null;
+    }
 }

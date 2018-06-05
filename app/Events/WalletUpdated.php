@@ -44,4 +44,28 @@ class WalletUpdated implements ShouldCreateOperationHistory
     {
         return $this->wallet->user;
     }
+
+    public function getDelta(): ?array
+    {
+        // get latest wallet operation history
+        if (!($previousOperationHistory = $this->wallet->operationHistories()->latest()->first())) {
+            return null;
+        }
+
+        $delta = [
+            'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
+        ];
+
+        if (bccomp($delta['amount'], '0.0', 1) === 0) {
+            $delta['amount'] = null;
+        }
+
+        $delta = array_filter($delta);
+
+        if (!count($delta)) {
+            return null;
+        }
+
+        return $delta;
+    }
 }

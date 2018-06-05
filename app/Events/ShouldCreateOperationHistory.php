@@ -14,4 +14,6 @@ interface ShouldCreateOperationHistory
     public function getOperator(): ?User;
 
     public function getType(): int;
+
+    public function getDelta(): ?array;
 }
