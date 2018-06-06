@@ -18,6 +18,8 @@ class OperationHistory extends Model
     const SUB_TYPE_AWARD_ACTIVATE_DRAGON = 1; // 激活龍獎勵
     const SUB_TYPE_AWARD_ACTIVATE_TREE = 2; // 激活樹獎勵
     const SUB_TYPE_AWARD_SETTLEMENT = 3; // 結算獎勵
+    const SUB_TYPE_BUY_DRAGON = 4; // 購買龍
+    const SUB_TYPE_BUY_TREE = 5; // 購買樹
 
     protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 

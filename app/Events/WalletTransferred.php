@@ -48,7 +48,7 @@ class WalletTransferred implements ShouldCreateOperationHistory
     public function getDelta(): ?array
     {
         // get latest wallet operation history
-        if (!($previousOperationHistory = $this->wallet->operationHistories()->latest()->first())) {
+        if (!($previousOperationHistory = $this->wallet->operationHistories()->orderBy('id', 'desc')->first())) {
             return null;
         }
 

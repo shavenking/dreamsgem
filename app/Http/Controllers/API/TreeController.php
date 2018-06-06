@@ -40,7 +40,8 @@ class TreeController extends Controller
             $trees->where('remain', $request->remain_available ? '>' : '=', 0);
         }
 
-        return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id', 'activated')));
+        return response()->json($trees->with('owner', 'user')->paginate()->appends($request->only('owner_id', 'user_id',
+            'activated')));
     }
 
     public function store(User $user)
@@ -76,7 +77,12 @@ class TreeController extends Controller
                 'amount' => bcsub($wallet->amount, '1000.0', 1)
             ]);
 
-            event(new WalletUpdated($wallet->refresh(), request()->user()));
+            event(
+                new WithSubType(
+                    new WalletUpdated($wallet->refresh(), request()->user()),
+                    OperationHistory::SUB_TYPE_BUY_TREE
+                )
+            );
 
             abort_if($affectedCount !== 1, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
 

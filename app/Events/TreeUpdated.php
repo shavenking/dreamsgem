@@ -49,7 +49,7 @@ class TreeUpdated implements ShouldCreateOperationHistory
     public function getDelta(): ?array
     {
         // get latest tree operation history
-        if (!($previousOperationHistory = $this->tree->operationHistories()->latest()->first())) {
+        if (!($previousOperationHistory = $this->tree->operationHistories()->orderBy('id', 'desc')->first())) {
             return null;
         }
 

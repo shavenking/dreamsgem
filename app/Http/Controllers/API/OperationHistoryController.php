@@ -25,7 +25,14 @@ class OperationHistoryController extends Controller
             }
         }
 
-        $operationHistories = $operationHistories->latest()->paginate();
+        $operationHistories = $operationHistories->orderBy('id', 'desc')->paginate();
+        $operationHistories->appends($request->all());
+        $operationHistories = $operationHistories->map(function ($operationHistory) {
+            return $operationHistory->setAttribute(
+                'sub_type_string',
+                $operationHistory->sub_type ? trans('sub-type.' . $operationHistory->sub_type) : null
+            );
+        });
 
         return response()->json($operationHistories);
     }

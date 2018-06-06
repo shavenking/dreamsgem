@@ -107,7 +107,12 @@ class DragonController extends Controller
             'amount' => bcsub($wallet->amount, '1000.0', 1)
         ]);
 
-        event(new WalletUpdated($wallet->refresh(), request()->user()));
+        event(
+            new WithSubType(
+                new WalletUpdated($wallet->refresh(), request()->user()),
+                OperationHistory::SUB_TYPE_BUY_DRAGON
+            )
+        );
 
         abort_if($affectedCount !== 2, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
 
