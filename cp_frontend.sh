@@ -3,12 +3,13 @@
 set -e
 
 back=`pwd`
+branch=`git rev-parse --abbrev-ref HEAD`
 
 cd $1
 echo `pwd`
 git checkout -f && git clean -df
 
-git checkout release
+git checkout release-$branch
 
 git pull --rebase origin release
 
