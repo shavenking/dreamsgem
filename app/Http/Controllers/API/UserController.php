@@ -27,17 +27,9 @@ class UserController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        if ($id === 'me') {
-            $id = request()->user()->id;
-        }
-
-        $user = User::findOrFail($id);
-
-        return response()->json(array_merge($user->toArray(), [
-            'downlines' => $user->children,
-        ]));
+        return response()->json($user->setAttribute('downlines', $user->downlines));
     }
 
     public function store(Request $request)

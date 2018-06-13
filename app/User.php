@@ -3,6 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -144,10 +145,18 @@ class User extends Authenticatable implements Operatable
             }
         }
 
+        if (!$possibleParent) {
+            abort(400, trans('errors.Can\'t find possible upline'));
+        }
+
         // validate if specific upline is activated
-        static::whereId($possibleParent->id)
-            ->whereFrozen(false)
-            ->whereHas('activatedDragon')->firstOrFail();
+        try {
+            static::whereId($possibleParent->id)
+                ->whereFrozen(false)
+                ->whereHas('activatedDragon')->firstOrFail();
+        } catch (Exception $e) {
+            abort(400, trans('errors.Can\'t find possible upline'));
+        }
 
         $possibleParent->appendNode($user);
     }
@@ -160,5 +169,10 @@ class User extends Authenticatable implements Operatable
     public function toArray()
     {
         return $this->attributesToArray();
+    }
+
+    public function getDownlinesAttribute()
+    {
+        return $this->children;
     }
 }
