@@ -125,7 +125,11 @@ class DragonController extends Controller
             abort(Response::HTTP_BAD_REQUEST);
         }
 
-        if (Auth::user()->id !== $user->id && !$user->isDescendantOf(Auth::user())) {
+        if (
+            Auth::user()->id !== $user->id
+            && !$user->isDescendantOf(Auth::user())
+            && !$user->user_id !== Auth::user()->id
+        ) {
             abort(Response::HTTP_BAD_REQUEST);
         }
 
