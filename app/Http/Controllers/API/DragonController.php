@@ -13,6 +13,7 @@ use App\Tree;
 use App\User;
 use App\Wallet;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,27 @@ class DragonController extends Controller
         }
 
         return response()->json($dragons->with('owner', 'user')->paginate()->appends($appends));
+    }
+
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'owner_id' => 'required',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $dragon = Dragon::availableForBuying()->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            abort(400, trans('errors.No Available Dragons for Buying Now'));
+        }
+
+        $this->buyDragon($dragon, User::findOrFail($request->owner_id));
+
+        DB::commit();
+
+        return response()->json($dragon->refresh()->load('owner', 'user'), Response::HTTP_OK);
     }
 
     public function update(Dragon $dragon, Request $request)

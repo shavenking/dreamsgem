@@ -3,6 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Dragon extends Model implements Operatable
@@ -56,4 +57,8 @@ class Dragon extends Model implements Operatable
         return $affectedCount;
     }
 
+    public function scopeAvailableForBuying(Builder $builder)
+    {
+        return $builder->whereNull('owner_id')->whereNull('user_id');
+    }
 }
