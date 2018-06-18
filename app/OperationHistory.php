@@ -33,6 +33,16 @@ class OperationHistory extends Model
         return $this->morphTo();
     }
 
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function toArray()
     {
         $data = parent::toArray();
@@ -62,8 +72,14 @@ class OperationHistory extends Model
         ], $originalOperatableType);
     }
 
-    public function scopeReverseOperatableType(Builder $query, int $operatableType)
+    public function scopeReverseOperatableType(Builder $query, $operatableType)
     {
+        if (is_array($operatableType)) {
+            $operatableType = array_map([$this, 'reverseTransformOperatableType'], $operatableType);
+
+            return $query->whereIn('operatable_type', $operatableType);
+        }
+
         return $query->where('operatable_type', $this->reverseTransformOperatableType($operatableType));
     }
 }
