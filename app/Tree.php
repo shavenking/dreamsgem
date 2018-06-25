@@ -68,8 +68,8 @@ class Tree extends Model implements Operatable
 
     public function treeTypesGreaterOrEqualThan(int $latestTreeType)
     {
-        return array_filter($this->types(), function ($candidate) use ($latestTreeType) {
+        return array_values(array_filter($this->types(), function ($candidate) use ($latestTreeType) {
             return $latestTreeType <= $candidate;
-        });
+        }));
     }
 }
