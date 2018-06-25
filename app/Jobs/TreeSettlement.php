@@ -138,6 +138,7 @@ class TreeSettlement implements ShouldQueue
             $tree->remain,
             bcdiv($totalTreeProgress, '100', 0)
         );
+        $award = $tree->multiplyAward($award);
         $remainProgress = bcsub($totalTreeProgress, bcmul($award, '100.0', 1), 1);
 
         $this->award += $award;
@@ -273,11 +274,13 @@ class TreeSettlement implements ShouldQueue
     {
         $totalProgressGained = '0';
 
+        /** @var Tree $tree */
         foreach ($trees->take(3) as $tree) {
             $totalProgressGained = bcadd($totalProgressGained, $this->dailyProgress(), 1);
 
             $treeProgress = bcadd($tree->progress, $this->dailyProgress(), 1);
             $award = bccomp($treeProgress, '100.0', 1) > 0 ? min(bcdiv($treeProgress, '100.0', 0), $tree->remain) : 0;
+            $award = $tree->multiplyAward($award);
             $this->award += $award;
 
             if (bccomp($award, '0.0', 1) > 0) {

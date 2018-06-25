@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TreeController extends Controller
 {
@@ -44,17 +45,29 @@ class TreeController extends Controller
             'activated')));
     }
 
-    public function store(User $user)
+    public function store(User $user, Request $request)
     {
         $this->authorize('createTrees', $user);
 
         DB::beginTransaction();
 
+        $treeType = $request->input('type', Tree::TYPE_SMALL);
+        $treePrice = (new Wallet)->treePrice($treeType);
+
+        // 買了升等的樹未來只買能同等級或著更高等級
+        abort_if(
+            ($latestTree = $user->trees()->latest()->first())
+            && $latestTree->typeIsGreaterThan($treeType),
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Not allowed to buy smaller tree')
+        );
+
         try {
             $tree = $user->trees()->create(
                 [
-                    'remain' => User::DEFAULT_TREE_CAPACITY,
-                    'capacity' => User::DEFAULT_TREE_CAPACITY,
+                    'type' => $treeType,
+                    'remain' => (new Tree)->treeCapacity($treeType),
+                    'capacity' => (new Tree)->treeCapacity($treeType),
                     'progress' => '0',
                 ]
             );
@@ -65,7 +78,7 @@ class TreeController extends Controller
             ])->firstOrFail();
 
             abort_if(
-                bccomp($wallet->amount, '1000.0', 1) < 0,
+                bccomp($wallet->amount, $treePrice, 1) < 0,
                 Response::HTTP_BAD_REQUEST,
                 'Amount is not enough'
             );
@@ -74,7 +87,7 @@ class TreeController extends Controller
                 'id' => $wallet->id,
                 'amount' => $wallet->amount,
             ])->update([
-                'amount' => bcsub($wallet->amount, '1000.0', 1)
+                'amount' => bcsub($wallet->amount, $treePrice, 1)
             ]);
 
             event(

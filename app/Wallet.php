@@ -37,4 +37,18 @@ class Wallet extends Model implements Operatable
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * @param $type
+     * @return mixed
+     * @see Tree
+     */
+    public function treePrice($type)
+    {
+        return data_get([
+            '1000.0', // TYPE_SMALL
+            '2000.0', // TYPE_MEDIUM
+            '3000.0', // TYPE_LARGE
+        ], $type, '1000.0');
+    }
 }

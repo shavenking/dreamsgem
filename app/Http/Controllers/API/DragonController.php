@@ -159,14 +159,6 @@ class DragonController extends Controller
 
         event(new DragonActivated($dragon, Auth::user()));
 
-        $user->trees()->create([
-            'user_id' => $user->id,
-            'progress' => '0',
-            'remain' => User::DEFAULT_TREE_CAPACITY,
-            'capacity' => User::DEFAULT_TREE_CAPACITY,
-            'activated_at' => Carbon::now(),
-        ]);
-
         foreach ((new Wallet)->gems() as $gem) {
             $wallet = $user->wallets()->firstOrCreate(
                 [
