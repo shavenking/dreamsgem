@@ -6,6 +6,7 @@ use App\Events\UserCreated;
 use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
+use App\Tree;
 use App\User;
 use App\Wallet;
 use Illuminate\Http\Request;
@@ -111,5 +112,12 @@ class UserController extends Controller
         event(new UserUpdated($childAccount, Auth::user()));
 
         return $childAccount;
+    }
+
+    public function availableTreeTypes(User $user)
+    {
+        $latestTreeType = optional($user->trees()->latest()->first())->type ?? 0;
+
+        return response()->json((new Tree)->treeTypesGreaterOrEqualThan($latestTreeType));
     }
 }

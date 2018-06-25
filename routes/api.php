@@ -11,6 +11,8 @@ Route::group(['namespace' => 'API'], function () {
         'only' => ['show', 'store', 'update'],
     ]);
 
+    Route::get('users/{user}/available-tree-types', 'UserController@availableTreeTypes');
+
     Route::resource('users.tree-stats', 'TreeStatsController', [
         'only' => ['index'],
     ])->middleware(['auth:api']);
