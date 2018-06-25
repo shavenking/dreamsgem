@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\DragonActivated;
+use App\Events\WalletCreated;
 use App\Events\WalletUpdated;
 use App\Wallet;
 use Carbon\Carbon;
@@ -51,7 +52,7 @@ class RootUserSeeder extends Seeder
                 ]
             );
 
-            event(new WalletUpdated($wallet));
+            event(new WalletCreated($wallet));
         }
 
         DB::commit();

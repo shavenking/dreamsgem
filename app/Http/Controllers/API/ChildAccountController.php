@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\UserCreated;
+use App\Events\WalletCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\User;
@@ -50,18 +51,21 @@ class ChildAccountController extends Controller
 
         $upline->addDownline($childAccount);
 
-        Wallet::where([
-            'user_id' => $childAccount->id,
-            'gem' => Wallet::GEM_DREAMSGEM
-        ])->firstOrCreate([
-            'user_id' => $childAccount->id,
-            'gem' => Wallet::GEM_DREAMSGEM,
-            'amount' => '0.0',
-        ]);
+        event(new UserCreated($childAccount));
+
+        foreach ((new Wallet)->gems() as $gem) {
+            $wallet = $childAccount->wallets()->firstOrCreate(
+                [
+                    'gem' => $gem,
+                ], [
+                    'amount' => '0',
+                ]
+            );
+
+            event(new WalletCreated($wallet));
+        }
 
         FreezeUser::dispatch($childAccount)->delay(Carbon::now()->addDays(7));
-
-        event(new UserCreated($childAccount));
 
         DB::commit();
 

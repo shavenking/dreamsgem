@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Events\UserCreated;
 use App\Events\UserUpdated;
+use App\Events\WalletCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
 use App\Tree;
@@ -82,18 +83,21 @@ class UserController extends Controller
 
         $parentUser->addDownline($user);
 
-        Wallet::where([
-            'user_id' => $user->id,
-            'gem' => Wallet::GEM_DREAMSGEM
-        ])->firstOrCreate([
-            'user_id' => $user->id,
-            'gem' => Wallet::GEM_DREAMSGEM,
-            'amount' => '0.0',
-        ]);
+        event(new UserCreated($user));
+
+        foreach ((new Wallet)->gems() as $gem) {
+            $wallet = $user->wallets()->firstOrCreate(
+                [
+                    'gem' => $gem,
+                ], [
+                    'amount' => '0',
+                ]
+            );
+
+            event(new WalletCreated($wallet));
+        }
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
-
-        event(new UserCreated($user));
 
         return $user;
     }
