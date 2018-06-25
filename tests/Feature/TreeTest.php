@@ -64,7 +64,7 @@ class TreeTest extends TestCase
 
         $user->wallets()->create(
             [
-                'gem' => Wallet::GEM_USD,
+                'gem' => Wallet::GEM_DREAMSGEM,
                 'amount' => '1000.0',
             ]
         );

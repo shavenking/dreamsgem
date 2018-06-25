@@ -113,7 +113,7 @@ class DragonController extends Controller
 
         $wallet = Wallet::where([
             'user_id' => request()->user()->id,
-            'gem' => Wallet::GEM_USD,
+            'gem' => Wallet::GEM_DREAMSGEM,
         ])->firstOrFail();
 
         abort_if(

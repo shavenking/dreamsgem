@@ -15,7 +15,7 @@ class Wallet extends Model implements Operatable
     const GEM_DUO_XI = 1;
     const GEM_DUO_FU = 2;
     const GEM_DUO_CAI = 3;
-    const GEM_USD = 4;
+    const GEM_DREAMSGEM = 4;
 
     const REWARD_ACTIVATE_DRAGON = '50.0';
     const REWARD_ACTIVATE_TREE = '5.0';
@@ -29,7 +29,7 @@ class Wallet extends Model implements Operatable
             self::GEM_DUO_XI,
             self::GEM_DUO_FU,
             self::GEM_DUO_CAI,
-            self::GEM_USD,
+            self::GEM_DREAMSGEM,
         ];
     }
 

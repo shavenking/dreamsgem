@@ -52,10 +52,10 @@ class ChildAccountController extends Controller
 
         Wallet::where([
             'user_id' => $childAccount->id,
-            'gem' => Wallet::GEM_USD
+            'gem' => Wallet::GEM_DREAMSGEM
         ])->firstOrCreate([
             'user_id' => $childAccount->id,
-            'gem' => Wallet::GEM_USD,
+            'gem' => Wallet::GEM_DREAMSGEM,
             'amount' => '0.0',
         ]);
 

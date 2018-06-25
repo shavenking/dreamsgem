@@ -36,7 +36,7 @@ class TransferController extends Controller
 
         // only usd wallet can be transfer
         abort_if(
-            $wallet->gem !== Wallet::GEM_USD,
+            $wallet->gem !== Wallet::GEM_DREAMSGEM,
             Response::HTTP_BAD_REQUEST,
             'Only USD wallet can be transfer'
         );
@@ -70,7 +70,7 @@ class TransferController extends Controller
 
             $targetWallet = Wallet::where([
                 'user_id' => $targetUser->id,
-                'gem' => Wallet::GEM_USD,
+                'gem' => Wallet::GEM_DREAMSGEM,
             ])->firstOrFail();
 
             $affectedCount += Wallet::where([
