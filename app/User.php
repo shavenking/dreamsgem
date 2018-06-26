@@ -44,6 +44,7 @@ class User extends Authenticatable implements Operatable
      */
     protected $hidden = [
         'password',
+        'wallet_password',
         'remember_token',
         'user_id',
         '_lft',

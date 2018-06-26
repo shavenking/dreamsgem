@@ -69,6 +69,20 @@ class UserController extends Controller
             event(new UserUpdated($user, $user));
         }
 
+        if ($request->has('wallet_password')) {
+            abort_if(
+                !Hash::check($request->wallet_password, $user->wallet_password),
+                \Illuminate\Http\Response::HTTP_FORBIDDEN,
+                trans('errors.Incorrect password')
+            );
+
+            $user->update([
+                'wallet_password' => Hash::make($request->new_wallet_password),
+            ]);
+
+            event(new UserUpdated($user, $user));
+        }
+
         return response()->json($user, 200);
     }
 
