@@ -40,6 +40,7 @@ class ChildAccountController extends Controller
             'name' => 'dreamsgem',
             'email' => $faker->unique()->safeEmail,
             'password' => Hash::make($faker->password),
+            'wallet_password' => Hash::make('88888888'),
             'frozen' => false,
         ]);
 

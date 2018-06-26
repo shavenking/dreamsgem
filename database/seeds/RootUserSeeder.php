@@ -31,6 +31,7 @@ class RootUserSeeder extends Seeder
             [
                 'name' => 'root',
                 'password' => Hash::make('password'),
+                'wallet_password' => Hash::make('88888888'),
                 'frozen' => false,
             ]
         );

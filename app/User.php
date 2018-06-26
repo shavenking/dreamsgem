@@ -33,6 +33,7 @@ class User extends Authenticatable implements Operatable
         'name',
         'email',
         'password',
+        'wallet_password',
         'frozen',
     ];
 
