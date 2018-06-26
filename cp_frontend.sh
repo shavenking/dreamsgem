@@ -9,9 +9,7 @@ cd $1
 echo `pwd`
 git checkout -f && git clean -df
 
-git checkout release
-
-git pull --rebase origin release
+git checkout master && git pull --rebase origin master
 
 if [[ $branch == master ]];
 then
