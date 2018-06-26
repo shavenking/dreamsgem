@@ -8,7 +8,9 @@ use App\Wallet;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class TransferController extends Controller
 {
@@ -17,6 +19,7 @@ class TransferController extends Controller
         $this->validate($request, [
             'user_id' => 'required',
             'amount' => 'required',
+            'wallet_password' => 'required',
         ]);
 
         abort_if(
@@ -39,6 +42,12 @@ class TransferController extends Controller
             $wallet->gem !== Wallet::GEM_DREAMSGEM,
             Response::HTTP_BAD_REQUEST,
             'Only USD wallet can be transfer'
+        );
+
+        abort_if(
+            !Hash::check($request->wallet_password, Auth::user()->wallet_password),
+            Response::HTTP_UNAUTHORIZED,
+            trans('errors.Incorrect password')
         );
 
         // validate if user are not child accounts

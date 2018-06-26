@@ -11,11 +11,11 @@ use App\Tree;
 use App\User;
 use App\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -72,7 +72,7 @@ class UserController extends Controller
         if ($request->has('wallet_password')) {
             abort_if(
                 !Hash::check($request->wallet_password, $user->wallet_password),
-                \Illuminate\Http\Response::HTTP_FORBIDDEN,
+                Response::HTTP_UNAUTHORIZED,
                 trans('errors.Incorrect password')
             );
 
