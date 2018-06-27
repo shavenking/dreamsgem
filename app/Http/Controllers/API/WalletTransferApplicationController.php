@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\WalletTransferApplied;
+use App\Events\WalletWithheld;
+use App\Events\WithSubType;
 use App\Http\Controllers\Controller;
+use App\OperationHistory;
 use App\Wallet;
 use App\WalletTransferApplication;
 use Exception;
@@ -108,7 +112,12 @@ class WalletTransferApplicationController extends Controller
                 'The wallet data has changed'
             );
 
-            // todo wallet withheld
+            event(
+                new WithSubType(
+                    new WalletWithheld($wallet->refresh(), $wallet->user),
+                    OperationHistory::SUB_TYPE_WITHHELD
+                )
+            );
 
             $walletTransferApplication = WalletTransferApplication::create([
                 'from_wallet_id' => $wallet->id,
@@ -118,13 +127,17 @@ class WalletTransferApplicationController extends Controller
                 'amount' => $request->amount,
             ]);
 
-            // todo wallet transfer application created event
+            event(
+                new WalletTransferApplied($walletTransferApplication->refresh(), $wallet->user)
+            );
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
+
+        $walletTransferApplication->setRelations([]);
 
         return response()->json($walletTransferApplication, Response::HTTP_CREATED);
     }

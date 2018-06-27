@@ -13,6 +13,7 @@ class OperationHistory extends Model
     const TYPE_ACTIVATE = 2;
     const TYPE_RECALL = 3;
     const TYPE_TRANSFER = 4;
+    const TYPE_TRANSFORM = 5;
 
     const SUB_TYPE_AWARD_UPLINE = 0; // 推薦獎勵
     const SUB_TYPE_AWARD_ACTIVATE_DRAGON = 1; // 激活龍獎勵
@@ -20,6 +21,7 @@ class OperationHistory extends Model
     const SUB_TYPE_AWARD_SETTLEMENT = 3; // 結算獎勵
     const SUB_TYPE_BUY_DRAGON = 4; // 購買龍
     const SUB_TYPE_BUY_TREE = 5; // 購買樹
+    const SUB_TYPE_WITHHELD = 6; // 錢包轉換預扣
 
     protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 
