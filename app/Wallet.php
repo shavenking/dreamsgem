@@ -11,11 +11,15 @@ class Wallet extends Model implements Operatable
 {
     use OperatableTrait;
 
-    const GEM_QI_CAI = 0;
-    const GEM_DUO_XI = 1;
-    const GEM_DUO_FU = 2;
-    const GEM_DUO_CAI = 3;
-    const GEM_DREAMSGEM = 4;
+    const GEM_QI_CAI = 0; // 七彩
+    const GEM_DUO_XI = 1; // 多喜
+    const GEM_DUO_FU = 2; // 多福
+    const GEM_DUO_CAI = 3; // 多財
+    const GEM_DREAMSGEM = 4; // 夢寶積分
+    const GEM_C = 5; // 碳幣
+    const GEM_GOLD_GOD = 6; // 財神幣
+    const GEM_USD = 7; // 美金
+    const GEM_DREAMS = 8; // 圓夢積分
 
     const REWARD_ACTIVATE_DRAGON = '50.0';
     const REWARD_ACTIVATE_TREE = '5.0';
@@ -30,12 +34,21 @@ class Wallet extends Model implements Operatable
             self::GEM_DUO_FU,
             self::GEM_DUO_CAI,
             self::GEM_DREAMSGEM,
+            self::GEM_C,
+            self::GEM_GOLD_GOD,
+            self::GEM_USD,
+            self::GEM_DREAMS,
         ];
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function walletTransferApplications()
+    {
+        return $this->hasMany(WalletTransferApplication::class, 'from_wallet_id');
     }
 
     /**
@@ -50,5 +63,35 @@ class Wallet extends Model implements Operatable
             '2000.0', // TYPE_MEDIUM
             '3000.0', // TYPE_LARGE
         ], $type, '1000.0');
+    }
+
+    public function allowedToApplyTransfer()
+    {
+        return in_array($this->gem, [
+            self::GEM_QI_CAI, // 七彩
+//            self::GEM_DUO_XI, // 多喜
+//            self::GEM_DUO_FU, // 多福
+            self::GEM_DUO_CAI, // 多財
+        ], true);
+    }
+
+    public function allowedToGetTransferFrom(Wallet $wallet)
+    {
+        $map = [
+            // 七彩 => 碳幣、財神幣、美金、圓夢積分
+            self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS],
+            // 多喜
+            self::GEM_DUO_XI => [],
+            // 多福
+            self::GEM_DUO_FU => [],
+            // 多財 => 碳幣
+            self::GEM_DUO_CAI => [self::GEM_C],
+        ];
+
+        return in_array(
+            $this->gem,
+            data_get($map, $wallet->gem, []),
+            true
+        );
     }
 }
