@@ -75,9 +75,9 @@ class Wallet extends Model implements Operatable
         ], true);
     }
 
-    public function allowedToGetTransferFrom(Wallet $wallet)
+    public function walletTransferMap()
     {
-        $map = [
+        return collect([
             // 七彩 => 碳幣、財神幣、美金、圓夢積分
             self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS],
             // 多喜
@@ -86,11 +86,14 @@ class Wallet extends Model implements Operatable
             self::GEM_DUO_FU => [],
             // 多財 => 碳幣
             self::GEM_DUO_CAI => [self::GEM_C],
-        ];
+        ]);
+    }
 
+    public function allowedToGetTransferFrom(Wallet $wallet)
+    {
         return in_array(
             $this->gem,
-            data_get($map, $wallet->gem, []),
+            data_get($this->walletTransferMap(), $wallet->gem, []),
             true
         );
     }

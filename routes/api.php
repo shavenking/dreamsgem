@@ -47,6 +47,8 @@ Route::group(['namespace' => 'API'], function () {
 
     Route::get('wallet-transfer-rate', 'WalletTransferRateController@index');
 
+    Route::get('wallet-transfer-map', 'WalletTransferMapController@index');
+
     Route::resource('users.operation-histories', 'OperationHistoryController', [
         'only' => ['index']
     ])->middleware(['auth:api']);
