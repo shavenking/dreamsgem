@@ -41,7 +41,7 @@ class TransferController extends Controller
         abort_if(
             $wallet->gem !== Wallet::GEM_DREAMSGEM,
             Response::HTTP_BAD_REQUEST,
-            'Only USD wallet can be transfer'
+            'Only Dreamsgem wallet can be transfer'
         );
 
         abort_if(
