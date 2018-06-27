@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\Hash;
 
 class WalletTransferApplicationController extends Controller
 {
-    public function index(Wallet $wallet)
+    public function index($gem)
     {
+        $wallet = Auth::user()->wallets()->whereGem($gem)->firstOrFail();
+
         // validate if current logged in user has permissions to transfer wallet
         $this->authorize('transfer', $wallet);
 
@@ -28,18 +30,20 @@ class WalletTransferApplicationController extends Controller
         );
     }
 
-    public function store(Wallet $wallet, Request $request)
+    public function store($gem, Request $request)
     {
+        $wallet = Auth::user()->wallets()->whereGem($gem)->firstOrFail();
+
         // validate if current logged in user has permissions to transfer wallet
         $this->authorize('transfer', $wallet);
 
         $this->validate($request, [
-            'to_wallet_id' => 'required',
+            'to_gem' => 'required',
             'amount' => 'required',
             'wallet_password' => 'required',
         ]);
 
-        $toWallet = Wallet::findOrFail($request->to_wallet_id);
+        $toWallet = Auth::user()->wallets()->whereGem($request->to_gem)->firstOrFail();
 
         abort_if(
             $wallet->id === $toWallet->id,
