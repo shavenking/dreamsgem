@@ -22,11 +22,11 @@ class UserController extends Controller
 {
     public function __construct(Request $request)
     {
-        $this->middleware(['auth:api'])->except(['store']);
+        $this->middleware(['auth:api', 'email.verified'])->except(['store']);
 
         // HOTFIX
         if ($request->child_account_id) {
-            $this->middleware(['auth:api']);
+            $this->middleware(['auth:api', 'email.verified']);
         }
     }
 

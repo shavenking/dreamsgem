@@ -13,7 +13,7 @@ class QRCodeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth:api'])->except(['store']);
+        $this->middleware(['auth:api', 'email.verified'])->except(['store']);
     }
 
     public function store(Generator $faker)

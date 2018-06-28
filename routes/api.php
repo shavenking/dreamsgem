@@ -15,35 +15,35 @@ Route::group(['namespace' => 'API'], function () {
 
     Route::resource('users.tree-stats', 'TreeStatsController', [
         'only' => ['index'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.child-accounts', 'ChildAccountController', [
         'only' => ['index', 'store'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('dragons', 'DragonController', [
         'only' => ['index', 'store', 'update'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.trees', 'TreeController', [
         'only' => ['index', 'store', 'update'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.wallets', 'WalletController', [
         'only' => ['index'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.recalls', 'RecallController', [
         'only' => ['store'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('wallets.transfers', 'TransferController', [
         'only' => ['store'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('gems.wallet-transfer-applications', 'WalletTransferApplicationController', [
         'only' => ['index', 'store'],
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 
     Route::get('wallet-transfer-rate', 'WalletTransferRateController@index');
 
@@ -51,5 +51,5 @@ Route::group(['namespace' => 'API'], function () {
 
     Route::resource('users.operation-histories', 'OperationHistoryController', [
         'only' => ['index']
-    ])->middleware(['auth:api']);
+    ])->middleware(['auth:api', 'email.verified']);
 });
