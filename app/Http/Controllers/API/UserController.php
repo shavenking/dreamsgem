@@ -7,6 +7,7 @@ use App\Events\UserUpdated;
 use App\Events\WalletCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\FreezeUser;
+use App\Jobs\SendVerifyEmail;
 use App\Tree;
 use App\User;
 use App\Wallet;
@@ -114,6 +115,7 @@ class UserController extends Controller
         }
 
         FreezeUser::dispatch($user)->delay(Carbon::now()->addDays(7));
+        SendVerifyEmail::dispatch($user);
 
         return $user;
     }

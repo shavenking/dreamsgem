@@ -35,6 +35,7 @@ class User extends Authenticatable implements Operatable
         'password',
         'wallet_password',
         'frozen',
+        'email_verified',
     ];
 
     /**
@@ -99,6 +100,11 @@ class User extends Authenticatable implements Operatable
     public function treeSettlementHistories()
     {
         return $this->hasMany(TreeSettlementHistory::class);
+    }
+
+    public function emailVerifications()
+    {
+        return $this->hasMany(EmailVerification::class);
     }
 
     public function activateTree(Tree $tree, User $targetUser)

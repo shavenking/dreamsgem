@@ -13,4 +13,6 @@
 
 Route::get('/', function () {
     return view('index');
-});
+})->name('index');
+
+Route::get('email-verifications/{token}', 'EmailVerificationController@update')->name('email-verifications.update');

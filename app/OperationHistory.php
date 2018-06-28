@@ -22,6 +22,7 @@ class OperationHistory extends Model
     const SUB_TYPE_BUY_DRAGON = 4; // 購買龍
     const SUB_TYPE_BUY_TREE = 5; // 購買樹
     const SUB_TYPE_WITHHELD = 6; // 錢包轉換預扣
+    const SUB_TYPE_EMAIL_VERIFIED = 7; // 信箱驗證
 
     protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 
