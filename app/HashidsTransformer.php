@@ -49,7 +49,7 @@ class HashidsTransformer
         }
 
         foreach (ReplaceHashids::$shouldReplace as $shouldReplaced) {
-            if ($target->{$shouldReplaced}) {
+            if ($target->{$shouldReplaced} && is_int($target->{$shouldReplaced})) {
                 $target->setAttribute($shouldReplaced, $this->hashids->encode($target->{$shouldReplaced}));
             }
         }

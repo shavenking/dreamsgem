@@ -26,7 +26,7 @@ class WalletTransferApplicationController extends Controller
         $this->authorize('transfer', $wallet);
 
         return response()->json(
-            $wallet->walletTransferApplications()->paginate()
+            $wallet->walletTransferApplications()->with('fromWallet', 'toWallet')->paginate()
         );
     }
 
