@@ -89,6 +89,23 @@ class Wallet extends Model implements Operatable
         ]);
     }
 
+    public function transferRateTextMap()
+    {
+        $map = collect($this->gems())->crossJoin($this->gems())->map(function ($pair) {
+            return implode(':', $pair);
+        });
+
+        $rate = collect(array_fill(0, $map->count(), '1:1'));
+
+        return $map->combine($rate)->mapWithKeys(function ($rate, $pair) {
+            if ((int) explode(':', $pair)[0] === self::GEM_DUO_CAI) {
+                return [$pair => '7:7'];
+            }
+
+            return [$pair => $rate];
+        });
+    }
+
     public function allowedToGetTransferFrom(Wallet $wallet)
     {
         return in_array(
