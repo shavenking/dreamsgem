@@ -21,7 +21,7 @@ class Wallet extends Model implements Operatable
     const GEM_USD = 7; // 美金
     const GEM_DREAMS = 8; // 圓夢積分
 
-    const REWARD_ACTIVATE_DRAGON = '50.0';
+    const REWARD_ACTIVATE_DRAGON = '100.0';
     const REWARD_ACTIVATE_TREE = '5.0';
 
     protected $fillable = ['user_id', 'gem', 'amount'];
