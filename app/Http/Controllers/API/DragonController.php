@@ -159,18 +159,6 @@ class DragonController extends Controller
 
         event(new DragonActivated($dragon, Auth::user()));
 
-        foreach ((new Wallet)->gems() as $gem) {
-            $wallet = $user->wallets()->firstOrCreate(
-                [
-                    'gem' => $gem,
-                ], [
-                    'amount' => '0',
-                ]
-            );
-
-            event(new WalletUpdated($wallet));
-        }
-
 //        $wallet = $user->parent->wallets()->firstOrCreate(
 //            [
 //                'gem' => Wallet::GEM_DUO_CAI,
