@@ -175,7 +175,7 @@ class DragonController extends Controller
         event(
             new WithSubType(
                 new WalletUpdated($wallet->refresh()),
-                OperationHistory::SUB_TYPE_AWARD_UPLINE
+                OperationHistory::SUB_TYPE_AWARD_ACTIVATE_DRAGON
             )
         );
     }
