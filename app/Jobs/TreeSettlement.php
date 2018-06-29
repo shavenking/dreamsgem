@@ -275,7 +275,7 @@ class TreeSettlement implements ShouldQueue
         $totalProgressGained = '0';
 
         /** @var Tree $tree */
-        foreach ($trees->take(3) as $tree) {
+        foreach ($trees->take(1) as $tree) {
             $totalProgressGained = bcadd($totalProgressGained, $this->dailyProgress(), 1);
 
             $treeProgress = bcadd($tree->progress, $this->dailyProgress(), 1);
