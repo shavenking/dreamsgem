@@ -85,7 +85,7 @@ class Wallet extends Model implements Operatable
             // 多福
             self::GEM_DUO_FU => [],
             // 多財 => 碳幣
-            self::GEM_DUO_CAI => [self::GEM_C],
+            self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_DREAMS],
         ]);
     }
 
