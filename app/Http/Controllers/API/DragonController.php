@@ -116,8 +116,10 @@ class DragonController extends Controller
             'gem' => Wallet::GEM_DREAMSGEM,
         ])->firstOrFail();
 
+        $price = '100.0';
+
         abort_if(
-            bccomp($wallet->amount, '1000.0', 1) < 0,
+            bccomp($wallet->amount, $price, 1) < 0,
             Response::HTTP_BAD_REQUEST,
             'Amount is not enough'
         );
@@ -126,7 +128,7 @@ class DragonController extends Controller
             'id' => $wallet->id,
             'amount' => $wallet->amount,
         ])->update([
-            'amount' => bcsub($wallet->amount, '1000.0', 1)
+            'amount' => bcsub($wallet->amount, $price, 1)
         ]);
 
         event(
