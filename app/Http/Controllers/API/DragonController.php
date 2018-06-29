@@ -171,32 +171,32 @@ class DragonController extends Controller
             event(new WalletUpdated($wallet));
         }
 
-        $wallet = $user->parent->wallets()->firstOrCreate(
-            [
-                'gem' => Wallet::GEM_DUO_CAI,
-            ], [
-                'amount' => '0',
-            ]
-        );
-
-        $affectedCount = Wallet::whereId($wallet->id)
-            ->where('gem', $wallet->gem)
-            ->where('amount', $wallet->amount)
-            ->update(
-                [
-                    'amount' => bcadd($wallet->amount, Wallet::REWARD_ACTIVATE_DRAGON, 1),
-                ]
-            );
-
-        if ($affectedCount !== 1) {
-            abort(503);
-        }
-
-        event(
-            new WithSubType(
-                new WalletUpdated($wallet->refresh()),
-                OperationHistory::SUB_TYPE_AWARD_UPLINE
-            )
-        );
+//        $wallet = $user->parent->wallets()->firstOrCreate(
+//            [
+//                'gem' => Wallet::GEM_DUO_CAI,
+//            ], [
+//                'amount' => '0',
+//            ]
+//        );
+//
+//        $affectedCount = Wallet::whereId($wallet->id)
+//            ->where('gem', $wallet->gem)
+//            ->where('amount', $wallet->amount)
+//            ->update(
+//                [
+//                    'amount' => bcadd($wallet->amount, Wallet::REWARD_ACTIVATE_DRAGON, 1),
+//                ]
+//            );
+//
+//        if ($affectedCount !== 1) {
+//            abort(503);
+//        }
+//
+//        event(
+//            new WithSubType(
+//                new WalletUpdated($wallet->refresh()),
+//                OperationHistory::SUB_TYPE_AWARD_UPLINE
+//            )
+//        );
     }
 }
