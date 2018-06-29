@@ -58,11 +58,7 @@ class DragonController extends Controller
 
         DB::beginTransaction();
 
-        try {
-            $dragon = Dragon::availableForBuying()->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            abort(400, trans('errors.No Available Dragons for Buying Now'));
-        }
+        $dragon = Dragon::availableForBuying()->firstOrCreate([]);
 
         $this->buyDragon($dragon, User::findOrFail($request->owner_id));
 
