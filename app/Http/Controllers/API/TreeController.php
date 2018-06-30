@@ -4,10 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Events\TreeActivated;
 use App\Events\TreeCreated;
+use App\Events\TreeUpdated;
 use App\Events\WalletUpdated;
 use App\Events\WithSubType;
 use App\Http\Controllers\Controller;
 use App\OperationHistory;
+use App\SettleUtils\TreeSettle;
 use App\Tree;
 use App\User;
 use App\Wallet;
@@ -100,12 +102,34 @@ class TreeController extends Controller
             abort_if($affectedCount !== 1, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
 
             event(new TreeCreated($tree, $user));
+
+            if (Auth::user()->parent) {
+                $treeSettle = (new TreeSettle(Auth::user()))->with(Wallet::BUY_TREE_PROGRESS_REWARD);
+
+                collect($treeSettle->treeSettleResult->updatedTrees)->each(function ($tree) {
+                    event(
+                        new WithSubType(
+                            new TreeUpdated($tree),
+                            OperationHistory::SUB_TYPE_BUY_TREE_SETTLEMENT
+                        )
+                    );
+                });
+
+                foreach ($treeSettle->treeSettleResult->updatedWallets as $wallet) {
+                    event(
+                        new WithSubType(
+                            new WalletUpdated($wallet),
+                            OperationHistory::SUB_TYPE_AWARD_BUY_TREE
+                        )
+                    );
+                }
+            }
+
+            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
-
-        DB::commit();
 
         return response()->json($tree->load('owner', 'user'), Response::HTTP_CREATED);
     }
@@ -144,40 +168,5 @@ class TreeController extends Controller
         DB::commit();
 
         return response()->json($tree->load('owner', 'user'), Response::HTTP_OK);
-    }
-
-    private function setTreeActivateAward(?User $user)
-    {
-        if (!$user) {
-            return;
-        }
-
-        $wallet = $user->wallets()->firstOrCreate(
-            [
-                'gem' => Wallet::GEM_DUO_CAI,
-            ], [
-                'amount' => '0',
-            ]
-        );
-
-        $affectedCount = Wallet::whereId($wallet->id)
-            ->where('gem', $wallet->gem)
-            ->where('amount', $wallet->amount)
-            ->update(
-                [
-                    'amount' => bcadd($wallet->amount, Wallet::REWARD_ACTIVATE_TREE, 1),
-                ]
-            );
-
-        if ($affectedCount !== 1) {
-            abort(503);
-        }
-
-        event(
-            new WithSubType(
-                new WalletUpdated($wallet->refresh()),
-                OperationHistory::SUB_TYPE_AWARD_ACTIVATE_TREE
-            )
-        );
     }
 }

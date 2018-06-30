@@ -49,12 +49,14 @@ class WalletUpdated implements ShouldCreateOperationHistory
     {
         // get latest wallet operation history
         if (!($previousOperationHistory = $this->wallet->operationHistories()->orderBy('id', 'desc')->first())) {
-            return null;
+            $delta = [
+                'amount' => bcsub($this->wallet->amount, '0', 1),
+            ];
+        } else {
+            $delta = [
+                'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
+            ];
         }
-
-        $delta = [
-            'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
-        ];
 
         if (bccomp($delta['amount'], '0.0', 1) === 0) {
             $delta['amount'] = null;

@@ -23,6 +23,7 @@ class Wallet extends Model implements Operatable
 
     const REWARD_ACTIVATE_DRAGON = '100.0';
     const REWARD_ACTIVATE_TREE = '5.0';
+    const BUY_TREE_PROGRESS_REWARD = '300.0';
 
     protected $fillable = ['user_id', 'gem', 'amount', 'external_address'];
 

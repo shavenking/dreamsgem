@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Jobs\TreeSettlement;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Tree extends Model implements Operatable
@@ -27,6 +28,11 @@ class Tree extends Model implements Operatable
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeTreeSettleCandidates(Builder $builder)
+    {
+        return $builder->whereNotNull('user_id')->where('remain', '>', 0)->orderBy('id');
     }
 
     public function getActivatedAttribute()
