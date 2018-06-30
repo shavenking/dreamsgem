@@ -30,7 +30,7 @@ Route::group(['namespace' => 'API'], function () {
     ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.wallets', 'WalletController', [
-        'only' => ['index'],
+        'only' => ['index', 'update'],
     ])->middleware(['auth:api', 'email.verified']);
 
     Route::resource('users.recalls', 'RecallController', [

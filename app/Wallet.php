@@ -24,7 +24,7 @@ class Wallet extends Model implements Operatable
     const REWARD_ACTIVATE_DRAGON = '100.0';
     const REWARD_ACTIVATE_TREE = '5.0';
 
-    protected $fillable = ['user_id', 'gem', 'amount'];
+    protected $fillable = ['user_id', 'gem', 'amount', 'external_address'];
 
     public function gems()
     {
@@ -49,6 +49,16 @@ class Wallet extends Model implements Operatable
     public function walletTransferApplications()
     {
         return $this->hasMany(WalletTransferApplication::class, 'from_wallet_id');
+    }
+
+    public function getExternalWalletAttribute()
+    {
+        return in_array($this->gem, [
+            self::GEM_C,
+            self::GEM_GOLD_GOD,
+            self::GEM_USD,
+            self::GEM_DREAMS
+        ], true);
     }
 
     /**
