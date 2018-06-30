@@ -22,7 +22,8 @@ class UserController extends Controller
 {
     public function __construct(Request $request)
     {
-        $this->middleware(['auth:api', 'email.verified'])->except(['store']);
+        $this->middleware(['auth:api'])->except(['store']);
+        $this->middleware(['email.verified'])->except(['show', 'store']);
 
         // HOTFIX
         if ($request->child_account_id) {
@@ -30,8 +31,12 @@ class UserController extends Controller
         }
     }
 
-    public function show(User $user)
+    public function show(User $user, Request $request)
     {
+        if ($user->id !== Auth::user()->id && !$request->user->email_verified) {
+            abort(Response::HTTP_FORBIDDEN, trans('errors.User email not verified'));
+        }
+
         return response()->json($user->setAttribute('downlines', $user->downlines));
     }
 
