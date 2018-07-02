@@ -104,7 +104,9 @@ class TreeController extends Controller
             event(new TreeCreated($tree, $user));
 
             if (Auth::user()->parent) {
-                $treeSettle = (new TreeSettle(Auth::user()))->with(Wallet::BUY_TREE_PROGRESS_REWARD);
+                $treeSettle = (new TreeSettle(Auth::user()))->with(
+                    (new Wallet)->buyTreeReward($tree->type)
+                );
 
                 collect($treeSettle->treeSettleResult->updatedTrees)->each(function ($tree) {
                     event(

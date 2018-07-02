@@ -23,7 +23,9 @@ class Wallet extends Model implements Operatable
 
     const REWARD_ACTIVATE_DRAGON = '100.0';
     const REWARD_ACTIVATE_TREE = '5.0';
-    const BUY_TREE_PROGRESS_REWARD = '300.0';
+    const BUY_TREE_PROGRESS_REWARD_SMALL = '300.0';
+    const BUY_TREE_PROGRESS_REWARD_MEDIUM = '700.0';
+    const BUY_TREE_PROGRESS_REWARD_LARGE = '1200.0';
 
     protected $fillable = ['user_id', 'gem', 'amount', 'external_address'];
 
@@ -124,5 +126,14 @@ class Wallet extends Model implements Operatable
             data_get($this->walletTransferMap(), $wallet->gem, []),
             true
         );
+    }
+
+    public function buyTreeReward($treeType)
+    {
+        return [
+            Tree::TYPE_SMALL => Wallet::BUY_TREE_PROGRESS_REWARD_SMALL,
+            Tree::TYPE_MEDIUM => Wallet::BUY_TREE_PROGRESS_REWARD_MEDIUM,
+            Tree::TYPE_LARGE => Wallet::BUY_TREE_PROGRESS_REWARD_LARGE,
+        ][$treeType];
     }
 }
