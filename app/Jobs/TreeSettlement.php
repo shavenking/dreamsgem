@@ -192,9 +192,7 @@ class TreeSettlement implements ShouldQueue
      */
     private function downlinesProgress()
     {
-        $activatedChildrenCount = $this->user->children->filter(function (User $child) {
-            return $child->activated;
-        })->count();
+        $effectiveDownlinesCount = $this->effectiveDownlinesCount();
 
         $nLevel = [
                 0 => 0,
@@ -205,7 +203,7 @@ class TreeSettlement implements ShouldQueue
                 5 => 10,
                 6 => 10,
                 7 => 10,
-            ][$activatedChildrenCount];
+            ][$effectiveDownlinesCount];
 
         $children = collect();
         $candidateChildren = collect($this->user->children);
@@ -246,7 +244,7 @@ class TreeSettlement implements ShouldQueue
             5 => '13',
             6 => '14',
             7 => '15',
-        ][$activatedChildrenCount];
+        ][$effectiveDownlinesCount];
 
         return bcmul($downlinesAward, $multiplier, 1);
     }
@@ -324,5 +322,12 @@ class TreeSettlement implements ShouldQueue
             '14.3',
             '14.3',
         ][Carbon::now()->dayOfWeek];
+    }
+
+    private function effectiveDownlinesCount()
+    {
+        return $this->user->children()->whereHas('activatedTrees')->get()->filter(function (User $child) {
+            return $child->activated;
+        })->count();
     }
 }
