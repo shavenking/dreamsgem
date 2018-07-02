@@ -12,7 +12,10 @@ class Dragon extends Model implements Operatable
 
     const MAX_ACTIVATE_DRAGON_AMOUNT = 1;
 
-    protected $fillable = ['user_id', 'activated_at'];
+    const TYPE_NORMAL = 0;
+    const TYPE_SMALL = 1;
+
+    protected $fillable = ['type', 'user_id', 'activated_at'];
 
     protected $appends = ['activated'];
 

@@ -58,7 +58,7 @@ class DragonController extends Controller
 
         DB::beginTransaction();
 
-        $dragon = Dragon::availableForBuying()->firstOrCreate([]);
+        $dragon = Dragon::availableForBuying()->firstOrCreate([], ['type' => Dragon::TYPE_NORMAL]);
 
         $this->buyDragon($dragon, User::findOrFail($request->owner_id));
 
