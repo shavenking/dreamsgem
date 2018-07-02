@@ -94,9 +94,7 @@ class TreeSettlement implements ShouldQueue
                     TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
                     TreeSettlementHistory::KEY_SETTLEMENT_AWARD => $this->award,
                 ],
-                'maximum_progress_rule' => [
-                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $this->maximumProgressRule($activatedChildrenCount),
-                ],
+                'maximum_progress_rule' => new \stdClass,
             ]);
 
             foreach ($this->updatedTrees as $tree) {
@@ -250,9 +248,7 @@ class TreeSettlement implements ShouldQueue
             7 => '15',
         ][$activatedChildrenCount];
 
-        return min(
-            bcmul($downlinesAward, $multiplier, 1), $this->maximumProgressRule($activatedChildrenCount)
-        );
+        return bcmul($downlinesAward, $multiplier, 1);
     }
 
     public function maximumProgressRule($childrenCount)

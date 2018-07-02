@@ -13,7 +13,7 @@ class TreeSettlementHistory extends Model
     protected $fillable = ['settlement_history_id', 'user_id', 'progress_gained', 'maximum_progress_rule'];
 
     protected $casts = [
-        'progress_gained' => 'array',
-        'maximum_progress_rule' => 'array',
+        'progress_gained' => 'object',
+        'maximum_progress_rule' => 'object',
     ];
 }
