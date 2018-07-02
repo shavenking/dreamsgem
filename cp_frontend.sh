@@ -20,6 +20,9 @@ npm run build
 
 cd $back
 
+rm -rf resources/views/index.blade.php
+rm -rf public/static
+
 cp $1/dist/index.html resources/views/index.blade.php
-cp -R $1/dist/static/ public/static/
+cp -R $1/dist/static public/static
 
