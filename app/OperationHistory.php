@@ -65,6 +65,7 @@ class OperationHistory extends Model
             'App\Wallet' => 1,
             'App\Dragon' => 2,
             'App\Tree' => 3,
+            'App\WalletTransferApplication' => 4,
         ], $originalOperatableType, 99);
     }
 
@@ -75,6 +76,7 @@ class OperationHistory extends Model
             'App\Wallet',
             'App\Dragon',
             'App\Tree',
+            'App\WalletTransferApplication',
         ], $originalOperatableType);
     }
 
