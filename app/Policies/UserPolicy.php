@@ -53,7 +53,7 @@ class UserPolicy
         return (
             $loggedInUser->id === $targetUser->id
             || $loggedInUser->id === $targetUser->user_id // is my child account
-            || $targetUser->isChildOf($loggedInUser) // downlines
+            || $targetUser->isDescendantOf($loggedInUser) // downlines
         );
     }
 }
