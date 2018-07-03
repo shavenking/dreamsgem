@@ -30,8 +30,8 @@ class OperationHistory extends Model
     protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 
     protected $casts = [
-        'result_data' => 'array',
-        'delta' => 'array',
+        'result_data' => 'object',
+        'delta' => 'object',
     ];
 
     public function operatable(): MorphTo
@@ -47,15 +47,6 @@ class OperationHistory extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function toArray()
-    {
-        $data = parent::toArray();
-
-        $data['operatable_type'] = $this->transformOperatableType($data['operatable_type']);
-
-        return $data;
     }
 
     public function transformOperatableType($originalOperatableType)

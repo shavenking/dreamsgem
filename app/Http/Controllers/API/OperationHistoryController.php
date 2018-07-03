@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Dragon;
 use App\Http\Controllers\Controller;
 use App\OperationHistory;
 use App\User;
@@ -44,6 +45,18 @@ class OperationHistoryController extends Controller
         $operationHistories = $operationHistories->orderBy('id', 'desc')->with('operator', 'user')->paginate();
         $operationHistories->appends($request->all());
         $operationHistories->map(function ($operationHistory) {
+            $operationHistory->setAttribute('operatable_type', $operationHistory->transformOperatableType($operationHistory->operatable_type));
+
+            // 龍加入了 type 欄位，這段為舊的 OperationHistory 補上資料
+            if (
+                $operationHistory->operatable_type === $operationHistory->transformOperatableType('App\Dragon')
+                && is_null(optional($operationHistory->result_data)->type)
+            ) {
+                $operationHistory->result_data = (object) array_merge((array) $operationHistory->result_data, [
+                    'type' => Dragon::TYPE_NORMAL
+                ]);
+            }
+
             return $operationHistory->setAttribute(
                 'sub_type_string',
                 $operationHistory->sub_type ? trans('sub-type.' . $operationHistory->sub_type) : null

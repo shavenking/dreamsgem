@@ -87,8 +87,8 @@ class HashidsTransformer
         $resultData = $operationHistory->result_data;
 
         foreach ($shouldReplace as $shouldReplaced) {
-            if (isset($resultData[$shouldReplaced])) {
-                $resultData[$shouldReplaced] = $this->hashids->encode($resultData[$shouldReplaced]);
+            if (isset($resultData->$shouldReplaced)) {
+                $resultData->$shouldReplaced = $this->hashids->encode($resultData->$shouldReplaced);
             }
         }
 
