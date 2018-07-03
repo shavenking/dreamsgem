@@ -92,7 +92,7 @@ class Wallet extends Model implements Operatable
     {
         return collect([
             // 七彩 => 碳幣、財神幣、美金、圓夢積分
-            self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS],
+            self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_DREAMS],
             // 多喜
             self::GEM_DUO_XI => [],
             // 多福
