@@ -52,4 +52,6 @@ Route::group(['namespace' => 'API'], function () {
     Route::resource('users.operation-histories', 'OperationHistoryController', [
         'only' => ['index']
     ])->middleware(['auth:api', 'email.verified']);
+
+    Route::get('users/{user}/dragon-summary', 'DragonSummaryController@index')->middleware(['auth:api', 'email.verified']);
 });
