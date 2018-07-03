@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class EmailVerified
 {
@@ -16,7 +17,7 @@ class EmailVerified
      */
     public function handle($request, Closure $next)
     {
-        if ($request->user && !$request->user->email_verified) {
+        if (Auth::user() && !Auth::user()->email_verified) {
             abort(Response::HTTP_FORBIDDEN, trans('errors.User email not verified'));
         }
 

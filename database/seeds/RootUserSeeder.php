@@ -39,7 +39,7 @@ class RootUserSeeder extends Seeder
 
         if (!$user->activated) {
             $dragon = $user->activatedDragon()->create(
-                ['owner_id' => $user->id, 'activated_at' => Carbon::now()]
+                ['type' => \App\Dragon::TYPE_NORMAL, 'owner_id' => $user->id, 'activated_at' => Carbon::now()]
             );
             event(new DragonActivated($dragon, $user));
         }
