@@ -54,7 +54,7 @@ class WalletUpdated implements ShouldCreateOperationHistory
             ];
         } else {
             $delta = [
-                'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
+                'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data->amount, 1),
             ];
         }
 

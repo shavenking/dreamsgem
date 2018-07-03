@@ -53,7 +53,7 @@ class WalletWithheld implements ShouldCreateOperationHistory
         }
 
         $delta = [
-            'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data['amount'], 1),
+            'amount' => bcsub($this->wallet->amount, $previousOperationHistory->result_data->amount, 1),
         ];
 
         if (bccomp($delta['amount'], '0.0', 1) === 0) {
