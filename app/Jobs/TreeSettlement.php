@@ -144,8 +144,8 @@ class TreeSettlement implements ShouldQueue
         if (bccomp($award, '0.0', 1) > 0) {
             foreach ([
                          Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
-                         Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
-                         Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                         Wallet::GEM_DUO_XI => bcmul('3.5', $award, 1),
+                         Wallet::GEM_DUO_FU => bcmul('10.5', $award, 1),
                          Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
                      ] as $gem => $increment) {
                 throw_if(
@@ -280,8 +280,8 @@ class TreeSettlement implements ShouldQueue
             if (bccomp($award, '0.0', 1) > 0) {
                 foreach ([
                              Wallet::GEM_QI_CAI => bcmul('17.5', $award, 1),
-                             Wallet::GEM_DUO_XI => bcmul('10.5', $award, 1),
-                             Wallet::GEM_DUO_FU => bcmul('3.5', $award, 1),
+                             Wallet::GEM_DUO_XI => bcmul('3.5', $award, 1),
+                             Wallet::GEM_DUO_FU => bcmul('10.5', $award, 1),
                              Wallet::GEM_DUO_CAI => bcmul('3.5', $award, 1),
                          ] as $gem => $increment) {
                     throw_if(

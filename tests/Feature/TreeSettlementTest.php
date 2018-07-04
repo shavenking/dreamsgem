@@ -179,8 +179,8 @@ class TreeSettlementTest extends TestCase
     {
         return [
             Wallet::GEM_QI_CAI => bcmul('17.5', $times, 1),
-            Wallet::GEM_DUO_XI => bcmul('10.5', $times, 1),
-            Wallet::GEM_DUO_FU => bcmul('3.5', $times, 1),
+            Wallet::GEM_DUO_XI => bcmul('3.5', $times, 1),
+            Wallet::GEM_DUO_FU => bcmul('10.5', $times, 1),
             Wallet::GEM_DUO_CAI => bcmul('3.5', $times, 1),
         ];
     }
