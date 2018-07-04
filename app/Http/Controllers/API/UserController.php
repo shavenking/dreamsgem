@@ -33,7 +33,7 @@ class UserController extends Controller
 
     public function show(User $user, Request $request)
     {
-        if ($user->id !== Auth::user()->id && !$request->user->email_verified) {
+        if ($user->id !== Auth::user()->id && !Auth::user()->email_verified) {
             abort(Response::HTTP_FORBIDDEN, trans('errors.User email not verified'));
         }
 
