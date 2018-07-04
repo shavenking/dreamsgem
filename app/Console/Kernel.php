@@ -28,16 +28,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // 24:00 Asia/Taipei
-//        $schedule
-//            ->command('down')
-//            ->dailyAt('16:00')
-//            ->evenInMaintenanceMode();
+        $schedule
+            ->command('down')
+            ->dailyAt('16:00')
+            ->evenInMaintenanceMode();
 
         // 09:00 Asia/Taipei
-//        $schedule
-//            ->command('up')
-//            ->dailyAt('01:00')
-//            ->evenInMaintenanceMode();
+        $schedule
+            ->command('up')
+            ->dailyAt('01:00')
+            ->evenInMaintenanceMode();
 
         $this->runDailySettlement($schedule);
         $this->sendTreeLowRemainReminders($schedule);
