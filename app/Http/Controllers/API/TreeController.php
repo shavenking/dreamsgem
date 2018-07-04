@@ -151,7 +151,7 @@ class TreeController extends Controller
         /** @var Tree $latestActivatedTree */
         $latestActivatedTree = $user->activatedTrees()->latest()->first();
         abort_if(
-            $latestActivatedTree->typeIsGreaterThan($tree),
+            $latestActivatedTree && $latestActivatedTree->typeIsGreaterThan($tree),
             Response::HTTP_BAD_REQUEST,
             trans('errors.Can not activate tree cuz type is small than the latest activated one')
         );
