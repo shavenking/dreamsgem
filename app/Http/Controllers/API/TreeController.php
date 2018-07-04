@@ -156,9 +156,6 @@ class TreeController extends Controller
 
         event(new TreeActivated($tree->refresh(), $user));
 
-//        $this->setTreeActivateAward($targetUser);
-//        $this->setTreeActivateAward($targetUser->parent);
-
         DB::commit();
 
         return response()->json($tree->load('owner', 'user'), Response::HTTP_OK);
