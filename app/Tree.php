@@ -58,9 +58,9 @@ class Tree extends Model implements Operatable
         ];
     }
 
-    public function typeIsGreaterThan($type)
+    public function typeIsGreaterThan(Tree $tree)
     {
-        return $this->type > $type;
+        return $this->type > $tree->type;
     }
 
     /**

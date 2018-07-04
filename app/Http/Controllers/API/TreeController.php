@@ -147,6 +147,15 @@ class TreeController extends Controller
             return response()->json([], 400);
         }
 
+        // 如果已激活過更大的樹，就不能再激活小的樹
+        /** @var Tree $latestActivatedTree */
+        $latestActivatedTree = $user->activatedTrees()->latest()->first();
+        abort_if(
+            $latestActivatedTree->typeIsGreaterThan($tree),
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Can not activate tree cuz type is small than the latest activated one')
+        );
+
         DB::beginTransaction();
 
         abort_if(
