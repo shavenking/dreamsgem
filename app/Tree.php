@@ -78,4 +78,13 @@ class Tree extends Model implements Operatable
             return $latestTreeType <= $candidate;
         }));
     }
+
+    public function treeTypes()
+    {
+        return [
+            self::TYPE_SMALL,
+            self::TYPE_MEDIUM,
+            self::TYPE_LARGE,
+        ];
+    }
 }

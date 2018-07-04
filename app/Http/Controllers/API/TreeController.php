@@ -56,14 +56,6 @@ class TreeController extends Controller
         $treeType = $request->input('type', Tree::TYPE_SMALL);
         $treePrice = (new Wallet)->treePrice($treeType);
 
-        // 買了升等的樹未來只買能同等級或著更高等級
-        abort_if(
-            ($latestTree = $user->trees()->latest()->first())
-            && $latestTree->typeIsGreaterThan($treeType),
-            Response::HTTP_BAD_REQUEST,
-            trans('errors.Not allowed to buy smaller tree')
-        );
-
         try {
             $tree = $user->trees()->create(
                 [

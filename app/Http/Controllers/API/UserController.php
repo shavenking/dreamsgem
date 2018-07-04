@@ -144,8 +144,6 @@ class UserController extends Controller
 
     public function availableTreeTypes(User $user)
     {
-        $latestTreeType = optional($user->trees()->latest()->first())->type ?? 0;
-
-        return response()->json((new Tree)->treeTypesGreaterOrEqualThan($latestTreeType));
+        return response()->json((new Tree)->treeTypes());
     }
 }
