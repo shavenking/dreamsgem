@@ -55,4 +55,6 @@ Route::group(['namespace' => 'API'], function () {
 
     Route::get('users/{user}/dragon-summary', 'DragonSummaryController@index')->middleware(['auth:api', 'email.verified']);
     Route::get('users/{user}/tree-summary', 'TreeSummaryController@index')->middleware(['auth:api', 'email.verified']);
+    Route::get('dragon-prices', 'DragonPriceController@index')->middleware(['auth:api', 'email.verified']);
+    Route::get('tree-prices', 'TreePriceController@index')->middleware(['auth:api', 'email.verified']);
 });

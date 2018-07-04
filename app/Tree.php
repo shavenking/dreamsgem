@@ -87,4 +87,18 @@ class Tree extends Model implements Operatable
             self::TYPE_LARGE,
         ];
     }
+
+    public function prices($type = null)
+    {
+        return data_get(
+            collect(
+                [
+                    self::TYPE_SMALL => '1000.0',
+                    self::TYPE_MEDIUM => '2000.0',
+                    self::TYPE_LARGE => '3000.0',
+                ]
+            ),
+            $type
+        );
+    }
 }

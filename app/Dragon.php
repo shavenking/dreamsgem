@@ -64,4 +64,16 @@ class Dragon extends Model implements Operatable
     {
         return $builder->whereNull('owner_id')->whereNull('user_id');
     }
+
+    public function prices($type = null)
+    {
+        return data_get(
+            collect(
+                [
+                    self::TYPE_NORMAL => '100.0',
+                ]
+            ),
+            $type
+        );
+    }
 }
