@@ -192,7 +192,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///tmp/supervisor.sock
 
 [program:laravel_queue]
-command=php artisan queue:listen --force
+command=php artisan queue:listen
 directory=/var/app/current
 stdout_logfile=/var/app/support/logs/laravel-queue.log
 logfile_maxbytes=0
