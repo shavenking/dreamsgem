@@ -27,18 +27,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // 24:00 Asia/Taipei
-        $schedule
-            ->command('down')
-            ->dailyAt('16:00')
-            ->evenInMaintenanceMode();
-
-        // 09:00 Asia/Taipei
-        $schedule
-            ->command('up')
-            ->dailyAt('01:00')
-            ->evenInMaintenanceMode();
-
         $this->runDailySettlement($schedule);
         $this->sendTreeLowRemainReminders($schedule);
     }
@@ -83,11 +71,11 @@ class Kernel extends ConsoleKernel
 
     private function canRunDailySettlement()
     {
-        return App::environment(['production', 'staging']) && App::isDownForMaintenance();
+        return App::environment(['production', 'staging']);
     }
 
     private function canRunSendTreeLowRemainReminders()
     {
-        return App::environment('production') && App::isDownForMaintenance();
+        return App::environment('production');
     }
 }
