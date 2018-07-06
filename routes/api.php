@@ -57,4 +57,8 @@ Route::group(['namespace' => 'API'], function () {
     Route::get('users/{user}/tree-summary', 'TreeSummaryController@index')->middleware(['auth:api', 'email.verified']);
     Route::get('dragon-prices', 'DragonPriceController@index')->middleware(['auth:api', 'email.verified']);
     Route::get('tree-prices', 'TreePriceController@index')->middleware(['auth:api', 'email.verified']);
+
+    Route::resource('card-applications', 'CardApplicationController', [
+        'only' => ['index', 'store'],
+    ])->middleware(['auth:api', 'email.verified']);
 });

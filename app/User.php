@@ -107,6 +107,11 @@ class User extends Authenticatable implements Operatable
         return $this->hasMany(EmailVerification::class);
     }
 
+    public function cardApplications()
+    {
+        return $this->hasMany(CardApplication::class);
+    }
+
     public function activateTree(Tree $tree, User $targetUser)
     {
         $treeTable = $tree->getTable();
