@@ -18,15 +18,27 @@ use Illuminate\Support\Facades\Hash;
 
 class WalletTransferApplicationController extends Controller
 {
-    public function index($gem)
+    public function index($gem, Request $request)
     {
         $wallet = Auth::user()->wallets()->whereGem($gem)->firstOrFail();
 
         // validate if current logged in user has permissions to transfer wallet
         $this->authorize('transfer', $wallet);
 
+        $walletTransferApplications = $wallet->walletTransferApplications();
+
+        if ($request->has('to_gem')) {
+            $this->validate($request, [
+                'to_gem' => 'array'
+            ]);
+
+            $walletIds = Auth::user()->wallets()->whereIn('gem', $request->to_gem)->pluck('id');
+
+            $walletTransferApplications->whereIn('to_wallet_id', $walletIds);
+        }
+
         return response()->json(
-            $wallet->walletTransferApplications()->orderBy('created_at', 'desc')->with('fromWallet', 'toWallet')->paginate()
+            $walletTransferApplications->orderBy('created_at', 'desc')->with('fromWallet', 'toWallet')->paginate()
         );
     }
 
