@@ -14,7 +14,6 @@ class DragonSummaryController extends Controller
     {
         $availableDragons = collect([
             (object) ['type' => Dragon::TYPE_NORMAL, 'amount' => 0],
-            (object) ['type' => Dragon::TYPE_SMALL, 'amount' => 0],
         ])->keyBy('type');
 
         DB::table('dragons')
