@@ -17,7 +17,7 @@ class CardApplicationController extends Controller
      */
     public function index()
     {
-        return response()->json(Auth::user()->cardApplications()->paginate());
+        return response()->json(Auth::user()->cardApplications()->latest()->paginate());
     }
 
     /**
