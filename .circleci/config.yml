@@ -34,13 +34,17 @@ jobs:
             curl -OL https://github.com/godlike0108/Dgem/archive/master.zip
             unzip master.zip -d frontend
 
+            cd frontend
+
             if [[ $CIRCLE_BRANCH == master ]];
             then
-              cd frontend && sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
-              cd frontend && sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
+              sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
+              sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
             fi
 
-            cd frontend && npm install && npm run build
+            cat package.json && npm run build
+
+            cd ~/dreamsgem
 
             rm -rf resources/views/index.blade.php
             rm -rf public/static
