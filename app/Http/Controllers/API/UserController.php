@@ -11,6 +11,7 @@ use App\Jobs\SendVerifyEmail;
 use App\Tree;
 use App\User;
 use App\Wallet;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -70,23 +71,28 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        if ($request->has('name') && $request->name !== $user->name) {
-            $user->update(['name' => $request->name]);
-            event(new UserUpdated($user, $user));
+        if ($request->has('name')) {
+            $user->name = $request->name;
         }
 
-        if ($request->has('wallet_password')) {
-            abort_if(
-                !Hash::check($request->wallet_password, $user->wallet_password),
-                Response::HTTP_UNAUTHORIZED,
-                trans('errors.Incorrect password')
-            );
+        foreach (['password', 'wallet_password'] as $possiblePasswordResetKey) {
+            if ($request->has($possiblePasswordResetKey)) {
+                abort_if(
+                    !Hash::check($request->{$possiblePasswordResetKey}, $user->{$possiblePasswordResetKey}),
+                    Response::HTTP_UNAUTHORIZED,
+                    trans('errors.Incorrect password')
+                );
 
-            $user->update([
-                'wallet_password' => Hash::make($request->new_wallet_password),
-            ]);
+                $user->{$possiblePasswordResetKey} = Hash::make($request->{"new_$possiblePasswordResetKey"});
+            }
+        }
 
-            event(new UserUpdated($user, $user));
+        if ($user->isDirty()) {
+            DB::transaction(function () use ($user) {
+                $user->save();
+
+                event(new UserUpdated($user, $user));
+            });
         }
 
         return response()->json($user, 200);
