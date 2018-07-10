@@ -29,7 +29,7 @@ jobs:
       - checkout
       - run:
           name: Create Frontend Working Directory
-          working_directory: ~
+          working_directory: ~/
           command: |
             git clone https://github.com/godlike0108/Dgem
             ls
