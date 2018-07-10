@@ -28,15 +28,12 @@ jobs:
             ~/.local/bin/pip install awscli --upgrade --user
       - checkout
       - run:
-          name: Commit Frontend
-          working_directory: ~/dreamsgem
+          name: Build Frontend
+          working_directory: ~
           command: |
-            curl -OL https://github.com/godlike0108/Dgem/archive/master.zip
-            unzip master.zip
+            git clone https://github.com/godlike0108/Dgem
 
-            cd Dgem-master
-
-            ls
+            cd Dgem
 
             if [[ $CIRCLE_BRANCH == master ]];
             then
@@ -45,16 +42,15 @@ jobs:
             fi
 
             npm install && npm run build
-
-            cd ~/dreamsgem
-
+      - run:
+          name: Commit Frontend
+          working_directory: ~/dreamsgem
+          command: |
             rm -rf resources/views/index.blade.php
             rm -rf public/static
 
-            cp Dgem-master/dist/index.html resources/views/index.blade.php
-            cp -R Dgem-master/dist/static public/static
-
-            rm -rf Dgem-master
+            cp ~/Dgem/dist/index.html resources/views/index.blade.php
+            cp -R ~/Dgem/dist/static public/static
 
             git add . && git commit -m "Update frontend"
       - run:
