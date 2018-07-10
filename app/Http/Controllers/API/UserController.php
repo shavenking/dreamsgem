@@ -49,7 +49,6 @@ class UserController extends Controller
             'name' => 'required',
             'email' => "required|email|unique:$userTable",
             'password' => 'required',
-            'wallet_password' => 'required',
             'upline_id' => 'required_without_all:child_account_id',
             'child_account_id' => 'required_without_all:upline_id',
         ]);
@@ -105,7 +104,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'wallet_password' => Hash::make($request->wallet_password),
+            'wallet_password' => Hash::make($request->wallet_password ?? $request->password),
             'frozen' => false,
         ]);
 
@@ -140,7 +139,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'wallet_password' => Hash::make($request->wallet_password),
+            'wallet_password' => Hash::make($request->wallet_password ?? $request->password),
         ]);
 
         event(new UserUpdated($childAccount, Auth::user()));
