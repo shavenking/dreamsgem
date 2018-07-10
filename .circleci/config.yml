@@ -36,6 +36,8 @@ jobs:
 
             cd Dgem-master
 
+            ls
+
             if [[ $CIRCLE_BRANCH == master ]];
             then
               sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
