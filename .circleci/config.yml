@@ -28,13 +28,14 @@ jobs:
             ~/.local/bin/pip install awscli --upgrade --user
       - checkout
       - run:
-          name: Build Frontend
+          name: Create Frontend Working Directory
           working_directory: ~
           command: |
             git clone https://github.com/godlike0108/Dgem
-
-            cd Dgem
-
+      - run:
+          name: Build Frontend
+          working_directory: ~/Dgem
+          command: |
             if [[ $CIRCLE_BRANCH == master ]];
             then
               sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
