@@ -4,7 +4,7 @@ Route::get('/ok', function () {
     return response()->json();
 });
 
-Route::post('password-resets', 'API\PasswordResetController@store');
+Route::post('password-resets', 'API\PasswordResetController@store')->middleware(['throttle:60,1']);
 
 Route::group(['namespace' => 'API'], function () {
     Route::resource('qrcodes', 'QRCodeController', ['only' => ['store', 'update']]);
