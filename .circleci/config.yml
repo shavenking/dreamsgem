@@ -7,73 +7,46 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1-node-browsers
+    - image: circleci/php:7.1.5-browsers
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mysql:9.4
+    # Specify service dependencies here if necessary
+    # CircleCI maintains a library of pre-built images
+    # documented at https://circleci.com/docs/2.0/circleci-images/
+    # - image: circleci/mysql:9.4
 
     working_directory: ~/dreamsgem
 
     steps:
-      - run:
-          name: Install dependencies
-          working_directory: ~/
-          command: |
-            sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3.4-dev zip
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python3.4 get-pip.py --user
-            ~/.local/bin/pip install awscli --upgrade --user
-      - checkout
-      - run:
-          name: Create Frontend Working Directory
-          working_directory: ~/
-          command: |
-            git clone https://github.com/godlike0108/Dgem
-      - run:
-          name: Build Frontend
-          working_directory: ~/Dgem
-          command: |
-            if [[ $CIRCLE_BRANCH == master ]];
-            then
-              sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
-              sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
-            fi
+    - run:
+        name: Install dependencies
+        working_directory: ~/
+        command: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq install python3.4-dev zip
+          curl -O https://bootstrap.pypa.io/get-pip.py
+          python3.4 get-pip.py --user
+          ~/.local/bin/pip install awscli --upgrade --user
+    - checkout
+    - run:
+        name: Deploy
+        working_directory: ~/dreamsgem
+        command: |
+          ts=`date +%s`
+          fn="$EB_APP_NAME-$ts.zip"
+          git archive -o $fn $CIRCLE_BRANCH
+          ~/.local/bin/aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME/"
 
-            npm install && npm run build
-      - run:
-          name: Commit Frontend
-          working_directory: ~/dreamsgem
-          command: |
-            rm -rf resources/views/index.blade.php
-            rm -rf public/static
+          echo "Creating ElasticBeanstalk Application Version ..."
+          ~/.local/bin/aws elasticbeanstalk create-application-version \
+            --application-name $EB_APP_NAME \
+            --version-label "$EB_APP_NAME-$ts" \
+            --description "$EB_APP_NAME-$ts" \
+            --source-bundle S3Bucket="$S3_BUCKET",S3Key="$EB_APP_NAME/$fn" --auto-create-application
 
-            cp ~/Dgem/dist/index.html resources/views/index.blade.php
-            cp -R ~/Dgem/dist/static public/static
+          echo "Updating ElasticBeanstalk Application Version ..."
+          ~/.local/bin/aws elasticbeanstalk update-environment \
+            --application-name $EB_APP_NAME \
+            --environment-name $EB_APP_NAME-$CIRCLE_BRANCH \
+            --version-label "$EB_APP_NAME-$ts"
 
-            git add . && git commit -m "Update frontend"
-      - run:
-          name: Deploy
-          working_directory: ~/dreamsgem
-          command: |
-            ts=`date +%s`
-            fn="$EB_APP_NAME-$ts.zip"
-            git archive -o $fn $CIRCLE_BRANCH
-            ~/.local/bin/aws s3 cp $fn "s3://$S3_BUCKET/$EB_APP_NAME/"
-
-            echo "Creating ElasticBeanstalk Application Version ..."
-            ~/.local/bin/aws elasticbeanstalk create-application-version \
-              --application-name $EB_APP_NAME \
-              --version-label "$EB_APP_NAME-$ts" \
-              --description "$EB_APP_NAME-$ts" \
-              --source-bundle S3Bucket="$S3_BUCKET",S3Key="$EB_APP_NAME/$fn" --auto-create-application
-
-            echo "Updating ElasticBeanstalk Application Version ..."
-            ~/.local/bin/aws elasticbeanstalk update-environment \
-              --application-name $EB_APP_NAME \
-              --environment-name $EB_APP_NAME-$CIRCLE_BRANCH \
-              --version-label "$EB_APP_NAME-$ts"
-
-            echo "Done! Deployed version $EB_APP_NAME-$ts"
+          echo "Done! Deployed version $EB_APP_NAME-$ts"
