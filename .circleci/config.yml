@@ -32,9 +32,9 @@ jobs:
           working_directory: ~/dreamsgem
           command: |
             curl -OL https://github.com/godlike0108/Dgem/archive/master.zip
-            unzip master.zip -d frontend
+            unzip master.zip
 
-            cd frontend
+            cd Dgem-master
 
             if [[ $CIRCLE_BRANCH == master ]];
             then
@@ -42,17 +42,17 @@ jobs:
               sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
             fi
 
-            cat package.json && npm run build
+            npm install && npm run build
 
             cd ~/dreamsgem
 
             rm -rf resources/views/index.blade.php
             rm -rf public/static
 
-            cp frontend/dist/index.html resources/views/index.blade.php
-            cp -R frontend/dist/static public/static
+            cp Dgem-master/dist/index.html resources/views/index.blade.php
+            cp -R Dgem-master/dist/static public/static
 
-            rm -rf frontend
+            rm -rf Dgem-master
 
             git add . && git commit -m "Update frontend"
       - run:
