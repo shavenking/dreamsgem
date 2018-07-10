@@ -33,23 +33,22 @@ jobs:
           command: |
             curl -OL https://github.com/godlike0108/Dgem/archive/master.zip
             unzip master.zip -d frontend
-            cd frontend
 
             if [[ $CIRCLE_BRANCH == master ]];
             then
-              sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
-              sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
+              cd frontend && sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
+              cd frontend && sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
             fi
 
-            npm install && npm run build
-
-            cd ~/dreamsgem
+            cd frontend && npm install && npm run build
 
             rm -rf resources/views/index.blade.php
             rm -rf public/static
 
-            cp $1/dist/index.html resources/views/index.blade.php
-            cp -R $1/dist/static public/static
+            cp frontend/dist/index.html resources/views/index.blade.php
+            cp -R frontend/dist/static public/static
+
+            rm -rf frontend
 
             git add . && git commit -m "Update frontend"
       - run:
