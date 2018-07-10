@@ -41,7 +41,7 @@ jobs:
               sed -i -e "s/vZ08ruaFRkqnDgzWJhnUImmIBtNON19YAzdKWSRF/$CLIENT_SECRET/g" build/webpack.prod.conf.js
             fi
 
-            npm run build
+            npm install && npm run build
 
             cd ~/dreamsgem
 
