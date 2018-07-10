@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1.5-node-browsers
+      - image: circleci/php:7.1-node-browsers
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -32,12 +32,10 @@ jobs:
           working_directory: ~/
           command: |
             git clone https://github.com/godlike0108/Dgem
-            ls
       - run:
           name: Build Frontend
           working_directory: ~/Dgem
           command: |
-            ls
             if [[ $CIRCLE_BRANCH == master ]];
             then
               sed -i -e "s/staging/www/g" build/webpack.prod.conf.js
