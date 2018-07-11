@@ -98,7 +98,9 @@ class TreeSettlement implements ShouldQueue
             ]);
 
             foreach ($this->updatedTrees as $tree) {
-                event(new TreeUpdated($tree));
+                event(
+                    new WithSubType(new TreeUpdated($tree), OperationHistory::SUB_TYPE_TREE_SETTLEMENT)
+                );
             }
 
             foreach ($this->updatedWallets as $wallet) {
