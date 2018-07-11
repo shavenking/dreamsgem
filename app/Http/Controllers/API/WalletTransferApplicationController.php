@@ -58,6 +58,14 @@ class WalletTransferApplicationController extends Controller
         $toWallet = Auth::user()->wallets()->whereGem($request->to_gem)->firstOrFail();
 
         abort_if(
+            !($pair = data_get((new Wallet)->transferRateTextMap(), "{$gem}:{$request->to_gem}"))
+            || count($exploded = explode(':', $pair)) !== 2
+            || count(list($fromRate, $toRate) = $exploded) !== 2,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            trans('errors.Cannot find transfer rate')
+        );
+
+        abort_if(
             $wallet->id === $toWallet->id,
             Response::HTTP_BAD_REQUEST,
             trans('errors.You are not allowed to transfer to same wallet')
@@ -101,8 +109,7 @@ class WalletTransferApplicationController extends Controller
         );
 
         abort_if(
-            $wallet->gem === Wallet::GEM_DUO_CAI
-            && bccomp(bcmul(bcdiv($request->amount, '7.0', 1), '7.0', 1), $request->amount, 1) !== 0,
+            bccomp(bcmul(bcdiv($request->amount, $fromRate, 1), $fromRate, 1), $request->amount, 1) !== 0,
             Response::HTTP_BAD_REQUEST,
             trans('errors.Amount should be multiplier of 7')
         );
@@ -139,8 +146,8 @@ class WalletTransferApplicationController extends Controller
                 'from_wallet_id' => $wallet->id,
                 'to_wallet_id' => $toWallet->id,
                 'status' => WalletTransferApplication::STATUS_PENDING,
-                'rate' => '1.0',
-                'amount' => $request->amount,
+                'rate' => $rate = bcdiv($toRate, $fromRate, 1),
+                'amount' => bcmul($request->amount, $rate, 1),
             ]);
 
             event(
