@@ -41,8 +41,8 @@ class TreeSettle
             $tree->remain,
             bcdiv($totalTreeProgress, '100', 0)
         );
-        $award = $tree->multiplyAward($award);
         $remainProgress = bcsub($totalTreeProgress, bcmul($award, '100.0', 1), 1);
+        $award = $tree->multiplyAward($award);
 
         $this->treeSettleResult->award += $award;
 
