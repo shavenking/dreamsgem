@@ -88,10 +88,6 @@ class Wallet extends Model implements Operatable
         return collect([
             // 七彩 => 碳幣、財神幣、美金、圓夢積分
             self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS],
-            // 多喜
-            self::GEM_DUO_XI => [],
-            // 多福
-            self::GEM_DUO_FU => [],
             // 多財 => 碳幣
             self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_DREAMS],
             // 夢寶積分 => 碳幣
@@ -101,8 +97,12 @@ class Wallet extends Model implements Operatable
 
     public function transferRateTextMap()
     {
-        $map = collect($this->gems())->crossJoin($this->gems())->map(function ($pair) {
-            return implode(':', $pair);
+        $map = collect([]);
+        
+        $this->walletTransferMap()->each(function ($targets, $from) use ($map) {
+            foreach ($targets as $target) {
+                $map->push("$from:$target");
+            }
         });
 
         $rate = collect(array_fill(0, $map->count(), '1:1'));
