@@ -111,7 +111,7 @@ class WalletTransferApplicationController extends Controller
         abort_if(
             bccomp(bcmul(bcdiv($request->amount, $fromRate, 1), $fromRate, 1), $request->amount, 1) !== 0,
             Response::HTTP_BAD_REQUEST,
-            trans('errors.Amount should be multiplier of 7')
+            trans("errors.Amount should be multiplier of $fromRate")
         );
 
         abort_if(

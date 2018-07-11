@@ -80,12 +80,7 @@ class Wallet extends Model implements Operatable
 
     public function allowedToApplyTransfer()
     {
-        return in_array($this->gem, [
-            self::GEM_QI_CAI, // 七彩
-//            self::GEM_DUO_XI, // 多喜
-//            self::GEM_DUO_FU, // 多福
-            self::GEM_DUO_CAI, // 多財
-        ], true);
+        return !!count($this->walletTransferMap()->get($this->gem));
     }
 
     public function walletTransferMap()
@@ -99,6 +94,8 @@ class Wallet extends Model implements Operatable
             self::GEM_DUO_FU => [],
             // 多財 => 碳幣
             self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_DREAMS],
+            // 夢寶積分 => 碳幣
+            self::GEM_DREAMSGEM => [self::GEM_C],
         ]);
     }
 
@@ -119,6 +116,10 @@ class Wallet extends Model implements Operatable
 
             if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_C) {
                 return [$pair => '1:1.5'];
+            }
+
+            if ((int) $fromGem === self::GEM_DREAMSGEM && (int) $toGem === self::GEM_C) {
+                return [$pair => '100:100'];
             }
 
             return [$pair => $rate];
