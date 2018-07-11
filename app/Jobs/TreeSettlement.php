@@ -136,8 +136,12 @@ class TreeSettlement implements ShouldQueue
             $tree->remain,
             bcdiv($totalTreeProgress, '100', 0)
         );
-        $award = $tree->multiplyAward($award);
         $remainProgress = bcsub($totalTreeProgress, bcmul($award, '100.0', 1), 1);
+        $award = $tree->multiplyAward($award);
+
+        if (bccomp($remainProgress, '0', 1) < 1) {
+            $remainProgress = '0';
+        }
 
         $this->award += $award;
 
