@@ -280,6 +280,7 @@ class TreeSettlement implements ShouldQueue
 
             $treeProgress = bcadd($tree->progress, $this->dailyProgress(), 1);
             $award = bccomp($treeProgress, '100.0', 1) > 0 ? min(bcdiv($treeProgress, '100.0', 0), $tree->remain) : 0;
+            $remainProgress = bcsub($treeProgress, bcmul($award, '100.0', 1), 1);
             $award = $tree->multiplyAward($award);
             $this->award += $award;
 
@@ -299,7 +300,7 @@ class TreeSettlement implements ShouldQueue
 
             $this->updateTree($tree, [
                 'remain' => $remain = $tree->remain - $award,
-                'progress' => $remain === 0 ? '0' : bcsub($treeProgress, bcmul($award, '100.0', 1), 1),
+                'progress' => $remain === 0 ? '0' : $remainProgress,
             ]);
         }
 
