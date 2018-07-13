@@ -16,3 +16,5 @@ Route::get('/', function () {
 })->name('index');
 
 Route::get('email-verifications/{token}', 'EmailVerificationController@update')->name('email-verifications.update');
+
+Route::get('downloads/android-apk', 'DownloadController@androidAPK')->name('downloads.android-apk');
