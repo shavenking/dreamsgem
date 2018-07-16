@@ -88,10 +88,10 @@ class Wallet extends Model implements Operatable
     public function walletTransferMap()
     {
         return collect([
-            // 七彩 => 碳幣、財神幣、美金、圓夢積分
+            // 七彩 => 碳幣、財神幣、美金、圓夢積分、HTA、MANC
             self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS, self::GEM_HTA, self::GEM_MANC],
-            // 多財 => 碳幣
-            self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_DREAMS],
+            // 多財 => 碳幣、財神幣
+            self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD],
             // 夢寶積分 => 碳幣
             self::GEM_DREAMSGEM => [self::GEM_C],
         ]);
