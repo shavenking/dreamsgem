@@ -157,6 +157,10 @@ class DragonController extends Controller
 
         event(new DragonActivated($dragon, Auth::user()));
 
+        if ((int) $dragon->type === Dragon::TYPE_SMALL) {
+            return;
+        }
+
         $wallet = $user->wallets()->whereGem(Wallet::GEM_DUO_CAI)->firstOrFail();
 
         $affectedCount = Wallet::whereId($wallet->id)
