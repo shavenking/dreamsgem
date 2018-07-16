@@ -21,7 +21,6 @@ class Wallet extends Model implements Operatable
     const GEM_USD = 7; // 美金
     const GEM_DREAMS = 8; // 圓夢積分
     const GEM_HTA = 9; // HTA
-    const GEM_MANC = 10; // MANC 財神鏈
 
     const REWARD_ACTIVATE_DRAGON = '100.0';
     const REWARD_ACTIVATE_TREE = '5.0';
@@ -88,8 +87,8 @@ class Wallet extends Model implements Operatable
     public function walletTransferMap()
     {
         return collect([
-            // 七彩 => 碳幣、財神幣、美金、圓夢積分、HTA、MANC
-            self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS, self::GEM_HTA, self::GEM_MANC],
+            // 七彩 => 碳幣、財神幣、美金、圓夢積分、HTA
+            self::GEM_QI_CAI => [self::GEM_C, self::GEM_GOLD_GOD, self::GEM_USD, self::GEM_DREAMS, self::GEM_HTA],
             // 多財 => 碳幣、財神幣
             self::GEM_DUO_CAI => [self::GEM_C, self::GEM_GOLD_GOD],
             // 夢寶積分 => 碳幣
