@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
 class DailySettlement implements ShouldQueue
 {
@@ -31,6 +32,10 @@ class DailySettlement implements ShouldQueue
      */
     public function handle()
     {
+        if (SettlementHistory::whereDate('created_at', Carbon::today())->exists()) {
+            return;
+        }
+        
         $settlementHistory = SettlementHistory::create();
         foreach (User::all() as $user) {
             dispatch(new TreeSettlement($user, $settlementHistory));
