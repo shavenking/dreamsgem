@@ -27,6 +27,7 @@ class OperationHistory extends Model
     const SUB_TYPE_AWARD_BUY_TREE = 9; // 購買樹獎勵
     const SUB_TYPE_BUY_TREE_SETTLEMENT = 10; // 購買樹獎勵結算
     const SUB_TYPE_TREE_SETTLEMENT = 11; // 樹更新時可以用這個 Sub Type，意思是因為結算導致樹更新
+    const SUB_TYPE_SMALL_DRAGON_RECALL = 12; // 因為小龍不需要給激活龍獎勵，特設此 Sub Type 標記寶石召回
 
     protected $fillable = ['operator_id', 'user_id', 'type', 'result_data', 'delta', 'sub_type'];
 
