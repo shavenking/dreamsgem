@@ -35,7 +35,7 @@ class DailySettlement implements ShouldQueue
         if (SettlementHistory::whereDate('created_at', Carbon::today())->exists()) {
             return;
         }
-        
+
         $settlementHistory = SettlementHistory::create();
         foreach (User::all() as $user) {
             dispatch(new TreeSettlement($user, $settlementHistory));
