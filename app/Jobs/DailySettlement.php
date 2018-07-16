@@ -32,7 +32,7 @@ class DailySettlement implements ShouldQueue
      */
     public function handle()
     {
-        if (SettlementHistory::whereDate('created_at', Carbon::today())->exists()) {
+        if (SettlementHistory::whereDate('created_at', Carbon::today('Asia/Taipei'))->exists()) {
             return;
         }
 
