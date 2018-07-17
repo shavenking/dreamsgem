@@ -111,12 +111,16 @@ class Wallet extends Model implements Operatable
         return $map->combine($rate)->mapWithKeys(function ($rate, $pair) {
             list($fromGem, $toGem) = explode(':', $pair);
 
-            if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem !== self::GEM_C) {
-                return [$pair => '7:7'];
+            if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_C) {
+                return [$pair => '10:15'];
             }
 
-            if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_C) {
-                return [$pair => '1:1.5'];
+            if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_GOLD_GOD) {
+                return [$pair => '10:15'];
+            }
+
+            if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem !== self::GEM_C) {
+                return [$pair => '7:7'];
             }
 
             if ((int) $fromGem === self::GEM_DREAMSGEM && (int) $toGem === self::GEM_C) {
