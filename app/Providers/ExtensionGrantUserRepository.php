@@ -41,7 +41,8 @@ class ExtensionGrantUserRepository implements UserRepositoryInterface
             'headers' => [
                 'E-Mail' => $username,
                 'Passcode' => $password
-            ]
+            ],
+            'http_errors' => false,
         ]);
 
         if ($response->getStatusCode() !== \Illuminate\Http\Response::HTTP_OK) {
