@@ -15,10 +15,12 @@ class HashidsTransformer
     const NUMBER_OF_RANDOM_DIGIT_POSTFIX = 2;
 
     public $faker;
+    private $cache;
 
     public function __construct(Generator $faker)
     {
         $this->faker = $faker;
+        $this->cache = [];
     }
 
     public function transform($target)
@@ -112,7 +114,7 @@ class HashidsTransformer
 
         $strPrefix = implode('', [
             $this->faker->randomElement(['A', 'B', 'C']),
-            ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][User::find($original)->created_at->month - 1],
+            ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][$this->findUser($original)->created_at->month - 1],
             $this->faker->randomElement(['A', 'B', 'C']),
         ]);
 
@@ -139,5 +141,16 @@ class HashidsTransformer
         }
 
         return '';
+    }
+
+    private function findUser($id)
+    {
+        if ($this->cache[(int) $id]) {
+            return $this->cache[(int) $id];
+        }
+
+        $this->cache[(int) $id] = User::find($id);
+
+        return $this->cache[(int) $id];
     }
 }
