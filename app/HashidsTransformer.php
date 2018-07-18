@@ -104,7 +104,7 @@ class HashidsTransformer
 
     private function protect($original)
     {
-        if (!is_int($original)) {
+        if (!((int) $original)) {
             return $original;
         }
         
