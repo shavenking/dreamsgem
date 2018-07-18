@@ -13,8 +13,8 @@
 
 Route::get('/', function () {
     return view('index');
-})->name('index');
+})->name('index')->middleware('maintenance');
 
-Route::get('email-verifications/{token}', 'EmailVerificationController@update')->name('email-verifications.update');
+Route::get('email-verifications/{token}', 'EmailVerificationController@update')->name('email-verifications.update')->middleware('maintenance');
 
-Route::get('downloads/android-apk', 'DownloadController@androidAPK')->name('downloads.android-apk');
+Route::get('downloads/android-apk', 'DownloadController@androidAPK')->name('downloads.android-apk')->middleware('maintenance');
