@@ -104,6 +104,10 @@ class HashidsTransformer
 
     private function protect($original)
     {
+        if (!is_int($original)) {
+            return $original;
+        }
+        
         $this->faker->seed($original);
 
         $strPrefix = implode('', [
