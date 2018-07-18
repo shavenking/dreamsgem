@@ -34,7 +34,7 @@ class RouteServiceProvider extends ServiceProvider
                 return request()->user() ?? abort(404, trans('errors.User not found'));
             }
 
-            return User::find(HashidsTransformer::decode($value)) ?? abort(404, trans('errors.User not found'));
+            return User::find(app(HashidsTransformer::class)->decode($value)) ?? abort(404, trans('errors.User not found'));
         });
     }
 

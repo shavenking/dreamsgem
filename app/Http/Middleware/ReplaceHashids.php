@@ -36,7 +36,7 @@ class ReplaceHashids
         foreach (static::$shouldReplace as $shouldReplaced) {
             if ($request->has($shouldReplaced)) {
                 $request->merge([
-                    $shouldReplaced => HashidsTransformer::decode($request->{$shouldReplaced})
+                    $shouldReplaced => app(HashidsTransformer::class)->decode($request->{$shouldReplaced})
                 ]);
 
                 if (!$request->{$shouldReplaced}) {
