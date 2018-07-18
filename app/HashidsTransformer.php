@@ -145,12 +145,10 @@ class HashidsTransformer
 
     private function findUser($id)
     {
-        if ($this->cache[(int) $id]) {
-            return $this->cache[(int) $id];
+        if (!isset($this->cache[$id])) {
+            $this->cache[$id] = User::find($id);
         }
 
-        $this->cache[(int) $id] = User::find($id);
-
-        return $this->cache[(int) $id];
+        return $this->cache[$id];
     }
 }
