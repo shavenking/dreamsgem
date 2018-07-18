@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\HashidsTransformer;
 use App\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Str;
 use Vinkla\Hashids\Facades\Hashids;
 
 class RouteServiceProvider extends ServiceProvider
@@ -32,7 +34,7 @@ class RouteServiceProvider extends ServiceProvider
                 return request()->user() ?? abort(404, trans('errors.User not found'));
             }
 
-            return User::whereId(Hashids::decode($value))->first() ?? abort(404, trans('errors.User not found'));
+            return User::find(HashidsTransformer::decode($value)) ?? abort(404, trans('errors.User not found'));
         });
     }
 
