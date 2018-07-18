@@ -12,8 +12,9 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class HashidsTransformer
 {
-    const NUMBER_OF_RANDOM_DIGIT_PREFIX = 3;
-    const NUMBER_OF_RANDOM_DIGIT_POSTFIX = 3;
+    const NUMBER_OF_RANDOM_DIGIT_PREFIX = 1;
+    const NUMBER_OF_RANDOM_DIGIT_POSTFIX = 1;
+    const STR_PREFIX = 'drm';
 
     public $faker;
 
@@ -108,7 +109,7 @@ class HashidsTransformer
         $this->faker->seed($original);
 
         return implode('', [
-            'DRM',
+            self::STR_PREFIX,
             $this->faker->randomNumber(self::NUMBER_OF_RANDOM_DIGIT_PREFIX, true),
             $original,
             $this->faker->randomNumber(self::NUMBER_OF_RANDOM_DIGIT_POSTFIX, true),
@@ -117,10 +118,10 @@ class HashidsTransformer
 
     public static function decode($protected)
     {
-        if (Str::startsWith($protected, 'DRM')) {
+        if (Str::startsWith($protected, self::STR_PREFIX)) {
             if (
-                // matches DRM[0-9]{3}(user id)[0-9]{3}
-                preg_match('/DRM[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_PREFIX . '}([0-9]+)[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_POSTFIX . '}/', $protected, $matches)
+                // matches drm[0-9]{3}(user id)[0-9]{3}
+                preg_match('/' . self::STR_PREFIX . '[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_PREFIX . '}([0-9]+)[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_POSTFIX . '}/', $protected, $matches)
                 && count($matches) === 2
             ) {
                 return $matches[1];
