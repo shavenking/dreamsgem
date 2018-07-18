@@ -18,7 +18,6 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
@@ -68,5 +67,6 @@ class Kernel extends HttpKernel
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'email.verified' => EmailVerified::class,
+        'maintenance' => CheckForMaintenanceMode::class,
     ];
 }

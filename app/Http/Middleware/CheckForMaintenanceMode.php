@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Foundation\Http\Exceptions\MaintenanceModeException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 
 class CheckForMaintenanceMode
 {
@@ -21,7 +22,7 @@ class CheckForMaintenanceMode
         $from = Carbon::createFromTime(16); // 24:00 Asia/Taipei
         $to = $from->copy()->addHours(9); // 09:00 Asia/Taipei
 
-        if ($now->between($from, $to)) {
+        if ($now->between($from, $to) && App::environment('production')) {
             throw new MaintenanceModeException($from->timestamp, $now->diffInSeconds($from));
         }
 
