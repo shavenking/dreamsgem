@@ -3,18 +3,23 @@
 namespace App;
 
 use App\Http\Middleware\ReplaceHashids;
+use Faker\Generator;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Vinkla\Hashids\HashidsManager;
+use Illuminate\Support\Str;
+use Vinkla\Hashids\Facades\Hashids;
 
 class HashidsTransformer
 {
-    public $hashids;
+    const NUMBER_OF_RANDOM_DIGIT_PREFIX = 3;
+    const NUMBER_OF_RANDOM_DIGIT_POSTFIX = 3;
 
-    public function __construct(HashidsManager $hashids)
+    public $faker;
+
+    public function __construct(Generator $faker)
     {
-        $this->hashids = $hashids;
+        $this->faker = $faker;
     }
 
     public function transform($target)
@@ -41,7 +46,10 @@ class HashidsTransformer
     {
         if ($target instanceof User) {
             $target->setIncrementing(false);
-            $target->setAttribute('id', $this->hashids->encode((int) $target->getKey()));
+            $target->setAttribute(
+                'id',
+                $this->protect($target->getKey())
+            );
         }
 
         if ($target instanceof OperationHistory) {
@@ -50,7 +58,7 @@ class HashidsTransformer
 
         foreach (ReplaceHashids::$shouldReplace as $shouldReplaced) {
             if ($target->{$shouldReplaced} && is_int($target->{$shouldReplaced})) {
-                $target->setAttribute($shouldReplaced, $this->hashids->encode($target->{$shouldReplaced}));
+                $target->setAttribute($shouldReplaced, $this->protect($target->{$shouldReplaced}));
             }
         }
 
@@ -88,10 +96,41 @@ class HashidsTransformer
 
         foreach ($shouldReplace as $shouldReplaced) {
             if (isset($resultData->$shouldReplaced)) {
-                $resultData->$shouldReplaced = $this->hashids->encode($resultData->$shouldReplaced);
+                $resultData->$shouldReplaced = $this->protect($resultData->$shouldReplaced);
             }
         }
 
         $operationHistory->result_data = $resultData;
+    }
+
+    private function protect($original)
+    {
+        $this->faker->seed($original);
+
+        return implode('', [
+            'DRM',
+            $this->faker->randomNumber(self::NUMBER_OF_RANDOM_DIGIT_PREFIX, true),
+            $original,
+            $this->faker->randomNumber(self::NUMBER_OF_RANDOM_DIGIT_POSTFIX, true),
+        ]);
+    }
+
+    public static function decode($protected)
+    {
+        if (Str::startsWith($protected, 'DRM')) {
+            if (
+                // matches DRM[0-9]{3}(user id)[0-9]{3}
+                preg_match('/DRM[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_PREFIX . '}([0-9]+)[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_POSTFIX . '}/', $protected, $matches)
+                && count($matches) === 2
+            ) {
+                return $matches[1];
+            }
+        }
+
+        if ($decoded = array_first(Hashids::decode($protected))) {
+            return $decoded;
+        }
+
+        return '';
     }
 }
