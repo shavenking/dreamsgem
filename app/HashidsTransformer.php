@@ -104,7 +104,7 @@ class HashidsTransformer
         $operationHistory->result_data = $resultData;
     }
 
-    private function protect($original)
+    public function protect($original)
     {
         if (!((int) $original)) {
             return $original;
