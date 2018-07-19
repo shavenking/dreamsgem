@@ -50,6 +50,12 @@ class ChildAccountController extends Controller
             $upline = $user;
         }
 
+        abort_if(
+            !$upline->activated,
+            \Illuminate\Http\Response::HTTP_BAD_REQUEST,
+            trans('errors.Upline not activated')
+        );
+
         $upline->addDownline($childAccount);
 
         event(new UserCreated($childAccount));
