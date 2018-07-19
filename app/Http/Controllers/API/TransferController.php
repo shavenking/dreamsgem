@@ -61,6 +61,13 @@ class TransferController extends Controller
         );
 
         abort_if(
+            !Auth::user()->isDescendantOf($targetUser)
+            && !$targetUser->isDescendantOf(Auth::user()),
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.target user should be downlines or uplines')
+        );
+
+        abort_if(
             bccomp($wallet->amount, $request->amount, 1) < 0,
             Response::HTTP_BAD_REQUEST,
             'Amount is not enough'
