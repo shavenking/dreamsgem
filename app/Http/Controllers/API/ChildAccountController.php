@@ -51,6 +51,13 @@ class ChildAccountController extends Controller
         }
 
         abort_if(
+            !$upline->isDescendantOf($user)
+            && $upline !== $user,
+            \Illuminate\Http\Response::HTTP_BAD_REQUEST,
+            trans('errors.Upline should be downlines or parent account')
+        );
+
+        abort_if(
             !$upline->activated,
             \Illuminate\Http\Response::HTTP_BAD_REQUEST,
             trans('errors.Upline not activated')
