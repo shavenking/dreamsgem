@@ -146,7 +146,7 @@ class HashidsTransformer
         }
 
         if (
-            preg_match('/[a-c]{1}[a-l]{1}[a-c]{1}[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_PREFIX . '}([0-9]+)[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_POSTFIX . '}/', $protected, $matches)
+            preg_match('/[a-c]{1}[a-z]{1}[a-c]{1}[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_PREFIX . '}([0-9]+)[0-9]{' . self::NUMBER_OF_RANDOM_DIGIT_POSTFIX . '}/', $protected, $matches)
             && count($matches) === 2
             && $this->protect($matches[1]) === $matches[0]
         ) {
