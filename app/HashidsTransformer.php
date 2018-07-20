@@ -114,7 +114,20 @@ class HashidsTransformer
 
         $strPrefix = implode('', [
             $this->faker->randomElement(['A', 'B', 'C']),
-            ['D', 'D', 'L', 'C', 'J', 'B', 'A', 'F', 'H', 'X', 'Y', 'N'][$this->findUser($original)->created_at->month - 1],
+            [
+                ['D', 'G'],
+                ['D', 'G'],
+                ['L', 'V'],
+                ['C', 'K'],
+                ['J', 'W'],
+                ['B', 'R'],
+                ['A', 'S'],
+                ['F', 'P'],
+                ['H', 'E'],
+                ['X', 'O'],
+                ['Y', 'U'],
+                ['N', 'M'],
+            ][$this->findUser($original)->created_at->month - 1][$this->findUser($original)->created_at->second % 2],
             $this->faker->randomElement(['A', 'B', 'C']),
         ]);
 
