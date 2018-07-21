@@ -52,7 +52,7 @@ class RecallController extends Controller
                         abort_if(
                             $affectedCount !== 1,
                             Response::HTTP_SERVICE_UNAVAILABLE,
-                            'The wallet data has changed'
+                            trans('errors.Race condition')
                         );
 
                         event(new WalletRecalled($wallet->refresh(), $user));
@@ -78,7 +78,7 @@ class RecallController extends Controller
                     abort_if(
                         $affectedCount !== 1,
                         Response::HTTP_SERVICE_UNAVAILABLE,
-                        'The wallet data has changed'
+                        trans('errors.Race condition')
                     );
 
                     event(new WalletRecalled($wallet->refresh(), $user));

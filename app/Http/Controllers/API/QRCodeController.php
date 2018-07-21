@@ -35,7 +35,11 @@ class QRCodeController extends Controller
     {
         $qrCode = QRCode::findOrFail($qrCode);
 
-        abort_if($qrCode->user_id, Response::HTTP_BAD_REQUEST, 'QR Code has been used');
+        abort_if(
+            $qrCode->user_id,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.QR Code has been used')
+        );
 
         $qrCode->update([
             'user_id' => $request->user()->id,

@@ -77,9 +77,11 @@ class DragonController extends Controller
         DB::beginTransaction();
 
         if ($request->has('owner_id')) {
-            if ($dragon->owner) {
-                abort(400);
-            }
+            abort_if(
+                $dragon->owner,
+                Response::HTTP_BAD_REQUEST,
+                trans('errors.Dragon already has owner')
+            );
 
             $this->buyDragon($dragon, User::findOrFail($request->owner_id));
         }
@@ -87,9 +89,11 @@ class DragonController extends Controller
         if ($request->has('user_id')) {
             $this->authorize('update', $dragon);
 
-            if ($dragon->user) {
-                abort(400);
-            }
+            abort_if(
+                $dragon->user,
+                Response::HTTP_BAD_REQUEST,
+                trans('errors.Dragon already been activated')
+            );
 
             $this->activateDragon($dragon, User::findOrFail($request->user_id));
         }
@@ -117,7 +121,7 @@ class DragonController extends Controller
         abort_if(
             bccomp($wallet->amount, $price, 1) < 0,
             Response::HTTP_BAD_REQUEST,
-            'Amount is not enough'
+            trans('errors.Insufficient balance')
         );
 
         $affectedCount += Wallet::where([
@@ -134,26 +138,51 @@ class DragonController extends Controller
             )
         );
 
-        abort_if($affectedCount !== 2, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
+        abort_if(
+            $affectedCount !== 2,
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            trans('errors.Race condition')
+        );
 
         event(new DragonCreated($dragon, Auth::user()));
     }
 
     private function activateDragon(Dragon $dragon, User $user)
     {
-        if (!$dragon->owner_id || $user->activatedDragon || $dragon->activated) {
-            abort(Response::HTTP_BAD_REQUEST);
-        }
+        abort_if(
+            !$dragon->owner_id,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.You do not own the dragon')
+        );
+
+        abort_if(
+            $user->activatedDragon,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.You already has activated dragon')
+        );
+
+        abort_if(
+            $dragon->activated,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Dragon already has been activated')
+        );
 
         if (
             Auth::user()->id !== $user->id
             && !$user->isDescendantOf(Auth::user())
             && $user->user_id !== Auth::user()->id
         ) {
-            abort(Response::HTTP_BAD_REQUEST);
+            abort(
+                Response::HTTP_BAD_REQUEST,
+                trans('errors.Invalid target user')
+            );
         }
 
-        abort_if(1 !== $dragon->activateDragon($user), Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed');
+        abort_if(
+            1 !== $dragon->activateDragon($user),
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            trans('errors.Race condition')
+        );
 
         event(new DragonActivated($dragon, Auth::user()));
 
@@ -172,9 +201,11 @@ class DragonController extends Controller
                 ]
             );
 
-        if ($affectedCount !== 1) {
-            abort(503);
-        }
+        abort_if(
+            1 !== $affectedCount,
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            trans('errors.Race condition')
+        );
 
         event(
             new WithSubType(
