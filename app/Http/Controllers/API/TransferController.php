@@ -25,13 +25,13 @@ class TransferController extends Controller
         abort_if(
             $request->user()->id === (int) $request->user_id,
             Response::HTTP_BAD_REQUEST,
-            'You are not allowed to transfer to yourself'
+            trans('errors.You are not allowed to transfer to yourself')
         );
 
         abort_if(
             bccomp($request->amount, '0.0', 1) <= 0,
             Response::HTTP_BAD_REQUEST,
-            'Amount must be greater than 0'
+            trans('errors.Amount must be greater than 0')
         );
 
         // validate if current logged in user has permissions to transfer wallet
@@ -41,7 +41,7 @@ class TransferController extends Controller
         abort_if(
             $wallet->gem !== Wallet::GEM_DREAMSGEM,
             Response::HTTP_BAD_REQUEST,
-            'Only Dreamsgem wallet can be transfer'
+            trans('errors.Only Dreamsgem wallet can be transfer')
         );
 
         abort_if(
@@ -57,7 +57,7 @@ class TransferController extends Controller
             $request->user()->is_child_account
             || $targetUser->is_child_account,
             Response::HTTP_BAD_REQUEST,
-            'Child accounts are not allowed to transfer'
+            trans('errors.Child accounts are not allowed to transfer')
         );
 
         abort_if(
@@ -70,7 +70,7 @@ class TransferController extends Controller
         abort_if(
             bccomp($wallet->amount, $request->amount, 1) < 0,
             Response::HTTP_BAD_REQUEST,
-            'Amount is not enough'
+            trans('errors.Insufficient balance')
         );
 
         DB::beginTransaction();
@@ -99,7 +99,7 @@ class TransferController extends Controller
             abort_if(
                 $affectedCount !== 2,
                 Response::HTTP_SERVICE_UNAVAILABLE,
-                'The wallet data has changed'
+                trans('errors.Race condition')
             );
 
             DB::commit();

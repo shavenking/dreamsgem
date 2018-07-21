@@ -99,7 +99,7 @@ class WalletTransferApplicationController extends Controller
         abort_if(
             bccomp($request->amount, '0.0', 1) <= 0,
             Response::HTTP_BAD_REQUEST,
-            'Amount must be greater than 0'
+            trans('errors.Amount must be greater than 0')
         );
 
         abort_if(
@@ -111,7 +111,7 @@ class WalletTransferApplicationController extends Controller
         abort_if(
             bccomp(bcmul(bcdiv($request->amount, $fromRate, 1), $fromRate, 1), $request->amount, 1) !== 0,
             Response::HTTP_BAD_REQUEST,
-            trans("errors.Amount should be multiplier of $fromRate")
+            trans('errors.Amount should be multiplier of :fromRate', compact('fromRate'))
         );
 
         abort_if(
@@ -132,7 +132,7 @@ class WalletTransferApplicationController extends Controller
             abort_if(
                 $affectedCount !== 1,
                 Response::HTTP_SERVICE_UNAVAILABLE,
-                'The wallet data has changed'
+                trans('errors.Race condition')
             );
 
             event(

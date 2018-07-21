@@ -74,7 +74,7 @@ class TreeController extends Controller
             abort_if(
                 bccomp($wallet->amount, $treePrice, 1) < 0,
                 Response::HTTP_BAD_REQUEST,
-                'Amount is not enough'
+                trans('errors.Insufficient balance')
             );
 
             $affectedCount = Wallet::where([
@@ -91,7 +91,11 @@ class TreeController extends Controller
                 )
             );
 
-            abort_if($affectedCount !== 1, Response::HTTP_SERVICE_UNAVAILABLE, 'The data is changed.');
+            abort_if(
+                $affectedCount !== 1,
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                trans('errors.Race condition')
+            );
 
             event(new TreeCreated($tree, $user));
 
@@ -138,14 +142,24 @@ class TreeController extends Controller
 
         $targetUser = User::findOrFail($request->user_id);
 
-        if (
-            !$targetUser->activated
-            || $targetUser->activatedTrees->count() >= User::MAX_ACTIVATE_TREE_AMOUNT
-            || $tree->activated
-            || ($user->id !== Auth::user()->id && !$user->childAccounts()->whereId($targetUser->id)->first())
-        ) {
-            return response()->json([], 400);
-        }
+        abort_if(
+            !$targetUser->activated,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Target user is not activated')
+        );
+
+        abort_if(
+            $targetUser->activatedTrees->count() >= User::MAX_ACTIVATE_TREE_AMOUNT,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Target user has too many activated trees')
+        );
+
+        abort_if(
+            $user->id !== Auth::user()->id
+            && !$user->childAccounts()->whereId($targetUser->id)->first(),
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Tree can only be activated for self or child accounts')
+        );
 
         // 如果已激活過更大的樹，就不能再激活小的樹
         /** @var Tree $latestActivatedTree */
@@ -160,7 +174,8 @@ class TreeController extends Controller
 
         abort_if(
             1 !== $user->activateTree($tree, $targetUser),
-            503
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            trans('errors.Race condition')
         );
 
         event(new TreeActivated($tree->refresh(), $user));
