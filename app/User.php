@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +24,8 @@ class User extends Authenticatable implements Operatable
     const DEFAULT_TREE_CAPACITY = 90;
     const MAX_CHILDREN_FOR_ONE_USER = 7;
     const TREE_LOW_REMAIN = 30;
+    const TYPE_MEMBER = 0;
+    const TYPE_ADMIN = 1;
 
     /**
      * The attributes that are mass assignable.
@@ -44,6 +47,7 @@ class User extends Authenticatable implements Operatable
      * @var array
      */
     protected $hidden = [
+        'type',
         'password',
         'wallet_password',
         'remember_token',
@@ -61,6 +65,15 @@ class User extends Authenticatable implements Operatable
         'is_child_account',
         'activated',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('type', function (Builder $builder) {
+            $builder->where('type', self::TYPE_MEMBER);
+        });
+    }
 
     public function parentAccount()
     {
