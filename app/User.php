@@ -201,4 +201,9 @@ class User extends Authenticatable implements Operatable
     {
         return $this->children;
     }
+
+    public function scopeAdmin($query)
+    {
+        return $query->withoutGlobalScope('type')->where('type', self::TYPE_ADMIN);
+    }
 }
