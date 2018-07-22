@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Config\Repository;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Bridge\UserRepository;
 use Laravel\Passport\Passport;
@@ -32,6 +34,13 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        Auth::provider('eloquent-with-admin-scope', function ($app, array $config) {
+            return $app->make(
+                EloquentWithAdminScopeUserProvider::class,
+                ['model' => config('auth.providers.users.model')]
+            );
+        });
 
         app(AuthorizationServer::class)->enableGrantType(
             $this->makeExtensionGrant(), Passport::tokensExpireIn()
