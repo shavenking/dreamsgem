@@ -66,7 +66,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            'driver' => 'eloquent-with-admin-scope',
             'model' => App\User::class,
         ],
 

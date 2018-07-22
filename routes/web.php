@@ -18,3 +18,13 @@ Route::get('/', function () {
 Route::get('email-verifications/{token}', 'EmailVerificationController@update')->name('email-verifications.update')->middleware('maintenance');
 
 Route::get('downloads/android-apk', 'DownloadController@androidAPK')->name('downloads.android-apk')->middleware('maintenance');
+
+Route::prefix('admin')->namespace('Admin')->name('admin.')->group(function () {
+    Route::get('login', 'AuthController@getLogin')->name('auth.get-login');
+    Route::post('login', 'AuthController@postLogin')->name('auth.post-login');
+    Route::get('logout', 'AuthController@logout')->name('auth.logout');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/', 'HomeController@home')->name('home');
+    });
+});
