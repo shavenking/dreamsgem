@@ -12,7 +12,7 @@ class EloquentWithAdminScopeUserProvider extends EloquentUserProvider
     {
         $model = parent::createModel();
 
-//        User::addAdminGlobalScope();
+        User::addAdminGlobalScope();
 
         return $model;
     }

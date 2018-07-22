@@ -22,7 +22,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt([
+        if (!Auth::guard('admins')->attempt([
             'email' => $request->email,
             'password' => $request->password
         ], true)) {
