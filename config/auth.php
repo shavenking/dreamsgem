@@ -41,6 +41,11 @@ return [
             'provider' => 'users',
         ],
 
+        'admins' => [
+            'driver' => 'session',
+            'provider' => 'users-with-admin-scope',
+        ],
+
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',
@@ -66,14 +71,14 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent-with-admin-scope',
+            'driver' => 'eloquent',
             'model' => App\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'users-with-admin-scope' => [
+            'driver' => 'eloquent-with-admin-scope',
+            'model' => App\User::class,
+        ],
     ],
 
     /*
