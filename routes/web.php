@@ -26,5 +26,7 @@ Route::prefix('admin')->namespace('Admin')->name('admin.')->group(function () {
 
     Route::middleware('auth:admins')->group(function () {
         Route::get('/', 'HomeController@home')->name('home');
+
+        Route::resource('user-activations', 'UserActivationController');
     });
 });
