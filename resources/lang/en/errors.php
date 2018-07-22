@@ -2,6 +2,7 @@
 
 return [
     'User not found' => '查無使用者',
+    'User has been activated' => '使用者已被激活',
     'Amount must be greater than 0' => '金額需大於 0',
     'Amount should be multiplier of :fromRate' => '金額需為 :fromRate 的倍數',
     'Can not activate tree cuz type is small than the latest activated one' => '不能再激活更小的樹',

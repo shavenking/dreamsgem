@@ -207,10 +207,22 @@ class User extends Authenticatable implements Operatable
         return $query->withoutGlobalScope('type')->where('type', self::TYPE_ADMIN);
     }
 
+    public function scopeMember($query)
+    {
+        return $query->withoutGlobalScope('type')->where('type', self::TYPE_MEMBER);
+    }
+
     public static function addAdminGlobalScope()
     {
         self::addGlobalScope('type', function (Builder $builder) {
             $builder->where('type', self::TYPE_ADMIN);
+        });
+    }
+
+    public static function addMemberGlobalScope()
+    {
+        self::addGlobalScope('type', function (Builder $builder) {
+            $builder->where('type', self::TYPE_MEMBER);
         });
     }
 }

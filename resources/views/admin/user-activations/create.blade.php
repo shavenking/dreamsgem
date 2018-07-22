@@ -22,7 +22,7 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
+                <li class="nav-item active">
                     <a class="nav-link" href="{{ route('admin.user-activations.create') }}">小龍管理</a>
                 </li>
             </ul>
@@ -39,6 +39,46 @@
             </ul>
         </div>
     </nav>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <form method="POST" action="{{ route('admin.user-activations.store') }}">
+                {{ csrf_field() }}
+                <div class="form-group">
+                    <label for="form-user-id">使用者 ID</label>
+                    <input type="text" class="form-control" id="form-user-id" name="user_id">
+                </div>
+                <button type="submit" class="btn btn-primary">購買小龍給該使用者</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">擁有者 ID</th>
+                    <th scope="col">擁有者暱稱</th>
+                    <th scope="col">激活對象 ID</th>
+                    <th scope="col">激活對象暱稱</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ($dragons as $idx => $dragon)
+                    <tr>
+                        <td>{{ $idx + 1 }}</td>
+                        <td>{{ app(\App\HashidsTransformer::class)->protect($dragon->owner->id) }}</td>
+                        <td>{{ $dragon->owner->name }}</td>
+                        <td>{{ $dragon->user ? app(\App\HashidsTransformer::class)->protect($dragon->user->id) : '' }}</td>
+                        <td>{{ optional($dragon->user)->name }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Optional JavaScript -->
