@@ -33,4 +33,5 @@ return [
     'from_wallet is not allowed to apply transfer' => '此錢包禁止申請轉換',
     'from_wallet is not allowed to transfer to to_wallet' => '此錢包禁止轉換到該指定錢包',
     'target user should be downlines or uplines' => '禁止轉賬給家族外的使用者',
+    'Can\'t find possible upline' => '無可用的位置提供安置',
 ];
