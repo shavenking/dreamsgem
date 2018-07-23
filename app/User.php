@@ -33,6 +33,7 @@ class User extends Authenticatable implements Operatable
      * @var array
      */
     protected $fillable = [
+        'type',
         'name',
         'email',
         'password',
