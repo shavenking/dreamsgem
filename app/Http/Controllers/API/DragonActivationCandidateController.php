@@ -11,17 +11,17 @@ class DragonActivationCandidateController extends Controller
     {
         $users = collect();
 
-        if (!Auth::user()->activated) {
+        if (!Auth::user()->activated && !Auth::user()->frozen) {
             $users = $users->push(Auth::user());
         }
 
         foreach (Auth::user()->childAccounts as $childAccount) {
-            if (!$childAccount->activated) {
+            if (!$childAccount->activated && !$childAccount->frozen) {
                 $users->push($childAccount);
             }
         }
 
-        $users = $users->merge(Auth::user()->descendants()->whereNull('user_id')->whereHas('activatedDragon', null, '=', 0)->get());
+        $users = $users->merge(Auth::user()->descendants()->whereNull('user_id')->where('frozen', false)->whereHas('activatedDragon', null, '=', 0)->get());
 
         return response()->json($users);
     }
