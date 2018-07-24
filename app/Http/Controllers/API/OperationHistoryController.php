@@ -57,6 +57,23 @@ class OperationHistoryController extends Controller
                 ]);
             }
 
+            // 轉賬 TMD 要改成顯示接收方
+            if (
+                $operationHistory->operatable_type === $operationHistory->transformOperatableType('App\Wallet')
+                && $operationHistory->type === OperationHistory::TYPE_TRANSFER
+                && $operationHistory->operator->is($operationHistory->user)
+            ) {
+                $newOperationHistory = OperationHistory::with('user')->where([
+                    ['operatable_type', 'App\Wallet'],
+                    ['operator_id', $operationHistory->operator_id],
+                    ['type', OperationHistory::TYPE_TRANSFER],
+                    ['id', '>', $operationHistory->id]
+                ])->first();
+
+                $operationHistory->user_id = $newOperationHistory->user->id;
+                $operationHistory->setRelation('user', $newOperationHistory->user);
+            }
+
             return $operationHistory->setAttribute(
                 'sub_type_string',
                 $operationHistory->sub_type ? trans('sub-type.' . $operationHistory->sub_type) : null
