@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\HashidsTransformer;
 use Closure;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Vinkla\Hashids\Facades\Hashids;
 
 class ReplaceHashids
@@ -40,7 +41,10 @@ class ReplaceHashids
                 ]);
 
                 if (!$request->{$shouldReplaced}) {
-                    abort(400, 'Bad Hashids');
+                    abort(
+                        Response::HTTP_BAD_REQUEST,
+                        trans('errors.Bad Hashids')
+                    );
                 }
             }
         }
