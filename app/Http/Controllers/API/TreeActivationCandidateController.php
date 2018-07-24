@@ -11,20 +11,16 @@ class TreeActivationCandidateController extends Controller
 {
     public function index(Request $request)
     {
-        $this->validate($request, [
-            'type' => 'required',
-        ]);
+        $types = $request->input('type', (new Tree)->types());
 
-        if (!is_array($request->input('type'))) {
+        if (!is_array($types)) {
             $types = [$request->input('type')];
-        } else {
-            $types = $request->input('type');
         }
 
         $userGroups = collect();
 
         sort($types);
-        
+
         foreach ($types as $type) {
             if (in_array($type, (new Tree)->types())) {
                 $userGroups[$type] = $this->candidatesOf($type);
@@ -49,13 +45,15 @@ class TreeActivationCandidateController extends Controller
             $users = $users->push(Auth::user());
         }
 
-        $users = $users->merge(Auth::user()->childAccounts()->where('frozen', false)->whereHas('activatedDragon')->where(function ($query) use ($type) {
+        $users = $users->merge(Auth::user()->childAccounts()->where('frozen',
+            false)->whereHas('activatedDragon')->where(function ($query) use ($type) {
             $query->whereHas('activatedTrees', function ($query) use ($type) {
                 $query->where('type', '>', $type);
             }, '=', 0)->orWhereHas('activatedTrees', null, '=', 0);
         })->get());
 
-        $users = $users->merge(Auth::user()->descendants()->where('frozen', false)->whereHas('activatedDragon')->where(function ($query) use ($type) {
+        $users = $users->merge(Auth::user()->descendants()->where('frozen',
+            false)->whereHas('activatedDragon')->where(function ($query) use ($type) {
             $query->whereNull('user_id')->whereHas('activatedTrees',
                 function ($query) use ($type) {
                     $query->where('type', '>', $type);
