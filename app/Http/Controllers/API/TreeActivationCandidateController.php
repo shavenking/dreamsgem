@@ -52,14 +52,6 @@ class TreeActivationCandidateController extends Controller
             }, '=', 0)->orWhereHas('activatedTrees', null, '=', 0);
         })->get());
 
-        $users = $users->merge(Auth::user()->descendants()->where('frozen',
-            false)->whereHas('activatedDragon')->where(function ($query) use ($type) {
-            $query->whereNull('user_id')->whereHas('activatedTrees',
-                function ($query) use ($type) {
-                    $query->where('type', '>', $type);
-                }, '=', 0)->orWhereHas('activatedTrees', null, '=', 0);
-        })->get());
-
         return $users;
     }
 }
