@@ -203,4 +203,12 @@ class User extends Authenticatable implements Operatable
     {
         return $query->withoutGlobalScope('type')->where('type', self::TYPE_MEMBER);
     }
+
+    public function findForPassport($username)
+    {
+        return self::where([
+            ['email', $username],
+            ['type', self::TYPE_MEMBER],
+        ])->first();
+    }
 }
