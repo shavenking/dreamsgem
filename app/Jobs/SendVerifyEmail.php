@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Mail;
 
 class SendVerifyEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels {
+        restoreModel as public parentRestoreModel;
+    }
 
     public $user;
 
@@ -39,5 +41,12 @@ class SendVerifyEmail implements ShouldQueue
         ]);
 
         Mail::to($this->user)->send(new \App\Mail\EmailVerification($this->user, $emailVerification));
+    }
+
+    public function restoreModel($value)
+    {
+        User::addMemberGlobalScope();
+
+        return $this->parentRestoreModel($value);
     }
 }
