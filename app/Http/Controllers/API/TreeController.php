@@ -163,7 +163,7 @@ class TreeController extends Controller
 
         // 如果已激活過更大的樹，就不能再激活小的樹
         /** @var Tree $latestActivatedTree */
-        $latestActivatedTree = $user->activatedTrees()->latest()->first();
+        $latestActivatedTree = $targetUser->activatedTrees()->latest()->first();
         abort_if(
             $latestActivatedTree && $latestActivatedTree->typeIsGreaterThan($tree),
             Response::HTTP_BAD_REQUEST,
