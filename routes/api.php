@@ -1,5 +1,9 @@
 <?php
 
+Route::get('503', function () {
+    abort(503);
+});
+
 Route::get('/ok', function () {
     return response()->json();
 });
