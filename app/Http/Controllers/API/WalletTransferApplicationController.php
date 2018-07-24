@@ -66,6 +66,13 @@ class WalletTransferApplicationController extends Controller
         );
 
         abort_if(
+            bccomp($fromRate, '0', '1') <= 0
+            || bccomp($toRate, '0', '1') <= 0,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Unable to apply transfer for now')
+        );
+
+        abort_if(
             $wallet->id === $toWallet->id,
             Response::HTTP_BAD_REQUEST,
             trans('errors.You are not allowed to transfer to same wallet')

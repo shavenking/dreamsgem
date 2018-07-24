@@ -99,7 +99,7 @@ class Wallet extends Model implements Operatable
     public function transferRateTextMap()
     {
         $map = collect([]);
-        
+
         $this->walletTransferMap()->each(function ($targets, $from) use ($map) {
             foreach ($targets as $target) {
                 $map->push("$from:$target");
@@ -125,6 +125,10 @@ class Wallet extends Model implements Operatable
 
             if ((int) $fromGem === self::GEM_DREAMSGEM && (int) $toGem === self::GEM_C) {
                 return [$pair => '100:100'];
+            }
+
+            if ((int) $fromGem === self::GEM_QI_CAI && (int) $toGem === self::GEM_HTA) {
+                return [$pair => '0:0'];
             }
 
             return [$pair => $rate];
