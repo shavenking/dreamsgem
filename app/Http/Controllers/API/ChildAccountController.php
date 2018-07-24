@@ -34,6 +34,8 @@ class ChildAccountController extends Controller
     {
         $this->authorize('createChildAccount', $user);
 
+        $faker->seed();
+
         DB::beginTransaction();
 
         $childAccount = $user->childAccounts()->create([
