@@ -19,6 +19,7 @@ class TreeActivationCandidateController extends Controller
 
         if (
             Auth::user()->activated
+            && !Auth::user()->frozen
             && (
                 !($latestActivatedTree = Auth::user()->activatedTrees()->latest()->first())
                 || $latestActivatedTree->type <= $request->input('type')
@@ -27,13 +28,13 @@ class TreeActivationCandidateController extends Controller
             $users = $users->push(Auth::user());
         }
 
-        $users = $users->merge(Auth::user()->childAccounts()->whereHas('activatedDragon')->where(function ($query) use ($request) {
+        $users = $users->merge(Auth::user()->childAccounts()->where('frozen', false)->whereHas('activatedDragon')->where(function ($query) use ($request) {
             $query->whereHas('activatedTrees', function ($query) use ($request) {
                 $query->where('type', '>', $request->input('type'));
             }, '=', 0)->orWhereHas('activatedTrees', null, '=', 0);
         })->get());
 
-        $users = $users->merge(Auth::user()->descendants()->whereHas('activatedDragon')->where(function ($query) use ($request) {
+        $users = $users->merge(Auth::user()->descendants()->where('frozen', false)->whereHas('activatedDragon')->where(function ($query) use ($request) {
             $query->whereNull('user_id')->whereHas('activatedTrees',
                 function ($query) use ($request) {
                     $query->where('type', '>', $request->input('type'));
