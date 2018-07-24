@@ -24,7 +24,7 @@ Route::prefix('admin')->namespace('Admin')->name('admin.')->group(function () {
     Route::post('login', 'AuthController@postLogin')->name('auth.post-login');
     Route::get('logout', 'AuthController@logout')->name('auth.logout');
 
-    Route::middleware('auth:admins')->group(function () {
+    Route::middleware('auth')->group(function () {
         Route::get('/', 'HomeController@home')->name('home');
 
         Route::resource('user-activations', 'UserActivationController');

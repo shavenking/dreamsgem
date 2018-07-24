@@ -67,15 +67,6 @@ class User extends Authenticatable implements Operatable
         'activated',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('type', function (Builder $builder) {
-            $builder->where('type', self::TYPE_MEMBER);
-        });
-    }
-
     public function parentAccount()
     {
         return $this->hasOne(User::class);
@@ -211,19 +202,5 @@ class User extends Authenticatable implements Operatable
     public function scopeMember($query)
     {
         return $query->withoutGlobalScope('type')->where('type', self::TYPE_MEMBER);
-    }
-
-    public static function addAdminGlobalScope()
-    {
-        self::addGlobalScope('type', function (Builder $builder) {
-            $builder->where('type', self::TYPE_ADMIN);
-        });
-    }
-
-    public static function addMemberGlobalScope()
-    {
-        self::addGlobalScope('type', function (Builder $builder) {
-            $builder->where('type', self::TYPE_MEMBER);
-        });
     }
 }
