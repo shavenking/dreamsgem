@@ -67,4 +67,7 @@ Route::group(['namespace' => 'API', 'middleware' => ['maintenance']], function (
     Route::resource('card-applications', 'CardApplicationController', [
         'only' => ['index', 'store'],
     ])->middleware(['auth:api', 'email.verified']);
+
+    Route::get('dragon-activation-candidates', 'DragonActivationCandidateController@index')->middleware(['auth:api', 'email.verified']);
+    Route::get('tree-activation-candidates', 'TreeActivationCandidateController@index')->middleware(['auth:api', 'email.verified']);
 });
