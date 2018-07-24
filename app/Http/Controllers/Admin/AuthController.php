@@ -22,9 +22,10 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::guard('admins')->attempt([
+        if (!Auth::attempt([
             'email' => $request->email,
-            'password' => $request->password
+            'password' => $request->password,
+            'type' => User::TYPE_ADMIN,
         ], true)) {
             return redirect()->route('admin.auth.get-login');
         }

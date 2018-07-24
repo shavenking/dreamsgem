@@ -30,8 +30,6 @@ class UserActivationController extends Controller
      */
     public function create()
     {
-        User::addMemberGlobalScope();
-
         $dragons = Dragon::whereType(Dragon::TYPE_SMALL)->with('owner', 'user')->get();
 
         return view('admin.user-activations.create', compact('dragons'));

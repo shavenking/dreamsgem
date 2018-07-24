@@ -35,13 +35,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Auth::provider('eloquent-with-admin-scope', function ($app, array $config) {
-            return $app->make(
-                EloquentWithAdminScopeUserProvider::class,
-                ['model' => config('auth.providers.users.model')]
-            );
-        });
-
         app(AuthorizationServer::class)->enableGrantType(
             $this->makeExtensionGrant(), Passport::tokensExpireIn()
         );

@@ -41,11 +41,6 @@ return [
             'provider' => 'users',
         ],
 
-        'admins' => [
-            'driver' => 'session',
-            'provider' => 'users-with-admin-scope',
-        ],
-
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',
