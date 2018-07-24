@@ -23,6 +23,8 @@ class TreeActivationCandidateController extends Controller
 
         $userGroups = collect();
 
+        sort($types);
+        
         foreach ($types as $type) {
             if (in_array($type, (new Tree)->types())) {
                 $userGroups[$type] = $this->candidatesOf($type);
