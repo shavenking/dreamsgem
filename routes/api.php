@@ -70,4 +70,6 @@ Route::group(['namespace' => 'API', 'middleware' => ['maintenance']], function (
 
     Route::get('dragon-activation-candidates', 'DragonActivationCandidateController@index')->middleware(['auth:api', 'email.verified']);
     Route::get('tree-activation-candidates', 'TreeActivationCandidateController@index')->middleware(['auth:api', 'email.verified']);
+
+    Route::get('wallet-transfer-limits', 'WalletTransferLimitsController@index')->middleware(['auth:api', 'email.verified']);
 });

@@ -101,4 +101,9 @@ class Tree extends Model implements Operatable
             $type
         );
     }
+
+    public function quota()
+    {
+        return $this->prices($this->type);
+    }
 }

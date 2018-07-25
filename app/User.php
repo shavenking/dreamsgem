@@ -211,4 +211,9 @@ class User extends Authenticatable implements Operatable
             ['type', self::TYPE_MEMBER],
         ])->first();
     }
+
+    public function isAdmin()
+    {
+        return (int) $this->type === self::TYPE_ADMIN;
+    }
 }

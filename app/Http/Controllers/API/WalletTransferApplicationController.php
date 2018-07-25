@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Computed\WalletTransferLimit;
 use App\Events\WalletTransferApplied;
 use App\Events\WalletWithheld;
 use App\Events\WithSubType;
@@ -107,6 +108,14 @@ class WalletTransferApplicationController extends Controller
             bccomp($request->amount, '0.0', 1) <= 0,
             Response::HTTP_BAD_REQUEST,
             trans('errors.Amount must be greater than 0')
+        );
+
+        abort_if(
+            ($walletTransferLimit = new WalletTransferLimit(Auth::user(), $toWallet))
+            && $walletTransferLimit->hasLimit
+            && bccomp($walletTransferLimit->remain, $request->amount, 1) <= 0,
+            Response::HTTP_BAD_REQUEST,
+            trans('errors.Insufficient wallet transfer application amount, remain :remain', ['remain' => $walletTransferLimit->remain])
         );
 
         abort_if(
