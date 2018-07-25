@@ -124,7 +124,7 @@ class Wallet extends Model implements Operatable
             }
 
             if ((int) $fromGem === self::GEM_DREAMSGEM && (int) $toGem === self::GEM_C) {
-                return [$pair => '100:100'];
+                return [$pair => '0:0'];
             }
 
             if ((int) $fromGem === self::GEM_QI_CAI && (int) $toGem === self::GEM_HTA) {
