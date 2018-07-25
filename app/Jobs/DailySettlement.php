@@ -37,7 +37,7 @@ class DailySettlement implements ShouldQueue
         }
 
         $settlementHistory = SettlementHistory::create();
-        foreach (User::all() as $user) {
+        foreach (User::member()->get() as $user) {
             dispatch(new TreeSettlement($user, $settlementHistory));
         }
     }

@@ -196,12 +196,12 @@ class User extends Authenticatable implements Operatable
 
     public function scopeAdmin($query)
     {
-        return $query->withoutGlobalScope('type')->where('type', self::TYPE_ADMIN);
+        return $query->where('type', self::TYPE_ADMIN);
     }
 
     public function scopeMember($query)
     {
-        return $query->withoutGlobalScope('type')->where('type', self::TYPE_MEMBER);
+        return $query->where('type', self::TYPE_MEMBER);
     }
 
     public function findForPassport($username)
