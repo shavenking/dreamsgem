@@ -36,4 +36,5 @@ return [
     'Can\'t find possible upline' => '無可用的位置提供安置',
     'Unable to apply transfer for now' => '目前無法申請轉換',
     'Bad Hashids' => '使用者 ID 格式錯誤',
+    'Insufficient wallet transfer application amount, remain :remain' => '剩餘可轉換數量不足，剩餘 :remain',
 ];
