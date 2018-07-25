@@ -5,8 +5,9 @@ namespace App\Computed;
 use App\User;
 use App\Wallet;
 use App\WalletTransferApplication;
+use Illuminate\Contracts\Support\Arrayable;
 
-class WalletTransferLimit
+class WalletTransferLimit implements Arrayable
 {
     public $hasLimit;
 
@@ -69,5 +70,15 @@ class WalletTransferLimit
         if (bccomp($this->remain, '0', 1) < 0) {
             $this->remain = '0';
         }
+    }
+
+    public function toArray()
+    {
+        return [
+            'has_limit' => $this->hasLimit,
+            'max' => $this->max,
+            'used' => $this->used,
+            'remain' => $this->remain,
+        ];
     }
 }
