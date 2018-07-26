@@ -113,7 +113,7 @@ class WalletTransferApplicationController extends Controller
         abort_if(
             ($walletTransferLimit = new WalletTransferLimit(Auth::user(), $toWallet))
             && $walletTransferLimit->hasLimit
-            && bccomp($walletTransferLimit->remain, $request->amount, 1) <= 0,
+            && bccomp($walletTransferLimit->remain, $request->amount, 1) < 0,
             Response::HTTP_BAD_REQUEST,
             trans('errors.Insufficient wallet transfer application amount, remain :remain', ['remain' => $walletTransferLimit->remain])
         );
