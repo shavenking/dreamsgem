@@ -79,19 +79,18 @@ class TreeSettlement implements ShouldQueue
 
             $totalDailyProgressGained = $this->settleDailyTreeProgress($trees);
             $totalDownlinesProgressGained = $this->downlinesProgress();
+            $totalDownlinesProgressGained += ($totalDownlinesAfterTenLevel = $this->downlinesProgressAfterTenLevel());
             $remainProgress = $totalDownlinesProgressGained;
             foreach ($trees as $tree) {
                 $remainProgress = $this->settleTree($tree, $remainProgress);
             }
 
-            $activatedChildrenCount = $this->user->children->filter(function (User $user) {
-                return $user->activated;
-            })->count();
             $this->user->treeSettlementHistories()->create([
                 'settlement_history_id' => $this->settlementHistory->id,
                 'progress_gained' => [
                     TreeSettlementHistory::KEY_SETTLEMENT_DAILY => $totalDailyProgressGained,
                     TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES => $totalDownlinesProgressGained,
+                    TreeSettlementHistory::KEY_SETTLEMENT_DOWNLINES_AFTER_TEN_LEVELS => $totalDownlinesAfterTenLevel,
                     TreeSettlementHistory::KEY_SETTLEMENT_AWARD => $this->award,
                 ],
                 'maximum_progress_rule' => new \stdClass,
@@ -139,7 +138,10 @@ class TreeSettlement implements ShouldQueue
             bcdiv($totalTreeProgress, '100', 0)
         );
         $remainProgress = bcsub($totalTreeProgress, bcmul($award, '100.0', 1), 1);
-        $award = $tree->multiplyAward($award);
+        $award = (int) min(
+            $tree->remain,
+            $tree->multiplyAward($award)
+        );
 
         if (bccomp($remainProgress, '0', 1) < 1) {
             $remainProgress = '0';
@@ -336,5 +338,46 @@ class TreeSettlement implements ShouldQueue
         return $this->user->children()->whereHas('activatedTrees')->get()->filter(function (User $child) {
             return $child->activated;
         })->count();
+    }
+
+    private function downlinesProgressAfterTenLevel()
+    {
+        $candidateChildren = collect($this->user->children);
+        $skipLevel = 10;
+
+        while ($skipLevel-- > 0) {
+            $oneLevelDownChildren = collect();
+
+            while ($child = $candidateChildren->shift()) {
+                $oneLevelDownChildren = $oneLevelDownChildren->concat($child->children);
+            }
+
+            $candidateChildren = collect($oneLevelDownChildren);
+        }
+
+        $children = collect();
+
+        while ($child = $candidateChildren->shift()) {
+            $children->merge($child->descendants);
+            $children->push($child);
+        }
+
+        $downlinesAward = $children->reduce(
+            function ($carry, User $child) {
+                if (!$child->activated) {
+                    return $carry;
+                }
+
+                /** @var TreeSettlementHistory $treeSettlementHistoryToday */
+                $treeSettlementHistory = $this->settlementHistory->treeSettlementHistories()->where([
+                    'user_id' => $child->id,
+                ])->first();
+                $settlementAwardKey = TreeSettlementHistory::KEY_SETTLEMENT_AWARD;
+
+                return $carry + data_get($treeSettlementHistory, "progress_gained.$settlementAwardKey", 0);
+            }, 0
+        );
+
+        return bcmul($downlinesAward, '5', 1);
     }
 }
