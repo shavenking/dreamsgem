@@ -112,19 +112,19 @@ class Wallet extends Model implements Operatable
             list($fromGem, $toGem) = explode(':', $pair);
 
             if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_C) {
-                return [$pair => '10:15'];
+                return [$pair => '0:0'];
             }
 
             if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem === self::GEM_GOLD_GOD) {
-                return [$pair => '10:15'];
+                return [$pair => '0:0'];
             }
 
             if ((int) $fromGem === self::GEM_DUO_CAI && (int) $toGem !== self::GEM_C) {
-                return [$pair => '7:7'];
+                return [$pair => '0:0'];
             }
 
             if ((int) $fromGem === self::GEM_DREAMSGEM && (int) $toGem === self::GEM_C) {
-                return [$pair => '100:100'];
+                return [$pair => '0:0'];
             }
 
             if ((int) $fromGem === self::GEM_QI_CAI && (int) $toGem === self::GEM_HTA) {
